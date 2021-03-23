@@ -1,0 +1,70 @@
+#configuration of inversion parameters. 
+#Comments that start with a character # will not be read by the program
+
+
+#Weights of different regularization terms, last term a_crg is the weight of cross-gradient constraint, which makes sense only
+#if the cross-gradient constraint is used
+#a_s a_z a_x a_y a_crg
+1e-4 1e0 1e0 1e0 1e-1
+
+#Depth weighting exponent. Generally, it's 2 for g, 3 for ggt
+2
+
+#Maximal regularization parameter (lambda) used, number of lambda used for trial
+1e6 50 0.5
+
+#Target misfit
+1
+
+#Stagation factor, Gauss-Newton method stagnate when the relative difference of
+#misfits at 2 consecutive iterations is smaller than this factor
+0.02
+
+#Tolerance value and Maximal number of iterations for LSCG solver (least-square conjugate gradient) 
+1e-6 100
+
+#Maximal number of iterations for gauss-newton
+8
+
+#upper limit and lower limit of the inverted parameter
+-1000 1000
+
+#Maximal times of refinement. If it's 0, the mesh will not be refined.
+8
+
+#Limits on the minimum size of grid cells in the adaptive inversion. This parameter is valid only when the last line is greater than 0
+#x(m) y(m) z(m)
+50 50 50
+
+#invertion mesh is refine every X times. 
+1
+
+#Proportion of elements that are marked for refinement
+0.1
+
+#control whether the model is recorded at each iteration of Gauss-Newton method
+1
+
+#whether to use cross-gradient constraint. 0 no, 1 yes
+1
+
+#File "crg_model" contains a model used for cross gradien constraint.
+#This model grid has 40 points along x axis, 40 points along y and 20 points.
+#The last number is 0 or 1. And 0 means x increases fastest, 1 means y increases fastest
+../crg_model xyz 40 40 20 0
+
+#whether to use petrophysical constraint. 0 no, 1 yes
+0
+
+#reference density model converted from other parameter (e.g. seismic). Users must 
+#convert models of other properties into density model in advance
+none xyz 0 0 0 0
+
+#output file of inversion model
+gz_result_with_crg
+
+
+
+
+
+
