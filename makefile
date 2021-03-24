@@ -6,6 +6,9 @@ endif
 ifeq ($(CXX),icpc)
 CXXFLAGS:=-std=c++11 -O3 -qopenmp -Wfatal-errors -mkl=parallel
 endif
+ifeq ($(CXX),dpcpp)
+CXXFLAGS:=-std=c++11 -O3 -qopenmp -Wfatal-errors -I"${MKLROOT}/include" -mkl=parallel -D USE_MKL    
+endif
 
 
 LINKFLAGS:=
@@ -17,9 +20,13 @@ endif
 ifeq ($(CXX),icpc)
 LINKFLAGS+=-liomp5 -lpthread -lm -ldl
 endif
+ifeq ($(CXX),dpcpp)
+LINKFLAGS+=  -L${MKLROOT}/lib/intel64 -lmkl_intel_lp64 -lmkl_intel_thread -lmkl_core -liomp5 -lpthread -lm -ldl
+endif
 
 #libraries
-DIR_EIGEN               :=./contrib/Eigen3.3.7
+#DIR_EIGEN               :=./contrib/Eigen3.3.7
+DIR_EIGEN               :=./contrib/eigen
 DIR_LINTERP             :=./contrib/Linterp
 DIR_BOOST               :=./contrib/boost_1_72_0
 INCLUDE_EIGEN           :=-I$(DIR_EIGEN)
@@ -29,12 +36,7 @@ INCLUDE_TIMER           :=-I./contrib/Timer
 INCLUDE_CONTRIB         :=-I$(DIR_EIGEN) -I$(DIR_LINTERP) -I$(DIR_BOOST) $(INCLUDE_TIMER)
 
 ifeq ($(USE_NETCDF),1)
-ifeq ($(CXX),g++)
 CXXFLAGS+=-D USE_NETCDF
-endif
-ifeq ($(CXX),icpc)
-CXXFLAGS+=-D USE_NETCDF  -D USE_MKL -msse4
-endif
 LINKFLAGS   +=-lnetcdf_c++4
 DIR_NETCDF_CXX          :=./contrib/netcdf/netcdf-cxx4-4.3.1
 DIR_NETCDF_C            :=./contrib/netcdf/netcdf-c-4.7.4
