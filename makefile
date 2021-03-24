@@ -9,7 +9,7 @@ endif
 
 
 LINKFLAGS:=
-USE_NETCDF:=1
+USE_NETCDF:=0
 
 ifeq ($(OS),Windows_NT)
 LINKFLAGS += -static
