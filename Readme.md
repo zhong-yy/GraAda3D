@@ -24,15 +24,17 @@ make
 ```
 By default, the program is built without netcdf support. In this way, you don't have to install the netcdf library in advance, but, there are not *.nc files generated after inversion, and results will be only written in  *.vtk file.
 
+#### (2) Use Intel compilers
+
 The default compiler is g++. To build with an [Intel C++ compiler](https://software.intel.com/content/www/us/en/develop/tools/oneapi/base-toolkit/download.html) (`icpc`, `icpx`, `dpcpp`) 
 
 ```bash
 make CXX=icpx
 ```
 
-> The latest Intel compiler is the Intel oneAPI DPC++/C++ Compiler, whose command is `icpx` or `dpcpp`. The classic one is `icpc`. It seems that icpx or icpc show a slightly better performance than g++.
+> The latest Intel compiler is the Intel oneAPI DPC++/C++ Compiler (now free to use), whose command is `icpx` or `dpcpp`. The classic one is `icpc`. It seems that icpx or icpc show a slightly better performance than g++.
 
-#### (2) Build with NetCDF
+#### (3) Build with NetCDF library
 
 If you have installed netcdf library (including netcdf C++ interfaces) and wish to store your inversion model in .nc file, you can build the program with netcdf support using
 ```bash
@@ -53,12 +55,6 @@ sudo yum install netcdf-cxx-devel
 ```
 
 > For CentOS user, recommend to build netcdf-c and netcdf-cxx from the source code. See https://www.unidata.ucar.edu/software/netcdf/docs/getting_and_building_netcdf.html for netcdf-c and https://github.com/Unidata/netcdf-cxx4 for the netcdf c++ library.
-
-#### (3) Use intel compiler
-The makefile specifies g++ as the default compiler, if you wish to use inter compiler, use `CXX=icpc` option, like this
-```
-make CXX=icpc
-```
 
 ## 3 A simple example
 Now, you have 2 executable programs in the GraInvRect folder: **GraInvRect** and **Synthetic_data1**.
