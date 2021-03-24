@@ -97,7 +97,7 @@ Using direct empirical relations between density and the known parameter, we can
 
 Here, we have prepared a file **ref_model** in the GraInvRect/Examples folder, which contains gridded data of a reference model.
 
-1 `cd GraInvRect/Examples/Inv_with_ref`. 
+1. cd GraInvRect/Examples/Inv_with_ref
 
 ```
 ../../GraInvRect config
@@ -111,7 +111,7 @@ Here, we have prepared a file **ref_model** in the GraInvRect/Examples folder, w
 
 #### (2) Cross gradient constraint
 
-1. `cd GraInvRect/Examples/Inv_with_cross_gradient_constraint`. Notice that the model used for cross gradient constraint is specified in file **config_inversion**, line 49 and line 54.
+1. cd GraInvRect/Examples/Inv_with_cross_gradient_constraint. Notice that the model used for cross gradient constraint is specified in file **config_inversion**, line 49 and line 54.
 
 2. Run
 
