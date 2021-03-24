@@ -26,7 +26,7 @@ By default, the program is built without netcdf support. In this way, you don't 
 
 #### (2) Use Intel compilers
 
-The default compiler is g++. To build with an [Intel C++ compiler](https://software.intel.com/content/www/us/en/develop/tools/oneapi/base-toolkit/download.html) (`icpc`, `icpx`, `dpcpp`) 
+The default compiler is g++. To build with an [Intel C++ compiler](https://software.intel.com/content/www/us/en/develop/tools/oneapi/base-toolkit/download.html) (`icpc`, `icpx`, `dpcpp`), use the CXX option,
 
 ```bash
 make CXX=icpx
@@ -36,7 +36,7 @@ make CXX=icpx
 
 #### (3) Build with NetCDF library
 
-If you have installed netcdf library (including netcdf C++ interfaces) and wish to store your inversion model in .nc file, you can build the program with netcdf support using
+If you have installed netcdf library (including netcdf C++ interfaces) and wish to store your inversion model in .nc file, you can build the program with netcdf support by using the USE_NETCDF option,
 ```bash
 make USE_NETCDF=1
 ```
