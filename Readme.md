@@ -14,18 +14,28 @@ Any combination of gravity field components or gravity gradient components ($g_z
 
 ### 2.2 Buiding
 
-#### (1) Build without NetCDF
+#### (1) Build
 
-The simplest way to build is change to the GraInvRect directory, type:
-```
+Build the program using Make,
+
+```bash
+cd GraInvRect
 make
 ```
-Then you will build the program without netcdf library. In this way, you don't have to install the netcdf library. As a result, no .nc files will be generated after inversion, and inversion models will be written in  *.vtk file.
+By default, the program is built without netcdf support. In this way, you don't have to install the netcdf library in advance, but, there are not *.nc files generated after inversion, and results will be only written in  *.vtk file.
+
+The default compiler is g++. To build with an [Intel C++ compiler](https://software.intel.com/content/www/us/en/develop/tools/oneapi/base-toolkit/download.html) (`icpc`, `icpx`, `dpcpp`) 
+
+```bash
+make CXX=icpx
+```
+
+> The latest Intel compiler is the Intel oneAPI DPC++/C++ Compiler, whose command is `icpx` or `dpcpp`. The classic one is `icpc`. It seems that icpx or icpc show a slightly better performance than g++.
 
 #### (2) Build with NetCDF
 
 If you have installed netcdf library (including netcdf C++ interfaces) and wish to store your inversion model in .nc file, you can build the program with netcdf support using
-```
+```bash
 make USE_NETCDF=1
 ```
 

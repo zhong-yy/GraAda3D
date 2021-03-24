@@ -6,6 +6,9 @@ endif
 ifeq ($(CXX),icpc)
 CXXFLAGS:=-std=c++11 -O3 -qopenmp -Wfatal-errors -mkl=parallel
 endif
+ifeq ($(CXX),icpx)
+CXXFLAGS:=-std=c++11 -O3 -qopenmp -Wfatal-errors -I"${MKLROOT}/include" -mkl=parallel -D USE_MKL    
+endif
 ifeq ($(CXX),dpcpp)
 CXXFLAGS:=-std=c++11 -O3 -qopenmp -Wfatal-errors -I"${MKLROOT}/include" -mkl=parallel -D USE_MKL    
 endif
@@ -19,6 +22,9 @@ LINKFLAGS += -static
 endif
 ifeq ($(CXX),icpc)
 LINKFLAGS+=-liomp5 -lpthread -lm -ldl
+endif
+ifeq ($(CXX),icpx)
+LINKFLAGS+=  -L${MKLROOT}/lib/intel64 -lmkl_intel_lp64 -lmkl_intel_thread -lmkl_core -liomp5 -lpthread -lm -ldl
 endif
 ifeq ($(CXX),dpcpp)
 LINKFLAGS+=  -L${MKLROOT}/lib/intel64 -lmkl_intel_lp64 -lmkl_intel_thread -lmkl_core -liomp5 -lpthread -lm -ldl
