@@ -22,7 +22,7 @@ Build the program using Make,
 cd GraInvRect
 make
 ```
-By default, the program is built without netcdf support. In this way, you don't have to install the netcdf library in advance, but, there are not *.nc files generated after inversion, and results will be only written in  *.vtk file.
+By default, the program is built without netcdf support. In this way, you don't have to install the netcdf library in advance, but there are not *.nc files generated after inversion. The results are written in  *.vtk file, which can be visulaized by [Paraview](https://www.paraview.org/).
 
 #### (2) Use Intel compilers
 
@@ -32,7 +32,7 @@ The default compiler is g++. To build with an [Intel C++ compiler](https://softw
 make CXX=icpx
 ```
 
-> The latest Intel compiler is the Intel oneAPI DPC++/C++ Compiler (now free to use), whose command is `icpx` or `dpcpp`. The classic one is `icpc`. It seems that icpx or icpc show a slightly better performance than g++.
+> The latest Intel compiler is the Intel oneAPI DPC++/C++ Compiler (now free to use), whose command is `icpx` or `dpcpp`. The classic one is `icpc`. It seems that the icpx or icpc shows a slightly better performance than g++.
 
 #### (3) Build with NetCDF library
 
