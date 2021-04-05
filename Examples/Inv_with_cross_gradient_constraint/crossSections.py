@@ -7,7 +7,7 @@ from scipy.interpolate import griddata
 from matplotlib.ticker import (MultipleLocator, FormatStrFormatter, AutoMinorLocator)
 import matplotlib.colors as mcolors
 
-mydata=Dataset('ada_result.nc', "r")# r mean read
+mydata=Dataset('gz_result_with_crg.nc', "r")# r mean read
 print(mydata)
 var=mydata.variables
 x=var['x']

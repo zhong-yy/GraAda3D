@@ -4,10 +4,10 @@
 
 #Weights of different regularization terms. The last term is the weight of the cross-gradient term, which makes sense only when the cross-gradient constraint is used
 #a_s a_z a_x a_y a_crg
-1e-5 1e0 1e0 1e0 0
+1e-4 1e0 1e0 1e0 0
 
 #Depth weighting exponent. Generally, it's 2
-2
+1.6
 
 #Maximal regularization parameter (lambda) used, number of lambda used for trial
 1e3 30 0.5
@@ -20,7 +20,7 @@
 0.02
 
 #Tolerance value and Maximal number of iterations for LSCG solver (least-square conjugate gradient) 
-1e-6 50
+1e-6 100
 
 #Maximal number of iterations for gauss-newton
 8

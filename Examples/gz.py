@@ -2,7 +2,7 @@ import matplotlib.pyplot as plt
 import matplotlib.tri as tri
 import numpy as np
 from scipy.interpolate import griddata
-from xyz2XYZ import xyz2XYZ
+#from xyz2XYZ import xyz2XYZ
 from matplotlib.ticker import (MultipleLocator, FormatStrFormatter, AutoMinorLocator)
 import matplotlib.colors as mcolors
 

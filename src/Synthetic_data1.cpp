@@ -26,7 +26,7 @@ int main() {
   double block_z3[2] = {200, 500};
   double block_x3[2] = {900, 1500};
   double block_y3[2] = {1300, 1500};
-  mesh.set_parameter_in_a_region(block_x3, block_y3, block_z3, 300);
+  mesh.set_parameter_in_a_region(block_x3, block_y3, block_z3, 500);
 
   // mesh.set_block_density(12, 27, 12, 27, 6, 15, 500);//
   // mesh.set_block_density(6, 13, 6, 13, 6, 15, 500); //
@@ -39,9 +39,9 @@ int main() {
   Mesh mesh2;
   mesh2.generate_regular_mesh(x_lim, 40, y_lim, 40, z_lim, 20);
   mesh2.set_parameter_in_a_region(block_x3, block_y3, block_z3, 200);
-  mesh2.out_model_vtk("ref_model.vtk");
+  mesh2.out_model_vtk("apriori_model.vtk");
 #ifdef USE_NETCDF
-  mesh2.out_model_netcdf("ref_model.nc");
+  mesh2.out_model_netcdf("apriori_model.nc");
 #endif
 
   ofstream out_cross_gradient_constraint("crg_model");

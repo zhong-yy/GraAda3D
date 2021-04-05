@@ -8,10 +8,10 @@
 1e-4 1e0 1e0 1e0 1e-1
 
 #Depth weighting exponent. Generally, it's 2 for g, 3 for ggt
-2
+1.6
 
 #Maximal regularization parameter (lambda) used, number of lambda used for trial
-1e6 50 0.5
+1e3 50 0.5
 
 #Target misfit
 1
