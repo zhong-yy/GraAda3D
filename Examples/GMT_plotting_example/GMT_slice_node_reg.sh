@@ -27,6 +27,7 @@ while read z; do
 done < zpoints.txt
 
 ## xyz2grd convert ascii table to binary grid file
+## See https://docs.generic-mapping-tools.org/6.1/xyz2grd.html?highlight=xyz2grd
 gmt xyz2grd cross_section1.txt -R0/2000/0/1000 -I40+n/20+n -V -Gcross_section1.nc
 gmt xyz2grd cross_section2.txt -R0/2000/0/1000 -I40+n/20+n -V -Gcross_section2.nc
 
