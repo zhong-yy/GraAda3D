@@ -23,4 +23,4 @@ For detailed explanation of the two ways of data organization, see https://docs.
 
 **Notes**
 
-here is not much difference between the two ways of registration, but the pixel registration may better depict the inversion mesh, while the node registration may cause slight distortion. However, to use the pixel registration, extra caution is required for data slicing using `project` and `grdtrack`, because proper offsets should be added to the coordinates.
+There is not much difference between the two ways of registration, but the pixel registration may better depict the inversion mesh, while the node registration may cause slight distortion. However, to use the pixel registration, extra caution is required for data slicing using `project` and `grdtrack`, because proper offsets should be added to the coordinates.
