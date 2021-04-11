@@ -6,6 +6,7 @@ from scipy.interpolate import griddata
 #from xyz2XYZ import xyz2XYZ
 from matplotlib.ticker import (MultipleLocator, FormatStrFormatter, AutoMinorLocator)
 import matplotlib.colors as mcolors
+import matplotlib.gridspec as gridspec
 
 mydata=Dataset('gz_result_with_ref.nc', "r")# r mean read
 print(mydata)
@@ -15,26 +16,34 @@ y=var['y']
 z=var['z']
 density=var['density']
 
-xbound=var['xbnd']#latbound[0]<latbound[1]
-ybound=var['ybnd']
-zbound=var['zbnd']
-
-def bnd_to_grid(bound):
-    grid_line=bound[:,0]
-    grid_line=np.concatenate((grid_line,bound[-1,1]),axis=None)
+def node_to_pixel(x):
+    dx=(0.5*(x[1]-x[0]))
+    grid_line=x-dx
+    grid_line=np.concatenate((grid_line,x[-1]+dx),axis=None)
     return grid_line
-    
-def get_slice_index(bound,x0):
+
+def get_slice_index(xs_pixel,x0):
     index_slice=-1
-    for i in range(0,bound.shape[0]):
-        if x0>bound[i][0] and (x0<bound[i][1] or np.abs(x0-bound[i][1])<1e-15):
+    for i in range(0,xs_pixel.size-1):
+        if (x0>xs_pixel[i] or np.abs(x0-xs_pixel[i])<1e-15) and (x0<xs_pixel[i+1] or np.abs(x0-xs_pixel[i+1])<1e-15):
             index_slice=i
+            print(xs_pixel[i:i+2])
             break
     return index_slice
 
-xs=bnd_to_grid(xbound)
-ys=bnd_to_grid(ybound)
-zs=bnd_to_grid(zbound)
+xs=node_to_pixel(x)
+ys=node_to_pixel(y)
+zs=node_to_pixel(z)
+
+
+z_id=get_slice_index(xs,350)
+z_slice=density[z_id,:,:]
+
+y_id=get_slice_index(ys,700)
+y_slice1=density[:,y_id,:]
+
+y_id=get_slice_index(ys,1450)
+y_slice2=density[:,y_id,:]
 
 
 z_id=get_slice_index(zbound,350)

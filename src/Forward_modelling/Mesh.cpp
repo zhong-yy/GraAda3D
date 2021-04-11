@@ -545,8 +545,12 @@ void Mesh::generate_regular_mesh(double x_model[2],
   this->set_n_parameter(num_para);
   // this->sort(0);
 }
-void Mesh::set_parameter_in_a_region(double xlim[2],double ylim[2],double zlim[2],double para_value,int i_th){
-    for (int i = 0; i < cells[0].size(); i++) {
+void Mesh::set_parameter_in_a_region(double xlim[2],
+                                     double ylim[2],
+                                     double zlim[2],
+                                     double para_value,
+                                     int i_th) {
+  for (int i = 0; i < cells[0].size(); i++) {
     Cell* c = cells[0][i];
     double cz0 = c->_z[0];
     double cz1 = c->_z[1];
@@ -1131,10 +1135,9 @@ map<unsigned int, Cell*> Mesh::refinement(Cell* c) {
         std::find(leaf_cells.begin(), leaf_cells.end(), c);
     // assert(c_iter != leaf_cells.end());
     vector<Cell*>::iterator iter = leaf_cells.erase(c_iter);
-    //vector<Cell*>::iterator iter2 = 
-    leaf_cells.insert(
-        iter, {c_child[0], c_child[1], c_child[2], c_child[3], c_child[4],
-               c_child[5], c_child[6], c_child[7]});
+    // vector<Cell*>::iterator iter2 =
+    leaf_cells.insert(iter, {c_child[0], c_child[1], c_child[2], c_child[3],
+                             c_child[4], c_child[5], c_child[6], c_child[7]});
     num_leaf_cells = leaf_cells.size();
     num_leaf_faces = leaf_faces.size();
 
@@ -1387,6 +1390,10 @@ int Mesh::out_model_netcdf(string filename,
   double** ys_bnd = new double*[NY];
   double** z_bnd = new double*[NZ];
 
+  double* zrange = new double[2];
+  double* yrange = new double[2];
+  double* xrange = new double[2];
+
   double x_space = (x_lim[1] - x_lim[0]) / NX;
   for (unsigned int i = 0; i < NX; i++) {
     xs[i] = x_lim[0] + 0.5 * x_space + i * x_space;
@@ -1440,17 +1447,21 @@ int Mesh::out_model_netcdf(string filename,
     NcFile test(filename, NcFile::replace);
     test.putAtt("Conventions", "CF-1.7");
     test.putAtt("node_offset", ncInt, 1);
-    // test.putAtt(NODE_OFFSET, "1");
-    // test.putAtt(NODE_OFFSET, ncInt, 1, pixel_registration);
+    // 0 for gridline node registration (default), 1 for pixel registration
+
     // Define the dimensions. NetCDF will hand back an ncDim object for
     // each.
+    
     NcDim zDim = test.addDim(Z_NAME, NZ);
-    NcDim yDim = test.addDim(Y_NAME, NY);
     NcDim xDim = test.addDim(X_NAME, NX);
+    NcDim yDim = test.addDim(Y_NAME, NY);
+    
 
-    NcVar zVar = test.addVar(Z_NAME, ncDouble, zDim);
-    NcVar yVar = test.addVar(Y_NAME, ncDouble, yDim);
     NcVar xVar = test.addVar(X_NAME, ncDouble, xDim);
+    NcVar yVar = test.addVar(Y_NAME, ncDouble, yDim);
+    NcVar zVar = test.addVar(Z_NAME, ncDouble, zDim);
+    
+    
     // Define units attributes for coordinate vars. This attaches a
     // text attribute to each of the coordinate variables, containing
     // the units.
@@ -1463,15 +1474,18 @@ int Mesh::out_model_netcdf(string filename,
 
     // yVar.putAtt(UNITS, METER);
     // yVar.putAtt(AXIS, "Y");
-    double zrange[2] = {z_lim[0], z_lim[1]};
+
+    for (int i = 0; i < 2; i++) {
+      xrange[i] = x_lim[i];
+      yrange[i] = y_lim[i];
+      zrange[i] = z_lim[i];
+    }
     zVar.putAtt("long_name", "z");
     zVar.putAtt("actual_range", ncDouble, 2, zrange);
 
-    double yrange[2] = {y_lim[0], y_lim[1]};
     yVar.putAtt("long_name", "y");
     yVar.putAtt("actual_range", ncDouble, 2, yrange);
 
-    double xrange[2] = {x_lim[0], x_lim[1]};
     xVar.putAtt("long_name", "x");
     xVar.putAtt("actual_range", ncDouble, 2, xrange);
     // yVar.putAtt("long_name", "y-coordinate in Cartesian system");
@@ -1486,55 +1500,55 @@ int Mesh::out_model_netcdf(string filename,
     xVar.putVar(xs);
 
     // bounds for cells
-    NcDim bndDim = test.addDim("bnd", 2);
+    // NcDim bndDim = test.addDim("bnd", 2);
 
     vector<NcDim> dimVector_zbnd;
     dimVector_zbnd.push_back(zDim);
-    dimVector_zbnd.push_back(bndDim);
-    NcVar zbnd = test.addVar(ZBND_NAME, ncDouble, dimVector_zbnd);
-    zVar.putAtt(BOUNDS, ZBND_NAME);
+    // dimVector_zbnd.push_back(bndDim);
+    // NcVar zbnd = test.addVar(ZBND_NAME, ncDouble, dimVector_zbnd);
+    // zVar.putAtt(BOUNDS, ZBND_NAME);
 
     vector<NcDim> dimVector_ybnd;
     dimVector_ybnd.push_back(yDim);
-    dimVector_ybnd.push_back(bndDim);
-    NcVar ybnd = test.addVar(YBND_NAME, ncDouble, dimVector_ybnd);
-    yVar.putAtt(BOUNDS, YBND_NAME);
+    // dimVector_ybnd.push_back(bndDim);
+    // NcVar ybnd = test.addVar(YBND_NAME, ncDouble, dimVector_ybnd);
+    // yVar.putAtt(BOUNDS, YBND_NAME);
 
     vector<NcDim> dimVector_xbnd;
     dimVector_xbnd.push_back(xDim);
-    dimVector_xbnd.push_back(bndDim);
-    NcVar xbnd = test.addVar(XBND_NAME, ncDouble, dimVector_xbnd);
-    xVar.putAtt(BOUNDS, XBND_NAME);
+    // dimVector_xbnd.push_back(bndDim);
+    // NcVar xbnd = test.addVar(XBND_NAME, ncDouble, dimVector_xbnd);
+    // xVar.putAtt(BOUNDS, XBND_NAME);
 
-    vector<size_t> startp_bnd, countp_bnd;
-    startp_bnd.push_back(0);
-    startp_bnd.push_back(0);
-    countp_bnd.push_back(1);
-    countp_bnd.push_back(1);
-    for (int i = 0; i < NZ; i++) {
-      startp_bnd[0] = i;
-      for (int j = 0; j < 2; j++) {
-        startp_bnd[1] = j;
-        double a = z_bnd[i][j];
-        zbnd.putVar(startp_bnd, countp_bnd, &a);
-      }
-    }
-    for (int i = 0; i < NY; i++) {
-      startp_bnd[0] = i;
-      for (int j = 0; j < 2; j++) {
-        startp_bnd[1] = j;
-        double a = ys_bnd[i][j];
-        ybnd.putVar(startp_bnd, countp_bnd, &a);
-      }
-    }
-    for (int i = 0; i < NX; i++) {
-      startp_bnd[0] = i;
-      for (int j = 0; j < 2; j++) {
-        startp_bnd[1] = j;
-        double a = xs_bnd[i][j];
-        xbnd.putVar(startp_bnd, countp_bnd, &a);
-      }
-    }
+    // vector<size_t> startp_bnd, countp_bnd;
+    // startp_bnd.push_back(0);
+    // startp_bnd.push_back(0);
+    // countp_bnd.push_back(1);
+    // countp_bnd.push_back(1);
+    // for (int i = 0; i < NZ; i++) {
+    //   startp_bnd[0] = i;
+    //   for (int j = 0; j < 2; j++) {
+    //     startp_bnd[1] = j;
+    //     double a = z_bnd[i][j];
+    //     zbnd.putVar(startp_bnd, countp_bnd, &a);
+    //   }
+    // }
+    // for (int i = 0; i < NY; i++) {
+    //   startp_bnd[0] = i;
+    //   for (int j = 0; j < 2; j++) {
+    //     startp_bnd[1] = j;
+    //     double a = ys_bnd[i][j];
+    //     ybnd.putVar(startp_bnd, countp_bnd, &a);
+    //   }
+    // }
+    // for (int i = 0; i < NX; i++) {
+    //   startp_bnd[0] = i;
+    //   for (int j = 0; j < 2; j++) {
+    //     startp_bnd[1] = j;
+    //     double a = xs_bnd[i][j];
+    //     xbnd.putVar(startp_bnd, countp_bnd, &a);
+    //   }
+    // }
 
     // Define the netCDF variables for the density data
     vector<NcDim> dimVector;
@@ -1602,6 +1616,13 @@ int Mesh::out_model_netcdf(string filename,
 
     delete[] zs;
     zs = NULL;
+
+    delete[] zrange;
+    zrange=NULL;
+    delete[] yrange;
+    yrange=NULL;
+    delete[] xrange;
+    xrange=NULL;
 
     for (int i = 0; i < NX; i++) {
       delete[] xs_bnd[i];
