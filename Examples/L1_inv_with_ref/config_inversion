@@ -1,17 +1,17 @@
 #configuration of inversion parameters. 
-#Comments that start with a character # will not be read by the program
+
+#Comments start with a character "#", which will not be read by the program
 
 
-#Weights of different regularization terms, last term a_crg is the weight of cross-gradient constraint, which makes sense only
-#if the cross-gradient constraint is used
+#Weights of different regularization terms. The last term is the weight of the cross-gradient term, which makes sense only when the cross-gradient constraint is used
 #a_s a_z a_x a_y a_crg
 1e-2 1e0 1e0 1e0 0
 
 #Lp norm parameters: p, epsilon2
-#--"p": means Lp norm will be used
-#--"epsilon2" :a small value is used to avoid singularity
-#For L1-norm inversion (p=1), the inversion result is more focusing with smaller epsilon2, while larger value of epsilon2 produce smoother inversion results. 
-1 1e-9
+#        --"p": means Lp norm will be used
+#        --"epsilon2" :a small value is used to avoid singularity
+#        --For L1-norm inversion (p=1), the inversion result is more focusing with smaller epsilon2
+1 1e-7
 
 #Depth weighting exponent. Generally, it's 2 for g, 3 for ggt
 2

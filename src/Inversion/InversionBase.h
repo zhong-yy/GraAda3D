@@ -100,7 +100,7 @@ class InversionBase : public Fwd {
    * y(column 1) z(column 2) x(column 3) value(column 4)
    *
    * @param  fast_dimension  0 or 1, specifying which dimension changes fastest.
-   * 0 represents y, 1 represents x. Whatever fast_dimension is,
+   * 0 represents x, 1 represents y. Whatever fast_dimension is,
    * the z dimension is assumed to be changing slowest.
    */
   void create_crg_model_from_data(string filename,

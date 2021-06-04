@@ -1,9 +1,15 @@
 GraInvRect
 ===========
 ## 1 Introduction
-It is a 3D gravity inversion program implemented with C++. The inversion is based on the rectilinear mesh in the Cartesian coordinate system. The inversion mesh can be adaptively refined to boost computational performance. Furthermore, a-priori information can be incorporated in inversion through cross-gradient coupling or direct parameter relationship.
+It is a 3D gravity inversion program implemented with C++. The inversion domain is discretized as rectangular prismatic meshes in the Cartesian coordinate system. The inversion mesh can be adaptively refined to boost computational performance and avoid over-parameterization. In addition, users can choose to use L1-norm regularization to obtain a focused image, or use L2-norm regularization to get a smooth result. Furthermore, a-priori information can be incorporated in inversion through cross-gradient coupling or direct parameter relationship. 
 
 Any combination of gravity field components or gravity gradient components ($g_z$, $g_x$, $g_y$, $T_{zz}$, $T_{xz}$, $T_{yz}$, $T_{xx}$, $T_{xy}$, $T_{yy}$) can be used as input data.  Exact analytical solutions of gravity field and gravity gradient tensor are used to ensure accuracy of the forward modeling. 
+
+**Hightlights**
+
+- Adaptively refined mesh for inversion parameters
+- Incorporation of  a-priori constraints through cross-gradient coupling or direct parameter relation
+- Lp-norm regularization
 
 ## 2 Installation
 
@@ -140,13 +146,9 @@ A priori information (e.g. existing velocity models) can be included in the inve
 
 Using direct empirical relations between density and the known parameter, we can obtain a reference density model. In this algorithm, if a reference model is specified, it will also serve as the initial model. 
 
-Here, we have prepared a file **ref_model** in the GraInvRect/Examples folder, which contains gridded data of a reference model.
+We have prepared a file **ref_model** in the GraInvRect/Examples folder, which contains gridded data of a reference model.
 
-1. cd GraInvRect/Examples/Inv_with_ref
-
-```
-../../GraInvRect config
-```
+1. cd `GraInvRect/Examples/Inv_with_ref`, open the file **config_inversion**, look at line 70, which specify the reference model and see comments on lines 63-69 for explanation.
 
 2. Run
 
@@ -156,7 +158,7 @@ Here, we have prepared a file **ref_model** in the GraInvRect/Examples folder, w
 
 #### (2) Cross gradient constraint
 
-1. cd GraInvRect/Examples/Inv_with_cross_gradient_constraint. Notice that the model used for cross gradient constraint is specified in file **config_inversion**, line 49 and line 54.
+1. cd `GraInvRect/Examples/Inv_with_cross_gradient_constraint`, open **config_inversion**, look at line 65. 
 
 2. Run
 

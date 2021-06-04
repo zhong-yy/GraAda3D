@@ -55,8 +55,13 @@
 1
 
 #File "crg_model" contains a model used for cross gradien constraint.
+#---(1) The first string is the file with gridded data of a reference model.
+#---(2) The second parameter should be combination of characters 'x', 'y' and  'z', specifying how the coordinates are ordered in the file.
+#       For example "yxz" means: y(column 1) x(column 2) z(column 3) value(column 4)
+#---(3) The next 3 numbers: n1 n2 n3, specifying the number of grid nodes along each dimension, in a order described by the preceding parameter (such as "yxz").
+#---(4) The final number should be 0 or 1. It indicates which dimension (x or y) changes fastest. 0 represents x, 1 represents y. Whatever fast_dimension is,
+#       the z dimension is assumed to be changing slowest.
 #This model grid has 40 points along x axis, 40 points along y and 20 points.
-#The last number is 0 or 1. And 0 means x increases fastest, 1 means y increases fastest
 ../crg_model xyz 40 40 20 0
 
 #whether to use petrophysical constraint. 0 no, 1 yes

@@ -11,5 +11,5 @@ Total number of elements in the initial mesh 500
 Element number 1
 
 3. Evaluation of the inversion
-Final misfit 0.991057
-Running time 33.9233 seconds
+Final misfit 0.983635
+Running time 62.0798 seconds

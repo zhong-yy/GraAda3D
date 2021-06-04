@@ -60,8 +60,7 @@ none xyz 0 0 0 0
 #whether to use petrophysical constraint. 0 no, 1 yes
 0
 
-#reference density model converted from other parameter (e.g. seismic). Users must 
-#convert models of other properties into density model in advance
+#reference density model converted from other parameter (e.g. seismic). 
 none xyz 0 0 0 0
 
 #output file of inversion model
