@@ -7,7 +7,7 @@ function check_and_delete(){
 # Using node registration
 
 
-data_file=../Inversion_gz/gz_result.nc
+data_file=../Inv_gz/gz_result.nc
 
 ## Generate evenly spaced points along a profile. -N is necessary for the Cartesian coordinates
 ## See https://docs.generic-mapping-tools.org/6.1/project.html?highlight=project

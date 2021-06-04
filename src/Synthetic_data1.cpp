@@ -90,7 +90,7 @@ int main() {
   ofstream os("sites");
   os << ob;
 
-  Fwd forward(mesh, ob, Compute_g_z | Compute_T_zz);
+  Fwd forward(mesh, ob, Compute_g_z | Compute_T_zz|Compute_T_zx|Compute_T_zy);
 
   Timer timer;
   timer.start();
@@ -102,7 +102,7 @@ int main() {
   timer.stop();
   cout << "Time: " << timer.getElapsedTimeInSec() << " s" << endl;
 
-  /*******************Inversion**********************/
+  
   VectorXd noise;
   noise.resize(d_obs.rows());
   double equipment_noise = 0.0;
@@ -114,7 +114,7 @@ int main() {
   }
   // cout << d_obs.rows() << endl;
 
-  GaussNewtonInversion inv(mesh, ob, Compute_g_z | Compute_T_zz);
+  GaussNewtonInversion inv(mesh, ob, Compute_g_z | Compute_T_zz|Compute_T_zx|Compute_T_zy);
 
   inv.set_dobs(d_obs);
   inv.output_obs_data("dobs");

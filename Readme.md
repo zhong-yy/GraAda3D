@@ -56,7 +56,11 @@ sudo yum install netcdf-cxx-devel
 
 > For CentOS user, recommend to build netcdf-c and netcdf-cxx from the source code. See https://www.unidata.ucar.edu/software/netcdf/docs/getting_and_building_netcdf.html for netcdf-c and https://github.com/Unidata/netcdf-cxx4 for the netcdf c++ library.
 
-## 3 A simple example
+
+
+## 3 Examples
+
+### 3.1 A simple example
 Now, you have 2 executable programs in the GraInvRect folder: **GraInvRect** and **Synthetic_data1**.
 
 The **GraInvRect** program is the  inversion program, and **Synthetic_data1** is used to generate a synthetic data set for validation of the inversion program.
@@ -68,11 +72,15 @@ The **GraInvRect** program is the  inversion program, and **Synthetic_data1** is
 ```
 to generate synthetic data with noise. Then we get a text file named *dobs_g_z* which contains vertical gravity data $g_z$, and a file named *dobs_T_zz* which contains vertical gravity gradient data $T_{zz}$. 
 
-2. `cd GraInvRect/Examples/Inversion_gz` In this folder, we have prepared the following configuration files:  **config**, **config_data**, **config_inversion** and **config_model**. 
+2. `cd GraInvRect/Examples/Inv_gz` In this folder, we have prepared the following configuration files:  **config**, **config_data**, **config_inversion** and **config_model**. 
 
    The file **config** is the only parameter required by the inversion program **GraInvRect**, which specifies the names of another 3 configuration files: **config_data**, **config_inversion** and **config_model**. 
 
-   The file **config_data** contains information about data. The file **config_inversion** specifies controlling parameters for the inversion. The file **config_model** specifies  the inversion region (size and initial mesh discretization). 
+   - The file **config_data** contains information about data. 
+
+   - The file **config_inversion** specifies controlling parameters for the inversion. 
+
+   - The file **config_model** specifies  the inversion region (size and initial mesh discretization). 
 
    These configuration files allow comments that start with '#'.  See the comments in the configuration files for detailed explanation. 
 
@@ -81,13 +89,50 @@ to generate synthetic data with noise. Then we get a text file named *dobs_g_z* 
 ```
 ../../GraInvRect config
 ```
-After the inversion is finished, and the result is written into **gz_result.vtk** file. The vtk file can be shown in [Paraview](https://www.paraview.org/). 
+After the inversion is finished,  the result is written into **gz_result.vtk** file. The vtk file can be visualized in [Paraview](https://www.paraview.org/). 
 
-If `GraInvRect` is compiled with NetCDF (make USE_NETCDF=1), the resulting model is also written into a ***.nc** file. A python script `crossSections.py`  is used to read the result in *.nc file and plot cross sections.
+If `GraInvRect` is compiled with NetCDF (`make USE_NETCDF=1`), the resulting model is also written into a ***.nc** file. A python script `crossSections2.py`  is used to read the result in *.nc file and plot cross sections.
 
-4. Similarly, `cd GraInvRect/Examples/Inversion_Tzz` and run the inversion of $T_{zz}$ data with`../../GraInvRect config`.
+4. Similarly, `cd GraInvRect/Examples/Inv_Tzz` and run the inversion of $T_{zz}$ data with`../../GraInvRect config`.
 
-## 4 Example of inversion with a priori information
+### 3.2 Inversion using  multiple components of gravity gradient tensor
+
+The file **config_data** tells the program which data to be used. 
+
+1. Enter `Inv_Txz_Tyz_Tzz` folder,  open **config_data**, and compare it with the ones in `Inv_Tzz` folder and `Inv_gz` folder.
+2. Run the inversion
+
+```
+../../GraInvRect config
+```
+
+3. Show the inversion result in Paraview, or using python:
+
+```
+python crossSections2.py
+python Txz_Tyz_Tzz.py
+```
+
+
+
+### 3.3 Inversion using L1-norm regularization
+
+1. Enter `L1_inv_gz` folder,  open **config_inversion**, and compare it with the one in `Inv_gz` folder. Line 14 in **config_inversion** contains 2 parameters about Lp-norm inversion. The first parameter is the "p" of Lp-norm, the second parameter is a small value which is used to avoid singularity.
+2.  Run the inversion
+
+```
+../../GraInvRect config
+```
+
+3. Show the inversion result in Paraview, or using python:
+
+```
+python crossSections2.py
+```
+
+
+
+### 3.2 Examples of inversion with a priori information
 
 A priori information (e.g. existing velocity models) can be included in the inversion to improve the reliability of the inversion result.  The a priori model should be gridded data given in a XYZ table.
 

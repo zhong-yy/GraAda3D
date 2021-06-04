@@ -7,7 +7,7 @@ function check_and_delete(){
 # Using pixel registration
 
 
-data_file=../Inversion_gz/gz_result.nc
+data_file=../Inv_gz/gz_result.nc
 
 ## Generate evenly spaced points along a profile. -N is necessary for the Cartesian coordinates
 gmt project -C25/700 -E1975/700 -G50 -N -V > line1

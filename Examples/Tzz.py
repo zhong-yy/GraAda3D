@@ -19,7 +19,7 @@ fig,ax1=plt.subplots(1,1,figsize=(6,4))
 
 pc=ax1.pcolormesh(X,Y,GZZ,shading='gouraud',cmap=clrmap)#vmin,vmax 设置色标的上下限
 ax1.set_aspect('equal', 'box')#相当于matlab中的axis equal
-ax1.set_title(r'$g_z$')
+ax1.set_title(r'$T_{zz}$')
 #ax1.yaxis.set_major_locator(MultipleLocator(1))
 #ax1.xaxis.set_major_locator(MultipleLocator(1))
 ax1.yaxis.set_minor_locator(AutoMinorLocator())
@@ -28,7 +28,7 @@ ax1.invert_yaxis()
 clb=fig.colorbar(pc,ax=ax1,shrink=1)
 clb.ax.yaxis.set_minor_locator(AutoMinorLocator())
 #clb.ax.ticklabel_format(style='scientific',scilimits=(0,0),useMathText=True)
-clb_title=clb.ax.set_title(r'mGal',loc="left",pad=3)
+clb_title=clb.ax.set_title(r'E',loc="left",pad=3)
 #clb_title.set_position((1.2,1))
 #clb.ax.yaxis.get_offset_text().set_position((1,1))
 ax1.set_xlabel("x (m)")

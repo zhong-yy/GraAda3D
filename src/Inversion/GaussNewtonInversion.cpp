@@ -31,6 +31,15 @@ void GaussNewtonInversion::invert() {
     // update_S_crg();
   }
 
+  SMatrix WL1_s(Nm, Nm);
+  SMatrix WL1_x(Nm, Nm);
+  SMatrix WL1_y(Nm, Nm);
+  SMatrix WL1_z(Nm, Nm);
+  WL1_s.setIdentity();
+  WL1_x.setIdentity();
+  WL1_y.setIdentity();
+  WL1_z.setIdentity();
+
   SMatrix Ws = a_s * S_s * V * D_s * Z;
   SMatrix Wx = a_x * S_x * V * D_x1 * Z;
   SMatrix Wy = a_y * S_y * V * D_y1 * Z;
@@ -39,6 +48,11 @@ void GaussNewtonInversion::invert() {
   Wx.makeCompressed();
   Wy.makeCompressed();
   Wz.makeCompressed();
+
+  VectorXd Wsm_m0;
+  VectorXd Wxm;
+  VectorXd Wym;
+  VectorXd Wzm;
 
   VectorXd Ws_m0 = Ws * m0;
 
@@ -138,20 +152,20 @@ void GaussNewtonInversion::invert() {
     misfit_last_iteration = misfit;
     lambda = this->max_lambda;
 
-    A.middleRows(Nd, Nm) = sqrt(lambda) * Ws;
-    A.middleRows(Nd + Nm, Nm) = sqrt(lambda) * Wz;
-    A.middleRows(Nd + 2 * Nm, Nm) = sqrt(lambda) * Wx;
-    A.middleRows(Nd + 3 * Nm, Nm) = sqrt(lambda) * Wy;
+    A.middleRows(Nd, Nm) = sqrt(lambda) * WL1_s * Ws;
+    A.middleRows(Nd + Nm, Nm) = sqrt(lambda) * WL1_z * Wz;
+    A.middleRows(Nd + 2 * Nm, Nm) = sqrt(lambda) * WL1_x * Wx;
+    A.middleRows(Nd + 3 * Nm, Nm) = sqrt(lambda) * WL1_y * Wy;
     // cout << S_crg.rows() << endl;
     // cout << S_crg.cols() << endl;
     if (use_cross_gradient_constraint == true) {
-      A.middleRows(Nd + 4 * Nm, Nm) = this->a_crg * S_crg * T_z;
-      A.middleRows(Nd + 5 * Nm, Nm) = this->a_crg * S_crg * T_x;
-      A.middleRows(Nd + 6 * Nm, Nm) = this->a_crg * S_crg * T_y;
+      A.middleRows(Nd + 4 * Nm, Nm) = this->a_crg *  S_crg * T_z;
+      A.middleRows(Nd + 5 * Nm, Nm) = this->a_crg *  S_crg * T_x;
+      A.middleRows(Nd + 6 * Nm, Nm) = this->a_crg *  S_crg * T_y;
     }
     A.makeCompressed();
 
-    b.segment(Nd, Nm) = sqrt(lambda) * Ws_m0;
+    b.segment(Nd, Nm) = sqrt(lambda) * WL1_s * Ws_m0;
     // b.segment(Nd + Nm, Nm) = sqrt(lambda) * Wr_m0;
     // b.segment(Nd + 2 * Nm, Nm) = sqrt(lambda) * Wtheta_m0;
     // b.segment(Nd + 3 * Nm, Nm) = sqrt(lambda) * Wphi_m0;
@@ -182,9 +196,19 @@ void GaussNewtonInversion::invert() {
                  m_max(id) * (m(id) - m_min(id)) * temp);
         temp3 = ((m_max(id) - m(id)) + (m(id) - m_min(id)) * temp);
         if (std::isinf(temp) || std::isinf(temp2)) {
-          m_trial(id) = m_max(id) - 1e-9;
+          m_trial(id) = (m_max(id) - 1e-6+m_trial(id))/2.0;
+          if(id==0){
+            m_trial(id)=0.5*(m_trial(id)+m_trial(id+1));
+          }else{
+            m_trial(id)=0.5*(m_trial(id)+m_trial(id-1));
+          }
         } else if (fabs(temp3) < 1e-10) {
-          m_trial(id) = m_min(id) + 1e-9;
+          m_trial(id) = (m_min(id) + 1e-6+m_trial(id))/2.0;
+          if(id==0){
+            m_trial(id)=0.5*(m_trial(id)+m_trial(id+1));
+          }else{
+            m_trial(id)=0.5*(m_trial(id)+m_trial(id-1));
+          }          
         } else {
           m_trial(id) = temp2 / temp3;
         }
@@ -224,17 +248,33 @@ void GaussNewtonInversion::invert() {
       } else {
         lambda = lambda * lambda_decreasing_rate;
 
-        A.middleRows(Nd, Nm) = sqrt(lambda) * Ws;
-        A.middleRows(Nd + Nm, Nm) = sqrt(lambda) * Wz;
-        A.middleRows(Nd + 2 * Nm, Nm) = sqrt(lambda) * Wx;
-        A.middleRows(Nd + 3 * Nm, Nm) = sqrt(lambda) * Wy;
+        Wsm_m0 = Ws * (m_opt - m0);
+        Wxm = Wx * m_opt;
+        Wym = Wy * m_opt;
+        Wzm = Wz * m_opt;
+
+        for (int i = 0; i < Nm; i++) {
+          WL1_s.coeffRef(i, i) =
+              pow(Wsm_m0(i) * Wsm_m0(i) + epsilon2, -(2 - Lp) / 4.0);
+          WL1_x.coeffRef(i, i) =
+              pow(Wxm(i) * Wxm(i) + epsilon2, -(2 - Lp) / 4.0);
+          WL1_y.coeffRef(i, i) =
+              pow(Wym(i) * Wym(i) + epsilon2, -(2 - Lp) / 4.0);
+          WL1_z.coeffRef(i, i) =
+              pow(Wzm(i) * Wzm(i) + epsilon2, -(2 - Lp) / 4.0);
+        }
+
+        A.middleRows(Nd, Nm) = sqrt(lambda) * WL1_s * Ws;
+        A.middleRows(Nd + Nm, Nm) = sqrt(lambda) * WL1_z * Wz;
+        A.middleRows(Nd + 2 * Nm, Nm) = sqrt(lambda) * WL1_x * Wx;
+        A.middleRows(Nd + 3 * Nm, Nm) = sqrt(lambda) * WL1_y * Wy;
         if (use_cross_gradient_constraint == true) {
-          A.middleRows(Nd + 4 * Nm, Nm) = this->a_crg * S_crg * T_z;
-          A.middleRows(Nd + 5 * Nm, Nm) = this->a_crg * S_crg * T_x;
+          A.middleRows(Nd + 4 * Nm, Nm) = this->a_crg *  S_crg * T_z;
+          A.middleRows(Nd + 5 * Nm, Nm) = this->a_crg *  S_crg * T_x;
           A.middleRows(Nd + 6 * Nm, Nm) = this->a_crg * S_crg * T_y;
         }
 
-        b.segment(Nd, Nm) = sqrt(lambda) * Ws_m0;
+        b.segment(Nd, Nm) = sqrt(lambda) * WL1_s * Ws_m0;
       }
       if (misfit < target_misfit) {
         break;
@@ -359,6 +399,33 @@ void GaussNewtonInversion::invert() {
       Wz = a_z * S_z * V * D_z1 * Z;
       Wz.makeCompressed();
       Wz.data().squeeze();
+
+      // cout<<"1"<<endl;
+      WL1_s.resize(Nm, Nm);
+      WL1_s.reserve(Nm);
+      WL1_x.resize(Nm, Nm);
+      WL1_x.reserve(Nm);
+      WL1_y.resize(Nm, Nm);
+      WL1_y.reserve(Nm);
+      WL1_z.resize(Nm, Nm);
+      WL1_z.reserve(Nm);
+
+      Wsm_m0.resize(Nm);
+      Wxm.resize(Nm);
+      Wym.resize(Nm);
+      Wzm.resize(Nm);
+      Wsm_m0 = Ws * (m - m0);
+      Wxm = Wx * m;
+      Wym = Wy * m;
+      Wzm = Wz * m;
+
+      for (int i = 0; i < Nm; i++) {
+        WL1_s.coeffRef(i, i) =
+            pow(Wsm_m0(i) * Wsm_m0(i) + epsilon2, -(2 - Lp) / 4.0);
+        WL1_x.coeffRef(i, i) = pow(Wxm(i) * Wxm(i) + epsilon2, -(2 - Lp) / 4.0);
+        WL1_y.coeffRef(i, i) = pow(Wym(i) * Wym(i) + epsilon2, -(2 - Lp) / 4.0);
+        WL1_z.coeffRef(i, i) = pow(Wzm(i) * Wzm(i) + epsilon2, -(2 - Lp) / 4.0);
+      }
 
       // update_S_crg();
       // cout<<S_crg<<endl;

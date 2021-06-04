@@ -17,7 +17,7 @@ class GraAdaInv {
   void start_inversion();
   void write_result();
 
-  int read_data_from_file(string file_name);
+  int read_data_from_file(string file_name, const vector<unsigned int>& data_order);
   istream& next_valid_line(istream& is, string& str);
 
   /**
@@ -42,6 +42,8 @@ class GraAdaInv {
   string data_file;
   string config_file;
 
+  double Lp_inversion_p;
+  double Lp_inversion_eps;
   double min_size_dx, min_size_dy, min_size_dz;
   double x_model[2];
   double y_model[2];
@@ -53,10 +55,10 @@ class GraAdaInv {
 
   double as, az, ax, ay, acrg;
   double depth_weighting_exponent;
-  
+
   double target_misfit;  // data misfit
 
-  double cg_tol;         // conjugate gradient method tolerance
+  double cg_tol;  // conjugate gradient method tolerance
   double cg_iteration_factor;
 
   double stagnate_tol;
@@ -65,8 +67,6 @@ class GraAdaInv {
   double start_lambda;
   int n_lambda;
   double decreasing_rate;
-
-  
 
   double min_value, max_value;
 
@@ -269,30 +269,53 @@ void GraAdaInv::read_data_parameters(string data_para) {
     }
   }
 
+  vector<unsigned int> data_order;
+  data_order.resize(n_fields);
+  for (int i = 0; i < n_fields; i++) {
+    data_order[i] = i;
+  }
+
+  auto sort_rule = [field_label](unsigned int i, unsigned int j) -> bool {
+    return field_label[i] < field_label[j];
+  };
+  sort(data_order.begin(), data_order.end(), sort_rule);
+
   // double noise_percentage, equipment_noise;
   // config >> noise_percentage >> equipment_noise;
 
   noise_percentage.resize(n_fields);
-
   equipment_noise.resize(n_fields);
+
+  vector<double> temp1=noise_percentage;
+  vector<double> temp2=equipment_noise;
+
   for (int i = 0; i < n_fields; i++) {
     next_valid_line(input_stream, line);
     iss.clear();
     iss.str("");
     iss.str(line);
-    iss >> noise_percentage[i] >> equipment_noise[i];
+    iss >> temp1[i] >> temp2[i];
+    // cout << temp1[i] << "," << temp2[i] << endl;
   }
 
-  read_data_from_file(data_file);
+  for (int i = 0; i < n_fields; i++) {
+    noise_percentage[i]=temp1[data_order[i]];
+    equipment_noise[i]=temp2[data_order[i]];
+    // cout << noise_percentage[i] << "," << equipment_noise[i] << endl;
+  }
+
+  read_data_from_file(data_file, data_order);
 }
 
-int GraAdaInv::read_data_from_file(string data_file) {
+int GraAdaInv::read_data_from_file(string data_file,
+                                   const vector<unsigned int>& data_order) {
   ifstream input_stream(data_file.c_str());
   assert(input_stream.good());
   string line;
   int n_obs = 0;  // number of observation points
   vector<vector<double> > g_data;
   g_data.resize(n_fields);
+  assert(data_order.size() == n_fields);
   while (std::getline(input_stream, line)) {
     line_process(line);
     if (line.empty()) {
@@ -316,7 +339,7 @@ int GraAdaInv::read_data_from_file(string data_file) {
   for (int j = 0; j < n_fields; j++) {
     assert(g_data[j].size() == n_obs);
     for (int i = 0; i < n_obs; i++) {
-      dobs(i + j * n_obs) = g_data[j][i];
+      dobs(i + j * n_obs) = g_data[data_order[j]][i];
     }
   }
   cout << "Number of observation points: " << n_obs << endl;
@@ -360,13 +383,19 @@ void GraAdaInv::read_inversion_parameters(string inversion_para) {
   iss.clear();
   iss.str("");
   iss.str(line);
+  iss >> Lp_inversion_p >> Lp_inversion_eps;
+
+  next_valid_line(input_stream, line);
+  iss.clear();
+  iss.str("");
+  iss.str(line);
   iss >> depth_weighting_exponent;
 
   next_valid_line(input_stream, line);
   iss.clear();
   iss.str("");
   iss.str(line);
-  iss >> start_lambda >> n_lambda>>decreasing_rate;
+  iss >> start_lambda >> n_lambda >> decreasing_rate;
 
   //   double final_lambda, final_misfit;
   next_valid_line(input_stream, line);
@@ -521,9 +550,11 @@ void GraAdaInv::start_inversion() {
   inv->set_refinement_percentage(refinement_tol);
   inv->set_max_refinement_number(max_refinement);
   inv->set_min_cell_size_in_adaptive_mesh(min_size_dx, min_size_dy,
-                                          min_size_dz);  
+                                          min_size_dz);
   inv->set_stagnation_tolerance(stagnate_tol);
   inv->set_target_misfit(target_misfit);
+
+  inv->set_Lp_inversion_parameter(Lp_inversion_p, Lp_inversion_eps);
 
   if (use_crg) {
     inv->create_crg_model_from_data(

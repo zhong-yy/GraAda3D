@@ -1,0 +1,15 @@
+1. Initial inverion mesh
+X range  0, 2000
+Y range: 0, 2000
+Z range 0, 1000
+Number of elements along z axis in the initial mesh 5
+Number of elements along x axis in the initial mesh 10
+Number of elements along y axis in the initial mesh 10
+Total number of elements in the initial mesh 500
+
+2. Final mesh
+Element number 1
+
+3. Evaluation of the inversion
+Final misfit 0.990852
+Running time 56.2751 seconds

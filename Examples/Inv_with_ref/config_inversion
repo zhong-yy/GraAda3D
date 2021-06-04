@@ -7,8 +7,14 @@
 #a_s a_z a_x a_y a_crg
 1e-2 1e0 1e0 1e0 0
 
+#Lp norm parameters: p, epsilon2
+#--"p": means Lp norm will be used
+#--"epsilon2" :a small value is used to avoid singularity
+#For L1-norm inversion (p=1), the inversion result is more focusing with smaller epsilon2, while larger value of epsilon2 produce smoother inversion results. 
+2 1e-9
+
 #Depth weighting exponent. Generally, it's 2 for g, 3 for ggt
-1.6
+2
 
 #Maximal regularization parameter (lambda) used, number of lambda used for trial
 1e3 30 0.5
@@ -21,7 +27,7 @@
 0.02
 
 #Tolerance value and Maximal number of iterations for LSCG solver (least-square conjugate gradient) 
-1e-6 100
+1e-4 100
 
 #Maximal number of iterations for gauss-newton
 8
@@ -43,7 +49,7 @@
 0.1
 
 #control whether the model is recorded at each iteration of Gauss-Newton method
-1
+0
 
 #whether to use cross-gradient constraint. 0 no, 1 yes
 0
