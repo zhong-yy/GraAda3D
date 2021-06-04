@@ -138,7 +138,7 @@ python crossSections2.py
 
 
 
-### 3.3 Inversion using minimum support regularization
+### 3.4 Inversion using minimum support regularization
 
 1. Enter `L0_inv_gz(Minimum_support)`, open **config_inversion**, see line 14. Here, p=0.
 
@@ -148,7 +148,7 @@ python crossSections2.py
 ../../GraInvRect config
 ```
 
-### 3.2 Examples of inversion with a priori information
+### 3.5 Examples of inversion with a priori information
 
 A priori information (e.g. existing velocity models) can be included in the inversion to improve the reliability of the inversion result.  The a priori model should be gridded data given in a XYZ table.
 
