@@ -1,7 +1,7 @@
 GraInvRect
 ===========
 ## 1 Introduction
-It is a 3D gravity inversion program implemented with C++. The inversion domain is discretized as rectangular prismatic meshes in the Cartesian coordinate system. The inversion mesh can be adaptively refined to boost computational performance and avoid over-parameterization. In addition, users can choose to use L1-norm regularization to obtain a focused image, or use L2-norm regularization to get a smooth result. Furthermore, a-priori information can be incorporated in inversion through cross-gradient coupling or direct parameter relationship. 
+It is a 3D gravity inversion program implemented with C++. The inversion domain is discretized as rectangular prismatic meshes in the Cartesian coordinate system. The inversion mesh can be adaptively refined to boost computational performance and avoid over-parameterization. In addition, users can choose to use L0-norm (minimum support) and L1-norm regularization to obtain a focused image, or use L2-norm regularization to get a smooth result. Furthermore, a-priori information can be incorporated in inversion through cross-gradient coupling or direct parameter relationship. 
 
 Any combination of gravity field components or gravity gradient components ($g_z$, $g_x$, $g_y$, $T_{zz}$, $T_{xz}$, $T_{yz}$, $T_{xx}$, $T_{xy}$, $T_{yy}$) can be used as input data.  Exact analytical solutions of gravity field and gravity gradient tensor are used to ensure accuracy of the forward modeling. 
 
@@ -9,7 +9,7 @@ Any combination of gravity field components or gravity gradient components ($g_z
 
 - Adaptively refined mesh for inversion parameters
 - Incorporation of  a-priori constraints through cross-gradient coupling or direct parameter relation
-- Lp-norm regularization
+- Lp-norm regularization (p=0,1,2,...)
 
 ## 2 Installation
 
@@ -123,7 +123,7 @@ python Txz_Tyz_Tzz.py
 
 ### 3.3 Inversion using L1-norm regularization
 
-1. Enter `L1_inv_gz` folder,  open **config_inversion**, and compare it with the one in `Inv_gz` folder. Line 14 in **config_inversion** contains 2 parameters about Lp-norm inversion. The first parameter is the "p" of Lp-norm, the second parameter is a small value which is used to avoid singularity.
+1. Enter `L1_inv_gz` folder,  open **config_inversion**, and compare it with the one in `Inv_gz` folder. See Line 14 in **config_inversion**, it contains 2 parameters about Lp-norm inversion. The first parameter is the "p" of Lp-norm, the second parameter is a small value which is used to avoid singularity. In the file `L1_inv_gz/config_inversion`, line 14, p=1, which means L1-norm regularization is used here.
 2.  Run the inversion
 
 ```
@@ -137,6 +137,16 @@ python crossSections2.py
 ```
 
 
+
+### 3.3 Inversion using minimum support regularization
+
+1. Enter `L0_inv_gz(Minimum_support)`, open **config_inversion**, see line 14. Here, p=0.
+
+2. Run the inversion,
+
+```
+../../GraInvRect config
+```
 
 ### 3.2 Examples of inversion with a priori information
 

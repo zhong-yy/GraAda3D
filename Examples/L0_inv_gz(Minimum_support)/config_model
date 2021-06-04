@@ -1,0 +1,3 @@
+0 2000 10       #The range of the inversion grid in x direction is 0m-2000m, and the initial model is divided into 10 elements along x axis
+0 2000 10       #The range of the inversion grid in y direction is 0m-2000m, and the initial model is divided into 10 elements along y axis
+0 1000 5        #The range of the inversion grid in z direction is 0m-1000m, and the initial model is divided into 5 elements along z axis
