@@ -3,7 +3,7 @@ GraInvRect
 ## 1 Introduction
 It is a 3D gravity inversion program implemented with C++. The inversion domain is discretized as rectangular prismatic meshes in the Cartesian coordinate system. The inversion mesh can be adaptively refined to boost computational performance and avoid over-parameterization. In addition, users can choose to use L0-norm (minimum support) and L1-norm regularization to obtain a focused image, or use L2-norm regularization to get a smooth result. Furthermore, a-priori information can be incorporated in inversion through cross-gradient coupling or direct parameter relationship. 
 
-Any combination of gravity field components or gravity gradient components ($g_z$, $g_x$, $g_y$, $T_{zz}$, $T_{xz}$, $T_{yz}$, $T_{xx}$, $T_{xy}$, $T_{yy}$) can be used as input data.  Exact analytical solutions of gravity field and gravity gradient tensor are used to ensure accuracy of the forward modeling. 
+Any combination of gravity field components or gravity gradient components (gz, gx, gy, Tzz, Txz, Tyz, Txx, Txy, Tyy) can be used as input data.  Exact analytical solutions of gravity field and gravity gradient tensor are used to ensure accuracy of the forward modeling. 
 
 **Hightlights**
 
@@ -66,31 +66,31 @@ sudo yum install netcdf-cxx-devel
 
 ## 3 Examples
 
-### 3.1 A simple example
 Now, you have 2 executable programs in the GraInvRect folder: **GraInvRect** and **Synthetic_data1**.
 
-The **GraInvRect** program is the  inversion program, and **Synthetic_data1** is used to generate a synthetic data set for validation of the inversion program.
+The **GraInvRect** program is the  inversion program, and **Synthetic_data1** is used to generate a synthetic data set for validation of the inversion program. 
 
-1. `cd GraInvRect/Examples` (change from the current directory to GraInvRect/Examples), run
+Change from the current directory to `GraInvRect/Examples` and type the following command in the terminal:
 
 ```
 ../Synthetic_data1
 ```
-to generate synthetic data with noise. Then we get a text file named *dobs_g_z* which contains vertical gravity data $g_z$, and a file named *dobs_T_zz* which contains vertical gravity gradient data $T_{zz}$. 
 
-2. `cd GraInvRect/Examples/Inv_gz` In this folder, we have prepared the following configuration files:  **config**, **config_data**, **config_inversion** and **config_model**. 
+to generate synthetic data with noise. Then we get a text file named *dobs_g_z* which contains vertical gravity data $g_z$, and 3 files named *dobs_T_zz*, *dobs_T_xz*, *dobs_T_yz* which contains gravity gradient components Tzz, Txz, Tyz. 
 
-   The file **config** is the only parameter required by the inversion program **GraInvRect**, which specifies the names of another 3 configuration files: **config_data**, **config_inversion** and **config_model**. 
+### 3.1 A example of inversion using gz data
+
+1. cd `GraInvRect/Examples/Inv_gz` In this folder, we have prepared the following configuration files:  **config**, **config_data**, **config_inversion** and **config_model**. 
+
+   The file **config** is the only parameter required by the inversion program, which specifies another 3 configuration files: **config_data**, **config_inversion** and **config_model**. 
 
    - The file **config_data** contains information about data. 
-
    - The file **config_inversion** specifies controlling parameters for the inversion. 
-
    - The file **config_model** specifies  the inversion region (size and initial mesh discretization). 
 
    These configuration files allow comments that start with '#'.  See the comments in the configuration files for detailed explanation. 
 
-3. Then, let's run the inversion
+2. Then, let's run the inversion
 
 ```
 ../../GraInvRect config
@@ -99,7 +99,7 @@ After the inversion is finished,  the result is written into **gz_result.vtk** f
 
 If `GraInvRect` is compiled with NetCDF (`make USE_NETCDF=1`), the resulting model is also written into a ***.nc** file. A python script `crossSections2.py`  is used to read the result in *.nc file and plot cross sections.
 
-4. Similarly, `cd GraInvRect/Examples/Inv_Tzz` and run the inversion of $T_{zz}$ data with`../../GraInvRect config`.
+3. Similarly, `cd GraInvRect/Examples/Inv_Tzz` and run the inversion of Tzz data with`../../GraInvRect config`.
 
 ### 3.2 Inversion using  multiple components of gravity gradient tensor
 
