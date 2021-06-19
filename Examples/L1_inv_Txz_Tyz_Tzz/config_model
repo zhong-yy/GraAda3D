@@ -1,3 +1,12 @@
-0 2000 10        #The range of model in x direction is 0m-2000m, and the initial model is divided into 10 elements along x axis
-0 2000 10        #The range of model in y direction is 0m-2000m, and the initial model is divided into 10 elements along y axis
-0 1000 5        #The range of model in z direction is 0m-1000m, and the initial model is divided into 5 elements along z axis
+# The area of interest
+0 2000 10       # Model extension and the number of cells in x direction
+0 2000 10       # Model extension and the number of cells in x direction
+0 1000 5        # Model extension and the number of cells in z direction
+
+# Padding parameters. The sizes of padding cells is increased towards the boundary.
+0          # Number of padding cells on +x and -x sides
+0          # Increasing factor for the sizes of padding cells in x direction. 
+0          # Number of padding cells on +y and -y sides
+0          # Increasing factor for the sizes of padding cells in y direction
+0          # Number of padding cells at bottom (on the +z side)
+0          # Increasing factor for the sizes of padding cells in z direction

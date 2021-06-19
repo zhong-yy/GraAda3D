@@ -114,10 +114,10 @@ int main() {
   }
   // cout << d_obs.rows() << endl;
 
-  GaussNewtonInversion inv(mesh, ob, Compute_g_z | Compute_T_zz|Compute_T_zx|Compute_T_zy);
+  GaussNewtonInversion write_data(mesh, ob, Compute_g_z | Compute_T_zz|Compute_T_zx|Compute_T_zy);
 
-  inv.set_dobs(d_obs);
-  inv.output_obs_data("dobs");
+  write_data.set_dobs(d_obs);
+  write_data.output_obs_data("dobs");
 
   return 0;
 }

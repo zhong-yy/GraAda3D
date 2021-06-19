@@ -37,6 +37,8 @@ Mesh::Mesh(const Mesh& source_mesh) {
   this->num_face = source_mesh.num_face;
   this->num_cell = source_mesh.num_cell;
   this->z_points = source_mesh.z_points;
+  this->x_points = source_mesh.x_points;
+  this->y_points = source_mesh.y_points;
   this->num_leaf_cells = source_mesh.num_leaf_cells;
   this->num_leaf_faces = source_mesh.num_leaf_faces;
   this->n_parameters = source_mesh.n_parameters;
@@ -173,6 +175,8 @@ Mesh& Mesh::operator=(const Mesh& source_mesh) {
   this->num_face = source_mesh.num_face;
   this->num_cell = source_mesh.num_cell;
   this->z_points = source_mesh.z_points;
+  this->x_points = source_mesh.x_points;
+  this->y_points = source_mesh.y_points;
   this->num_leaf_cells = source_mesh.num_leaf_cells;
   this->num_leaf_faces = source_mesh.num_leaf_faces;
   this->n_parameters = source_mesh.n_parameters;
@@ -355,35 +359,330 @@ void Mesh::generate_regular_mesh(double x_model[2],
                                  int num_para) {
   this->clear_all();
 
-  for (int i = 0; i < 2; i++) {
-    this->x_lim[i] = x_model[i];
-    this->y_lim[i] = y_model[i];
-    this->z_lim[i] = z_model[i];
-  }
-
   this->n_parameters = num_para;
-  this->nz = n_z;
-  this->nx = n_x;
-  this->ny = n_y;
 
   z_points = VectorXd::LinSpaced(n_z + 1, z_model[0], z_model[1]);
-  VectorXd x_points = VectorXd::LinSpaced(n_x + 1, x_model[0], x_model[1]);
-  VectorXd y_points = VectorXd::LinSpaced(n_y + 1, y_model[0], y_model[1]);
+  x_points = VectorXd::LinSpaced(n_x + 1, x_model[0], x_model[1]);
+  y_points = VectorXd::LinSpaced(n_y + 1, y_model[0], y_model[1]);
+
+  // generate the mesh from x, y, z grid points
+  this->generate_regular_mesh(x_points, y_points, z_points, num_para);
+}
+
+void Mesh::generate_regular_mesh_with_padding(
+    double x_model[2],
+    int n_x0,
+    double y_model[2],
+    int n_y0,
+    double z_model[2],
+    int n_z0,
+    int n_pad_x,           // number of padding cells in +x and -x direction
+    double pad_stretch_x,  // increase factor for sizes of padding cells
+    int n_pad_y,           // number of padding cells in +x and -x direction
+    double pad_stretch_y,  // increase factor for sizes of padding cells
+    int n_pad_z,           // number of padding cells in +x and -x direction
+    double pad_stretch_z,  // increase factor for sizes of padding cells
+    int num_para) {
+  this->clear_all();
+
+  // for (int i = 0; i < 2; i++) {
+  //   this->x_lim[i] = x_model[i];
+  //   this->y_lim[i] = y_model[i];
+  //   this->z_lim[i] = z_model[i];
+  // }
+
+  this->n_parameters = num_para;
+  // this->nz = n_z0;
+  // this->nx = n_x0;
+  // this->ny = n_y0;
+
+  VectorXd x_points_in = VectorXd::LinSpaced(n_x0 + 1, x_model[0], x_model[1]);
+  VectorXd y_points_in = VectorXd::LinSpaced(n_y0 + 1, y_model[0], y_model[1]);
+  VectorXd z_points_in = VectorXd::LinSpaced(n_z0 + 1, z_model[0], z_model[1]);
+
+  x_points.resize(n_x0 + 1 + 2 * n_pad_x);
+  y_points.resize(n_y0 + 1 + 2 * n_pad_y);
+  z_points.resize(n_z0 + 1 + n_pad_z);
+  cout << n_x0 << endl;
+  cout << n_x0 + 1 + 2 * n_pad_x << endl;
+  x_points.segment(n_pad_x, n_x0 + 1) = x_points_in;
+  y_points.segment(n_pad_y, n_y0 + 1) = y_points_in;
+  z_points.segment(0, n_z0 + 1) = z_points_in;
+
+  double dx0 = x_points_in(1) - x_points_in(0);
+  double dy0 = y_points_in(1) - y_points_in(0);
+  double dz0 = z_points_in(1) - z_points_in(0);
+  cout << dx0 << ", " << dy0 << ", " << dz0 << ", " << endl;
+  for (int i = 0; i < n_pad_x; i++) {
+    dx0 *= pad_stretch_x;
+    x_points(n_pad_x + n_x0 + 1 + i) = x_points(n_pad_x + n_x0 + i) + dx0;
+    x_points(n_pad_x - 1 - i) = x_points(n_pad_x - i) - dx0;
+  }
+  for (int i = 0; i < n_pad_y; i++) {
+    dy0 *= pad_stretch_y;
+    y_points(n_pad_y + n_y0 + 1 + i) = y_points(n_pad_y + n_y0 + i) + dy0;
+    y_points(n_pad_y - 1 - i) = y_points(n_pad_y - i) - dy0;
+  }
+  for (int i = 0; i < n_pad_z; i++) {
+    dz0 *= pad_stretch_z;
+    z_points(n_z0 + 1 + i) = z_points(n_z0 + i) + dz0;
+  }
+
+  // cout<<"z_points"<<endl;
+
+  // cout<<z_points<<endl<<endl;
+
+  // cout<<"y_points"<<endl;
+  // cout<<y_points<<endl<<endl;
+
+  // cout<<"x_points"<<endl;
+  // cout<<x_points<<endl<<endl;
+
+  // generate the mesh from x, y, z grid points
+  this->generate_regular_mesh(x_points, y_points, z_points, num_para);
+}
+
+// void Mesh::generate_regular_mesh(double x_model[2],
+//                                  int n_x,
+//                                  double y_model[2],
+//                                  int n_y,
+//                                  double z_model[2],
+//                                  int n_z,
+//                                  int num_para) {
+//   this->clear_all();
+
+//   for (int i = 0; i < 2; i++) {
+//     this->x_lim[i] = x_model[i];
+//     this->y_lim[i] = y_model[i];
+//     this->z_lim[i] = z_model[i];
+//   }
+
+//   this->n_parameters = num_para;
+//   this->nz = n_z;
+//   this->nx = n_x;
+//   this->ny = n_y;
+
+//   z_points = VectorXd::LinSpaced(n_z + 1, z_model[0], z_model[1]);
+//   x_points = VectorXd::LinSpaced(n_x + 1, x_model[0], x_model[1]);
+//   y_points = VectorXd::LinSpaced(n_y + 1, y_model[0], y_model[1]);
+
+//   cells.push_back(vector<Cell*>(0));
+//   cells[0].resize(n_z * n_x * n_y);
+
+//   faces.push_back(vector<Face*>(0));
+//   faces[0].resize(3 * n_z * n_x * n_y + n_z * n_x + n_x * n_y + n_z * n_y);
+
+//   num_cell.push_back(cells[0].size());
+//   num_face.push_back(faces[0].size());
+
+//   // construct cells
+//   int id = 0;
+//   for (int i = 0; i < n_x; i++) {
+//     for (int j = 0; j < n_y; j++) {
+//       for (int k = 0; k < n_z; k++) {
+//         cells[0][id] =
+//             new Cell(x_points(i), y_points(j), z_points(k), x_points(i + 1),
+//                      y_points(j + 1), z_points(k + 1), 0, num_para, true);
+//         for (int ip = 0; ip < num_para; ip++) {
+//           cells[0][id]->set_parameter(0, ip);
+//         }
+//         cells[0][id]->set_id(id);
+//         id++;
+//       }
+//     }
+//   }
+//   num_leaf_cells = cells[0].size();
+//   leaf_cells.resize(num_leaf_cells);
+//   for (int i = 0; i < num_leaf_cells; i++) {
+//     leaf_cells[i] = cells[0][i];
+//   }
+//   // construct faces
+
+//   id = 0;
+//   double xc, yc, zc;
+//   double dx, dy, dz;
+//   for (int i = 0; i < n_x; i++) {
+//     for (int j = 0; j < n_y; j++) {
+//       for (int k = 0; k < n_z + 1; k++) {
+//         if (k == 0) {
+//           faces[0][id] =
+//               new Face(NULL, cells[0][i * n_y * n_z + j * n_z], UP_DOWN);
+//           cells[0][i * n_y * n_z + j * n_z]->get_size(dx, dy, dz);
+//           cells[0][i * n_y * n_z + j * n_z]->get_center(xc, yc, zc);
+//           faces[0][id]->set_center(xc, yc, zc - 0.5 * dz);
+//           assert(faces[0][id]->neigh_cells[0] == NULL &&
+//                  faces[0][id]->neigh_cells[1] != NULL);
+//         } else if (k == n_z) {
+//           faces[0][id] = new Face(cells[0][i * n_y * n_z + j * n_z + k - 1],
+//                                   NULL, UP_DOWN);
+//           cells[0][i * n_y * n_z + j * n_z + k - 1]->get_size(dx, dy, dz);
+//           cells[0][i * n_y * n_z + j * n_z + k - 1]->get_center(xc, yc, zc);
+//           faces[0][id]->set_center(xc, yc, zc + 0.5 * dz);
+//           assert(faces[0][id]->neigh_cells[0] != NULL &&
+//                  faces[0][id]->neigh_cells[1] == NULL);
+//         } else {
+//           double xc1, yc1, zc1;
+//           cells[0][i * n_y * n_z + j * n_z + k - 1]->get_center(xc, yc, zc);
+//           cells[0][i * n_y * n_z + j * n_z + k]->get_center(xc1, yc1, zc1);
+//           faces[0][id] =
+//               new Face(cells[0][i * n_y * n_z + j * n_z + k - 1],
+//                        cells[0][i * n_y * n_z + j * n_z + k], UP_DOWN);
+//           faces[0][id]->set_center(0.5 * (xc + xc1), 0.5 * (yc + yc1),
+//                                    0.5 * (zc + zc1));
+//         }
+
+//         if (k > 0) {
+//           int index = i * n_y * n_z + j * n_z + k - 1;
+//           cells[0][index]->set_external_faces(faces[0][id - 1], faces[0][id],
+//                                               UP_DOWN);
+//         }
+
+//         id++;
+//       }
+//     }
+//   }
+
+//   // id = 0;
+//   for (int i = 0; i < n_x + 1; i++) {
+//     for (int j = 0; j < n_y; j++) {
+//       for (int k = 0; k < n_z; k++) {
+//         if (i == 0) {
+//           faces[0][id] =
+//               new Face(NULL, cells[0][i * n_y * n_z + j * n_z], NORTH_SOUTH);
+//           cells[0][i * n_y * n_z + j * n_z]->get_size(dx, dy, dz);
+//           cells[0][i * n_y * n_z + j * n_z]->get_center(xc, yc, zc);
+//           faces[0][id]->set_center(xc - 0.5 * dx, yc, zc);
+//           assert(faces[0][id]->neigh_cells[0] == NULL &&
+//                  faces[0][id]->neigh_cells[1] != NULL);
+//         } else if (i == n_x) {
+//           faces[0][id] = new Face(cells[0][(i - 1) * n_y * n_z + j * n_z +
+//           k],
+//                                   NULL, NORTH_SOUTH);
+//           cells[0][(i - 1) * n_y * n_z + j * n_z + k]->get_size(dx, dy, dz);
+//           cells[0][(i - 1) * n_y * n_z + j * n_z + k]->get_center(xc, yc,
+//           zc); faces[0][id]->set_center(xc + 0.5 * dx, yc, zc);
+//           assert(faces[0][id]->neigh_cells[0] != NULL &&
+//                  faces[0][id]->neigh_cells[1] == NULL);
+//         } else {
+//           double xc1, yc1, zc1;
+//           faces[0][id] =
+//               new Face(cells[0][(i - 1) * n_y * n_z + j * n_z + k],
+//                        cells[0][i * n_y * n_z + j * n_z + k], NORTH_SOUTH);
+//           cells[0][(i - 1) * n_y * n_z + j * n_z + k]->get_center(xc, yc,
+//           zc); cells[0][i * n_y * n_z + j * n_z + k]->get_center(xc1, yc1,
+//           zc1); faces[0][id]->set_center(0.5 * (xc + xc1), 0.5 * (yc + yc1),
+//                                    0.5 * (zc + zc1));
+//         }
+//         if (i > 0) {
+//           int index = (i - 1) * n_y * n_z + j * n_z + k;
+//           cells[0][index]->set_external_faces(faces[0][id - n_y * n_z],
+//                                               faces[0][id], NORTH_SOUTH);
+//         }
+//         id++;
+//       }
+//     }
+//   }
+
+//   // id = 0;
+//   for (int i = 0; i < n_x; i++) {
+//     for (int j = 0; j < n_y + 1; j++) {
+//       for (int k = 0; k < n_z; k++) {
+//         if (j == 0) {
+//           faces[0][id] =
+//               new Face(NULL, cells[0][i * n_y * n_z + j * n_z + k],
+//               WEST_EAST);
+//           cells[0][i * n_y * n_z + j * n_z + k]->get_center(xc, yc, zc);
+//           cells[0][i * n_y * n_z + j * n_z + k]->get_size(dx, dy, dz);
+//           faces[0][id]->set_center(xc, yc - 0.5 * dy, zc);
+//           assert(faces[0][id]->neigh_cells[0] == NULL &&
+//                  faces[0][id]->neigh_cells[1] != NULL);
+//         } else if (j == n_y) {
+//           faces[0][id] = new Face(cells[0][i * n_y * n_z + (j - 1) * n_z +
+//           k],
+//                                   NULL, WEST_EAST);
+//           cells[0][i * n_y * n_z + (j - 1) * n_z + k]->get_center(xc, yc,
+//           zc); cells[0][i * n_y * n_z + (j - 1) * n_z + k]->get_size(dx, dy,
+//           dz); faces[0][id]->set_center(xc, yc + 0.5 * dy, zc);
+//           assert(faces[0][id]->neigh_cells[0] != NULL &&
+//                  faces[0][id]->neigh_cells[1] == NULL);
+//         } else {
+//           double xc1, yc1, zc1;
+//           faces[0][id] =
+//               new Face(cells[0][i * n_y * n_z + (j - 1) * n_z + k],
+//                        cells[0][i * n_y * n_z + j * n_z + k], WEST_EAST);
+//           cells[0][i * n_y * n_z + (j - 1) * n_z + k]->get_center(xc, yc,
+//           zc); cells[0][i * n_y * n_z + j * n_z + k]->get_center(xc1, yc1,
+//           zc1); faces[0][id]->set_center(0.5 * (xc + xc1), 0.5 * (yc + yc1),
+//                                    0.5 * (zc + zc1));
+//         }
+//         if (j > 0) {
+//           int index = i * n_y * n_z + (j - 1) * n_z + k;
+//           cells[0][index]->set_external_faces(faces[0][id - 1 * nz],
+//                                               faces[0][id], WEST_EAST);
+//         }
+//         id++;
+//       }
+//     }
+//   }
+
+//   // for (int i = 0; i < n_x; i++)
+//   // {
+//   //     for (int j = 0; j < n_y; j++)
+//   //     {
+//   //         for (int k = 0; k < n_z; k++)
+//   //         {
+
+//   //         }
+//   //     }
+//   // }
+//   num_leaf_faces = faces[0].size();
+//   leaf_faces.resize(num_leaf_faces);
+//   for (int i = 0; i < num_leaf_faces; i++) {
+//     leaf_faces[i] = faces[0][i];
+//   }
+
+//   this->set_n_parameter(num_para);
+//   // this->sort(0);
+// }
+
+void Mesh::generate_regular_mesh(VectorXd& x_points0,
+                                 VectorXd& y_points0,
+                                 VectorXd& z_points0,
+                                 int num_para) {
+  this->clear_all();
+
+  this->n_parameters = num_para;
+
+  this->x_points = x_points0;
+  this->y_points = y_points0;
+  this->z_points = z_points0;
+
+  this->nx = x_points.size() - 1;
+  this->ny = y_points.size() - 1;
+  this->nz = z_points.size() - 1;
+
+  this->x_lim[0] = x_points(0);
+  this->y_lim[0] = y_points(0);
+  this->z_lim[0] = z_points(0);
+
+  this->x_lim[1] = x_points(nx - 1);
+  this->y_lim[1] = y_points(ny - 1);
+  this->z_lim[1] = z_points(nz - 1);
 
   cells.push_back(vector<Cell*>(0));
-  cells[0].resize(n_z * n_x * n_y);
+  cells[0].resize(nz * nx * ny);
 
   faces.push_back(vector<Face*>(0));
-  faces[0].resize(3 * n_z * n_x * n_y + n_z * n_x + n_x * n_y + n_z * n_y);
+  faces[0].resize(3 * nz * nx * ny + nz * nx + nx * ny + nz * ny);
 
   num_cell.push_back(cells[0].size());
   num_face.push_back(faces[0].size());
 
   // construct cells
   int id = 0;
-  for (int i = 0; i < n_x; i++) {
-    for (int j = 0; j < n_y; j++) {
-      for (int k = 0; k < n_z; k++) {
+  for (int i = 0; i < nx; i++) {
+    for (int j = 0; j < ny; j++) {
+      for (int k = 0; k < nz; k++) {
         cells[0][id] =
             new Cell(x_points(i), y_points(j), z_points(k), x_points(i + 1),
                      y_points(j + 1), z_points(k + 1), 0, num_para, true);
@@ -405,38 +704,39 @@ void Mesh::generate_regular_mesh(double x_model[2],
   id = 0;
   double xc, yc, zc;
   double dx, dy, dz;
-  for (int i = 0; i < n_x; i++) {
-    for (int j = 0; j < n_y; j++) {
-      for (int k = 0; k < n_z + 1; k++) {
+  for (int i = 0; i < nx; i++) {
+    for (int j = 0; j < ny; j++) {
+      for (int k = 0; k < nz + 1; k++) {
         if (k == 0) {
           faces[0][id] =
-              new Face(NULL, cells[0][i * n_y * n_z + j * n_z], UP_DOWN);
-          cells[0][i * n_y * n_z + j * n_z]->get_size(dx, dy, dz);
-          cells[0][i * n_y * n_z + j * n_z]->get_center(xc, yc, zc);
+              new Face(NULL, cells[0][i * ny * nz + j * nz], UP_DOWN);
+          cells[0][i * ny * nz + j * nz]->get_size(dx, dy, dz);
+          cells[0][i * ny * nz + j * nz]->get_center(xc, yc, zc);
           faces[0][id]->set_center(xc, yc, zc - 0.5 * dz);
           assert(faces[0][id]->neigh_cells[0] == NULL &&
                  faces[0][id]->neigh_cells[1] != NULL);
-        } else if (k == n_z) {
-          faces[0][id] = new Face(cells[0][i * n_y * n_z + j * n_z + k - 1],
-                                  NULL, UP_DOWN);
-          cells[0][i * n_y * n_z + j * n_z + k - 1]->get_size(dx, dy, dz);
-          cells[0][i * n_y * n_z + j * n_z + k - 1]->get_center(xc, yc, zc);
+        } else if (k == nz) {
+          faces[0][id] =
+              new Face(cells[0][i * ny * nz + j * nz + k - 1], NULL, UP_DOWN);
+          cells[0][i * ny * nz + j * nz + k - 1]->get_size(dx, dy, dz);
+          cells[0][i * ny * nz + j * nz + k - 1]->get_center(xc, yc, zc);
           faces[0][id]->set_center(xc, yc, zc + 0.5 * dz);
           assert(faces[0][id]->neigh_cells[0] != NULL &&
                  faces[0][id]->neigh_cells[1] == NULL);
         } else {
           double xc1, yc1, zc1;
-          cells[0][i * n_y * n_z + j * n_z + k - 1]->get_center(xc, yc, zc);
-          cells[0][i * n_y * n_z + j * n_z + k]->get_center(xc1, yc1, zc1);
-          faces[0][id] =
-              new Face(cells[0][i * n_y * n_z + j * n_z + k - 1],
-                       cells[0][i * n_y * n_z + j * n_z + k], UP_DOWN);
-          faces[0][id]->set_center(0.5 * (xc + xc1), 0.5 * (yc + yc1),
-                                   0.5 * (zc + zc1));
+          cells[0][i * ny * nz + j * nz + k - 1]->get_center(xc, yc, zc);
+          cells[0][i * ny * nz + j * nz + k - 1]->get_size(dx, dy, dz);
+          // cells[0][i * ny * nz + j * nz + k]->get_center(xc1, yc1, zc1);
+          faces[0][id] = new Face(cells[0][i * ny * nz + j * nz + k - 1],
+                                  cells[0][i * ny * nz + j * nz + k], UP_DOWN);
+          // faces[0][id]->set_center(0.5 * (xc + xc1), 0.5 * (yc + yc1),
+          //                          0.5 * (zc + zc1));
+          faces[0][id]->set_center(xc, yc, zc + 0.5 * dz);
         }
 
         if (k > 0) {
-          int index = i * n_y * n_z + j * n_z + k - 1;
+          int index = i * ny * nz + j * nz + k - 1;
           cells[0][index]->set_external_faces(faces[0][id - 1], faces[0][id],
                                               UP_DOWN);
         }
@@ -447,38 +747,40 @@ void Mesh::generate_regular_mesh(double x_model[2],
   }
 
   // id = 0;
-  for (int i = 0; i < n_x + 1; i++) {
-    for (int j = 0; j < n_y; j++) {
-      for (int k = 0; k < n_z; k++) {
+  for (int i = 0; i < nx + 1; i++) {
+    for (int j = 0; j < ny; j++) {
+      for (int k = 0; k < nz; k++) {
         if (i == 0) {
           faces[0][id] =
-              new Face(NULL, cells[0][i * n_y * n_z + j * n_z], NORTH_SOUTH);
-          cells[0][i * n_y * n_z + j * n_z]->get_size(dx, dy, dz);
-          cells[0][i * n_y * n_z + j * n_z]->get_center(xc, yc, zc);
+              new Face(NULL, cells[0][i * ny * nz + j * nz], NORTH_SOUTH);
+          cells[0][i * ny * nz + j * nz]->get_size(dx, dy, dz);
+          cells[0][i * ny * nz + j * nz]->get_center(xc, yc, zc);
           faces[0][id]->set_center(xc - 0.5 * dx, yc, zc);
           assert(faces[0][id]->neigh_cells[0] == NULL &&
                  faces[0][id]->neigh_cells[1] != NULL);
-        } else if (i == n_x) {
-          faces[0][id] = new Face(cells[0][(i - 1) * n_y * n_z + j * n_z + k],
+        } else if (i == nx) {
+          faces[0][id] = new Face(cells[0][(i - 1) * ny * nz + j * nz + k],
                                   NULL, NORTH_SOUTH);
-          cells[0][(i - 1) * n_y * n_z + j * n_z + k]->get_size(dx, dy, dz);
-          cells[0][(i - 1) * n_y * n_z + j * n_z + k]->get_center(xc, yc, zc);
+          cells[0][(i - 1) * ny * nz + j * nz + k]->get_size(dx, dy, dz);
+          cells[0][(i - 1) * ny * nz + j * nz + k]->get_center(xc, yc, zc);
           faces[0][id]->set_center(xc + 0.5 * dx, yc, zc);
           assert(faces[0][id]->neigh_cells[0] != NULL &&
                  faces[0][id]->neigh_cells[1] == NULL);
         } else {
           double xc1, yc1, zc1;
           faces[0][id] =
-              new Face(cells[0][(i - 1) * n_y * n_z + j * n_z + k],
-                       cells[0][i * n_y * n_z + j * n_z + k], NORTH_SOUTH);
-          cells[0][(i - 1) * n_y * n_z + j * n_z + k]->get_center(xc, yc, zc);
-          cells[0][i * n_y * n_z + j * n_z + k]->get_center(xc1, yc1, zc1);
-          faces[0][id]->set_center(0.5 * (xc + xc1), 0.5 * (yc + yc1),
-                                   0.5 * (zc + zc1));
+              new Face(cells[0][(i - 1) * ny * nz + j * nz + k],
+                       cells[0][i * ny * nz + j * nz + k], NORTH_SOUTH);
+          cells[0][(i - 1) * ny * nz + j * nz + k]->get_center(xc, yc, zc);
+          cells[0][(i - 1) * ny * nz + j * nz + k]->get_size(dx, dy, dz);
+          // cells[0][i * ny * nz + j * nz + k]->get_center(xc1, yc1, zc1);
+          // faces[0][id]->set_center(0.5 * (xc + xc1), 0.5 * (yc + yc1),
+          //                          0.5 * (zc + zc1));
+          faces[0][id]->set_center(xc + 0.5 * dx, yc, zc);
         }
         if (i > 0) {
-          int index = (i - 1) * n_y * n_z + j * n_z + k;
-          cells[0][index]->set_external_faces(faces[0][id - n_y * n_z],
+          int index = (i - 1) * ny * nz + j * nz + k;
+          cells[0][index]->set_external_faces(faces[0][id - ny * nz],
                                               faces[0][id], NORTH_SOUTH);
         }
         id++;
@@ -487,37 +789,37 @@ void Mesh::generate_regular_mesh(double x_model[2],
   }
 
   // id = 0;
-  for (int i = 0; i < n_x; i++) {
-    for (int j = 0; j < n_y + 1; j++) {
-      for (int k = 0; k < n_z; k++) {
+  for (int i = 0; i < nx; i++) {
+    for (int j = 0; j < ny + 1; j++) {
+      for (int k = 0; k < nz; k++) {
         if (j == 0) {
           faces[0][id] =
-              new Face(NULL, cells[0][i * n_y * n_z + j * n_z + k], WEST_EAST);
-          cells[0][i * n_y * n_z + j * n_z + k]->get_center(xc, yc, zc);
-          cells[0][i * n_y * n_z + j * n_z + k]->get_size(dx, dy, dz);
+              new Face(NULL, cells[0][i * ny * nz + j * nz + k], WEST_EAST);
+          cells[0][i * ny * nz + j * nz + k]->get_center(xc, yc, zc);
+          cells[0][i * ny * nz + j * nz + k]->get_size(dx, dy, dz);
           faces[0][id]->set_center(xc, yc - 0.5 * dy, zc);
           assert(faces[0][id]->neigh_cells[0] == NULL &&
                  faces[0][id]->neigh_cells[1] != NULL);
-        } else if (j == n_y) {
-          faces[0][id] = new Face(cells[0][i * n_y * n_z + (j - 1) * n_z + k],
+        } else if (j == ny) {
+          faces[0][id] = new Face(cells[0][i * ny * nz + (j - 1) * nz + k],
                                   NULL, WEST_EAST);
-          cells[0][i * n_y * n_z + (j - 1) * n_z + k]->get_center(xc, yc, zc);
-          cells[0][i * n_y * n_z + (j - 1) * n_z + k]->get_size(dx, dy, dz);
+          cells[0][i * ny * nz + (j - 1) * nz + k]->get_center(xc, yc, zc);
+          cells[0][i * ny * nz + (j - 1) * nz + k]->get_size(dx, dy, dz);
           faces[0][id]->set_center(xc, yc + 0.5 * dy, zc);
           assert(faces[0][id]->neigh_cells[0] != NULL &&
                  faces[0][id]->neigh_cells[1] == NULL);
         } else {
           double xc1, yc1, zc1;
           faces[0][id] =
-              new Face(cells[0][i * n_y * n_z + (j - 1) * n_z + k],
-                       cells[0][i * n_y * n_z + j * n_z + k], WEST_EAST);
-          cells[0][i * n_y * n_z + (j - 1) * n_z + k]->get_center(xc, yc, zc);
-          cells[0][i * n_y * n_z + j * n_z + k]->get_center(xc1, yc1, zc1);
-          faces[0][id]->set_center(0.5 * (xc + xc1), 0.5 * (yc + yc1),
-                                   0.5 * (zc + zc1));
+              new Face(cells[0][i * ny * nz + (j - 1) * nz + k],
+                       cells[0][i * ny * nz + j * nz + k], WEST_EAST);
+          cells[0][i * ny * nz + (j - 1) * nz + k]->get_center(xc, yc, zc);
+          cells[0][i * ny * nz + (j - 1) * nz + k]->get_size(dx, dy, dz);
+          // cells[0][i * ny * nz + j * nz + k]->get_center(xc1, yc1, zc1);
+          faces[0][id]->set_center(xc, yc + 0.5 * dy, zc);
         }
         if (j > 0) {
-          int index = i * n_y * n_z + (j - 1) * n_z + k;
+          int index = i * ny * nz + (j - 1) * nz + k;
           cells[0][index]->set_external_faces(faces[0][id - 1 * nz],
                                               faces[0][id], WEST_EAST);
         }
@@ -526,16 +828,6 @@ void Mesh::generate_regular_mesh(double x_model[2],
     }
   }
 
-  // for (int i = 0; i < n_x; i++)
-  // {
-  //     for (int j = 0; j < n_y; j++)
-  //     {
-  //         for (int k = 0; k < n_z; k++)
-  //         {
-
-  //         }
-  //     }
-  // }
   num_leaf_faces = faces[0].size();
   leaf_faces.resize(num_leaf_faces);
   for (int i = 0; i < num_leaf_faces; i++) {
@@ -543,8 +835,8 @@ void Mesh::generate_regular_mesh(double x_model[2],
   }
 
   this->set_n_parameter(num_para);
-  // this->sort(0);
 }
+
 void Mesh::set_parameter_in_a_region(double xlim[2],
                                      double ylim[2],
                                      double zlim[2],
@@ -1451,17 +1743,15 @@ int Mesh::out_model_netcdf(string filename,
 
     // Define the dimensions. NetCDF will hand back an ncDim object for
     // each.
-    
+
     NcDim zDim = test.addDim(Z_NAME, NZ);
     NcDim xDim = test.addDim(X_NAME, NX);
     NcDim yDim = test.addDim(Y_NAME, NY);
-    
 
     NcVar xVar = test.addVar(X_NAME, ncDouble, xDim);
     NcVar yVar = test.addVar(Y_NAME, ncDouble, yDim);
     NcVar zVar = test.addVar(Z_NAME, ncDouble, zDim);
-    
-    
+
     // Define units attributes for coordinate vars. This attaches a
     // text attribute to each of the coordinate variables, containing
     // the units.
@@ -1618,11 +1908,11 @@ int Mesh::out_model_netcdf(string filename,
     zs = NULL;
 
     delete[] zrange;
-    zrange=NULL;
+    zrange = NULL;
     delete[] yrange;
-    yrange=NULL;
+    yrange = NULL;
     delete[] xrange;
-    xrange=NULL;
+    xrange = NULL;
 
     for (int i = 0; i < NX; i++) {
       delete[] xs_bnd[i];

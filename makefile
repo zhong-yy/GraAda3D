@@ -63,9 +63,11 @@ OBJS             := $(patsubst %.cpp, %.o, $(SRCS))
 %.o: %.cpp
 	$(CXX) $(CXXFLAGS) $(INCLUDE_CONTRIB) $(INCLUDE_SRC) $ -c $< -o $@
 
-EXE:=Synthetic_data1 GraInvRect
+EXE:=Synthetic_data1 GraInvRect Padding_test
 ALL:$(EXE)
 .PHONY: all
+Padding_test:$(OBJS) ./src/Padding_test.o
+	$(CXX) $(CXXFLAGS) -o Padding_test ./src/Padding_test.o $(OBJS) $(LINKFLAGS)
 Synthetic_data1:$(OBJS) ./src/Synthetic_data1.o
 	$(CXX) $(CXXFLAGS) -o Synthetic_data1 ./src/Synthetic_data1.o $(OBJS) $(LINKFLAGS)
 GraInvRect:$(OBJS) ./src/GraInvRect.o

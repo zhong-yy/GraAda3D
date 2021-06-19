@@ -17,7 +17,8 @@ class GraAdaInv {
   void start_inversion();
   void write_result();
 
-  int read_data_from_file(string file_name, const vector<unsigned int>& data_order);
+  int read_data_from_file(string file_name,
+                          const vector<unsigned int>& data_order);
   istream& next_valid_line(istream& is, string& str);
 
   /**
@@ -286,8 +287,8 @@ void GraAdaInv::read_data_parameters(string data_para) {
   noise_percentage.resize(n_fields);
   equipment_noise.resize(n_fields);
 
-  vector<double> temp1=noise_percentage;
-  vector<double> temp2=equipment_noise;
+  vector<double> temp1 = noise_percentage;
+  vector<double> temp2 = equipment_noise;
 
   for (int i = 0; i < n_fields; i++) {
     next_valid_line(input_stream, line);
@@ -299,8 +300,8 @@ void GraAdaInv::read_data_parameters(string data_para) {
   }
 
   for (int i = 0; i < n_fields; i++) {
-    noise_percentage[i]=temp1[data_order[i]];
-    equipment_noise[i]=temp2[data_order[i]];
+    noise_percentage[i] = temp1[data_order[i]];
+    equipment_noise[i] = temp2[data_order[i]];
     // cout << noise_percentage[i] << "," << equipment_noise[i] << endl;
   }
 
@@ -350,8 +351,8 @@ void GraAdaInv::read_model_parameters(string model_para) {
   ifstream input_stream(model_para.c_str());
   string line;
   next_valid_line(input_stream, line);
-  istringstream iss1(line);
-  iss1 >> x_model[0] >> x_model[1] >> n_x;
+  istringstream iss(line);
+  iss >> x_model[0] >> x_model[1] >> n_x;
 
   next_valid_line(input_stream, line);
   istringstream iss2(line);
@@ -360,13 +361,73 @@ void GraAdaInv::read_model_parameters(string model_para) {
   next_valid_line(input_stream, line);
   istringstream iss3(line);
   iss3 >> z_model[0] >> z_model[1] >> n_z;
-  cout << "X range: ";
+  cout << "Model extension in x direction (m): ";
   cout << x_model[0] << ", " << x_model[1] << endl;
-  cout << "Y range: ";
+  cout << "Model extension in y direction (m): ";
   cout << y_model[0] << ", " << y_model[1] << endl;
-  cout << "Z range: ";
+  cout << "Model extension in z direction (m):: ";
   cout << z_model[0] << ", " << z_model[1] << endl;
+
+  int n_pad_x;
+  int n_pad_y;
+  int n_pad_z;
+  double factor_x;
+  double factor_y;
+  double factor_z;
+
+  next_valid_line(input_stream, line);
+  iss.clear();
+  iss.str("");
+  iss.str(line);
+  iss >> n_pad_x;
+
+  next_valid_line(input_stream, line);
+  iss.clear();
+  iss.str("");
+  iss.str(line);
+  iss >> factor_x;
+
+  next_valid_line(input_stream, line);
+  iss.clear();
+  iss.str("");
+  iss.str(line);
+  iss >> n_pad_y;
+
+  next_valid_line(input_stream, line);
+  iss.clear();
+  iss.str("");
+  iss.str(line);
+  iss >> factor_y;
+
+  next_valid_line(input_stream, line);
+  iss.clear();
+  iss.str("");
+  iss.str(line);
+  iss >> n_pad_z;
+
+  next_valid_line(input_stream, line);
+  iss.clear();
+  iss.str("");
+  iss.str(line);
+  iss >> factor_z;
+
+  if (n_pad_x == 0 && n_pad_y == 0 && n_pad_z == 0) {
+    cout << "No padding cells" << endl;
+  } else {
+    cout<<"Padding is introduced around the region of interest."<<endl;
+    cout << "Number of padding cells in x direction: " << n_pad_x << endl;
+    cout << "Number of padding cells in y direction: " << n_pad_y << endl;
+    cout << "Number of padding cells in z direction: " << n_pad_z << endl;
+
+    cout << "Increasing factor of padding cells (x): " << factor_x << endl;
+    cout << "Increasing factor of padding cells (y): " << factor_y << endl;
+    cout << "Increasing factor of padding cells (z): " << factor_z << endl;
+  }
+
   inv_mesh.generate_regular_mesh(x_model, n_x, y_model, n_y, z_model, n_z);
+  inv_mesh.generate_regular_mesh_with_padding(
+      x_model, n_x, y_model, n_y, z_model, n_z, n_pad_x, factor_x, n_pad_y,
+      factor_y, n_pad_z, factor_z);
 
   inv_mesh.out_model_vtk("initial_mesh.vtk");
 }

@@ -40,34 +40,42 @@ class Mesh {
     }
   }
 
-  /**
-   * @brief To generate a regular mesh
-   *
-   * @param theta_model  Range of theta, in degree. Domain: [0,180]
-   * @param n_theta      How many parts the mesh will be divided in theta axis
-   * @param phi_model    Range of phi, in degree. Domain: [0, 360]
-   * @param n_phi        How many parts the mesh will be divided in phi axis
-   * @param r_model      Range of radius, in meter
-   * @param n_r          How many parts the mesh will be divided in radial axis
-   * @param num_para     How many kinds of model parameters will be stored
-   *
-   * @note theta is 0deg at the north pole, 180deg at the south pole, and phi is
-   * 0deg at prime meridian
-   */
-  void generate_regular_mesh(double x_model[2],
+  // Generate a regular mesh
+  void generate_regular_mesh(double x_model[2], // the dimension of the area of interest in x direction
+                             int n_x,           // the number of cells in x direction
+                             double y_model[2], // the dimension of the area of interest in y direction
+                             int n_y,           // the number of cells in y direction
+                             double z_model[2], // the dimension of the area of interest in z direction
+                             int n_z,           // the number of cells in z direction
+                             int num_para = 1); // the number of types of parameters will be stored in this model
+
+  void generate_regular_mesh(double x_model[2], 
                              int n_x,
                              double y_model[2],
                              int n_y,
-                             double z_model[2],
-                             int n_z,
+                             VectorXd& z_points0,
                              int num_para = 1);
 
-  void generate_regular_mesh(double x_model[2],
-                             int n_x,
-                             double y_model[2],
-                             int n_y,
-                             VectorXd& z_points,
-                             int num_para = 1);
+  void generate_regular_mesh(VectorXd& x_points0, // Coordinates of grid points in the x direction
+                             VectorXd& y_points0,
+                             VectorXd& z_points0,
+                             int num_para = 1);  
+
+
+  void generate_regular_mesh_with_padding(
+      double x_model[2],          // dimension of the area of interest in x direction
+      int n_x,                    // number of cells in x direction
+      double y_model[2],          // dimension of the area of interest in y direction
+      int n_y,                    // number of cells in y direction
+      double z_model[2],          // dimension of the area of interest in z direction
+      int n_z,                    // number of cells in z direction
+      int n_pad_x = 7,            // number of padding cells on +x and -x sides
+      double pad_stretch_x = 1.5, // increasing factor for sizes of padding cells in x direction
+      int n_pad_y = 7,            // number of padding cells on +y and -y sides
+      double pad_stretch_y = 1.5, // increasing factor for sizes of padding cells in y direction
+      int n_pad_z = 3,            // number of padding cells on +z and -z sides
+      double pad_stretch_z = 1.2, // increasing factor for sizes of padding cells  in z direction
+      int num_para = 1);
 
   void set_parameter_in_a_region(double x[2],
                                  double y[2],
@@ -166,6 +174,8 @@ class Mesh {
   int nz, nx, ny;  // number of cells along x, y, z directions for level 0
   // vector<double> r_intervals;
   VectorXd z_points;
+  VectorXd x_points;
+  VectorXd y_points;
   double x_lim[2], y_lim[2], z_lim[2];
 };
 #endif
