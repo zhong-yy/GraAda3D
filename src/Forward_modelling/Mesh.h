@@ -123,7 +123,7 @@ class Mesh {
         dx = dx0;
         dy = dy0;
         dz = dz0;
-        lev=lev0;
+        lev = lev0;
       }
     }
   }
@@ -141,7 +141,10 @@ class Mesh {
                      int n = 1,
                      vector<string> parameter_name = vector<string>(1,
                                                                     "density"));
-
+  void out_model_vtk_points(string filename,
+                     int n = 1,
+                     vector<string> parameter_name = vector<string>(1,
+                                                                    "density"));
 #ifdef USE_NETCDF
   int out_model_netcdf(string filename,
                        int ith_para = 0,

@@ -665,9 +665,9 @@ void Mesh::generate_regular_mesh(VectorXd& x_points0,
   this->y_lim[0] = y_points(0);
   this->z_lim[0] = z_points(0);
 
-  this->x_lim[1] = x_points(x_points.size()-1);
-  this->y_lim[1] = y_points(y_points.size()-1);
-  this->z_lim[1] = z_points(z_points.size()-1);
+  this->x_lim[1] = x_points(x_points.size() - 1);
+  this->y_lim[1] = y_points(y_points.size() - 1);
+  this->z_lim[1] = z_points(z_points.size() - 1);
 
   cells.push_back(vector<Cell*>(0));
   cells[0].resize(nz * nx * ny);
@@ -968,7 +968,7 @@ void Mesh::out_model_vtk(string filename,
         << "ASCII\n";  // ASCII data (not BINARY)
 
     // Part 4, Geometry/topology, unstructured mesh
-    vtk_mesh << "DATASET UNSTRUCTURED_GRID\n";  // topography and geometry
+    vtk_mesh << "DATASET UNSTRUCTURED_GRID\n";  // topology and geometry
 
     // POINTS info (0-->n-1)
     vtk_mesh << "\nPOINTS\t" << total_points << "\tdouble\n";
@@ -1027,6 +1027,119 @@ void Mesh::out_model_vtk(string filename,
 
   vtk_mesh.close();
   cout << "The model has been written to vtk file: " << filename << endl;
+}
+
+void Mesh::out_model_vtk_points(string filename,
+                                int n,
+                                vector<string> parameter_name) {
+  // prepare the node
+  std::set<Point> v_set;
+  std::vector<std::vector<Point>> prism(this->n_elems());
+  // for (int i = 0; i < n_elems() && (this->get_elem(i)._phi[0] > 0.); i++)
+  for (int i = 0; i < n_elems(); i++) {
+    // build the point (8 points)
+    Point v[8];
+    double x1, x2, y1, y2, z1, z2;
+    x1 = this->get_elem(i)._x[0];
+    x2 = this->get_elem(i)._x[1];
+    y1 = this->get_elem(i)._y[0];
+    y2 = this->get_elem(i)._y[1];
+    z1 = this->get_elem(i)._z[0];
+    z2 = this->get_elem(i)._z[1];
+
+    v[0] = Point(x1, y1, z1);
+    v[1] = Point(x2, y1, z1);
+    v[2] = Point(x2, y2, z1);
+    v[3] = Point(x1, y2, z1);
+    v[4] = Point(x1, y1, z2);
+    v[5] = Point(x2, y1, z2);
+    v[6] = Point(x2, y2, z2);
+    v[7] = Point(x1, y2, z2);
+
+    for (int j = 0; j < 8; j++)
+      v_set.insert(v[j]);
+    for (int j = 0; j < 8; j++)
+      prism[i].push_back(v[j]);
+  }
+  std::map<Point, unsigned int> v_id_map;
+  unsigned int counter = 0;
+  for (std::set<Point>::iterator it = v_set.begin(); it != v_set.end(); it++) {
+    v_id_map[(*it)] = counter;
+    counter++;
+  }
+  const unsigned int total_points = v_set.size();
+  const unsigned int total_cells = this->n_elems();
+  //----------------------------------------------------------------------
+  // Open the of stream
+  std::ofstream vtk_mesh(filename.c_str());
+  if (!vtk_mesh.good()) {
+    std::cerr << "Can not open file:\t" << filename + ".vtk" << std::endl;
+  } else {
+    // Parts 1-2-3, mandatory
+    vtk_mesh
+        << "# vtk DataFile Version 3.0\n"  // File version and identifier
+                                           // Header info, doublely cool data
+        << "Gravity inversion using rectangular prisms\n"
+        << "ASCII\n";  // ASCII data (not BINARY)
+
+    // Part 4, Geometry/topology, unstructured mesh
+    vtk_mesh << "DATASET UNSTRUCTURED_GRID\n";  // topology and geometry
+
+    // POINTS info (0-->n-1)
+    vtk_mesh << "\nPOINTS\t" << total_cells << "\tdouble\n";
+    // Loop POINTS to write out coordinates
+    for (int i = 0; i < this->n_elems(); i++) {
+      double x, y, z;
+      leaf_cells[i]->get_center(x, y, z);
+      vtk_mesh << x << "\t"   // x-coordinate
+               << y << "\t"   // y-coordinate
+               << z << "\n";  // z-coordinate
+    }
+
+    // CELL info (0-->m-1)
+    typedef std::map<Point, unsigned int>::iterator IT;
+
+    vtk_mesh << "\nCELLS\t" << total_cells << "\t" << total_cells * (1 + 1)
+             << "\n";
+    for (unsigned int i = 0; i < total_cells; i++) {
+      vtk_mesh << (unsigned int)1 << "\t" << i << endl;
+    }
+
+    // CELL types (m)
+    vtk_mesh << "\nCELL_TYPES\t" << total_cells << "\n";
+    for (unsigned int i = 0; i < total_cells; i++) {
+      vtk_mesh << (unsigned int)1 << "\n";
+    }
+
+    // Part 5, attributes
+    vtk_mesh << "\nCELL_DATA\t" << total_cells << "\n";
+    for (int j = 0; j < n; j++) {
+      vtk_mesh << "SCALARS " << parameter_name[j] << " double 1\n"
+               << "LOOKUP_TABLE "
+               << "table" << j << endl;
+      for (unsigned int i = 0; i < total_cells; i++) {
+        double value = leaf_cells[i]->get_parameter(j);
+        vtk_mesh << value << "\n";
+      }
+    }
+
+    vtk_mesh << "\nPOINT_DATA\t" << total_cells << "\n";
+    for (int j = 0; j < n; j++) {
+      vtk_mesh << "SCALARS " << parameter_name[j] << " double 1\n"
+               << "LOOKUP_TABLE "
+               << "table" << j << endl;
+      for (unsigned int i = 0; i < total_cells; i++) {
+        double value = leaf_cells[i]->get_parameter(j);
+        vtk_mesh << value << "\n";
+      }
+    }
+    vtk_mesh << "\n";
+
+  }  // file opened successfully
+
+  vtk_mesh.close();
+  cout << "The model has been written to vtk file in point data: " << filename
+       << endl;
 }
 
 map<unsigned int, Cell*> Mesh::refinement(Cell* c) {

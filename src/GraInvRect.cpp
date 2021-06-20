@@ -692,6 +692,7 @@ void GraAdaInv::start_inversion() {
 void GraAdaInv::write_result() {
   cout << "Writing the inversion model into file ..." << endl;
   inv->result2vtk(output_model_name);
+  
 
 #ifdef USE_NETCDF
   inv->result2netcdf(output_model_name);
@@ -700,4 +701,6 @@ void GraAdaInv::write_result() {
   cout << "Writing predicted data ..." << endl;
   inv->output_obs_data("dobs");
   inv->output_predicted_data("dpredicted");
+  inv->output_obs_data_vtk("dobs.vtk");
+  inv->output_predicted_data_vtk("dpredicted.vtk");
 }

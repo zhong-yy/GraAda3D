@@ -665,11 +665,95 @@ void InversionBase::out_data(const VectorXd& d, string out_name) {
   }
 }
 
+void InversionBase::output_predicted_data_vtk(string out_name) {
+  VectorXd d_pre = this->get_predicted_field();
+  this->out_data_vtk(d_pre, out_name);
+}
+
+void InversionBase::output_obs_data_vtk(string out_name) {
+  // cout<<this->dobs.rows()<<endl;
+  this->out_data_vtk(this->dobs, out_name);
+}
+
+void InversionBase::out_data_vtk(const VectorXd& d, string out_name) {
+  vector<string> strs = {"V",    "g_z",  "g_x",  "g_y",  "T_zz",
+                         "T_xz", "T_yz", "T_xx", "T_xy", "T_yy"};
+  vector<unsigned int> field_label;
+  for (unsigned int i = 0; i < strs.size(); i++) {
+    if (field_flag[i]) {
+      field_label.push_back(i);
+    }
+  }
+  //----------------------------------------------------------------------
+  // Open a file stream
+  std::ofstream vtk_mesh(out_name.c_str());
+
+  if (!vtk_mesh.good()) {
+    std::cerr << "Can not open file:\t" << out_name + ".vtk" << std::endl;
+  } else {
+    // Parts 1-2-3, mandatory
+    vtk_mesh
+        << "# vtk DataFile Version 3.0\n"  // File version and identifier
+                                           // Header info, doublely cool data
+        << "Gravity effects\n"
+        << "ASCII\n";  // ASCII data (not BINARY)
+
+    // Part 4, Geometry/topology, unstructured mesh
+    vtk_mesh << "DATASET UNSTRUCTURED_GRID\n";
+
+    int n_ob = ob.get_n_obs();
+    // POINTS info (0-->n-1)
+    vtk_mesh << "\nPOINTS\t" << n_ob << "\tdouble\n";
+
+    for (unsigned int i = 0; i < n_ob; i++) {
+      const Point& p = ob(i);
+      vtk_mesh << p.x() << "\t" << p.y() << "\t" << p.z() << endl;
+    }
+
+    vtk_mesh << "\nCELLS\t" << n_ob << "\t" << n_ob * (1 + 1) << endl;
+    for (unsigned int i = 0; i < n_ob; i++) {
+      vtk_mesh << (unsigned int)1 << "\t" << i << endl;
+    }
+
+    vtk_mesh << "\nCELL_TYPES\t" << n_ob << "\n";
+    for (unsigned int i = 0; i < n_ob; i++) {
+      vtk_mesh << (unsigned int)1 << "\n";  // VTK_VERTEX=1
+    }
+
+    int n_com = field_flag.count();  // number of used components
+    vtk_mesh << "\nCELL_DATA\t" << n_ob << "\n";
+    for (int j = 0; j < n_com; j++) {
+      vtk_mesh << "SCALARS " << strs[field_label[j]] << " double 1\n"
+               << "LOOKUP_TABLE "
+               << "table" << j << endl;
+      for (unsigned int i = 0; i < n_ob; i++) {
+        double value = d(i + j * n_ob);
+        vtk_mesh << value << "\n";
+      }
+    }
+    vtk_mesh << "\nPOINT_DATA\t" << n_ob << "\n";
+    for (int j = 0; j < n_com; j++) {
+      vtk_mesh << "SCALARS " << strs[field_label[j]] << " double 1\n"
+               << "LOOKUP_TABLE "
+               << "table" << j << endl;
+      for (unsigned int i = 0; i < n_ob; i++) {
+        double value = d(i + j * n_ob);
+        vtk_mesh << value << "\n";
+      }
+    }
+    vtk_mesh << "\n";
+  }  // file opened successfully
+
+  vtk_mesh.close();
+  cout << "Written data to: " << out_name << endl;
+}
+
 void InversionBase::result2vtk(string filename) {
   this->set_density_to_mesh();
   this->set_reference_model_to_mesh();
   vector<string> parameter_name = {"model", "m0", "m0s"};
   mesh.out_model_vtk(filename + string(".vtk"), 3, parameter_name);
+  mesh.out_model_vtk_points(filename + string("_points.vtk"), 3, parameter_name);
 }
 
 #ifdef USE_NETCDF
@@ -832,12 +916,11 @@ void InversionBase::create_crg_model_from_data(string filename,
     double val = (*interpolator_m0s).interp(args.begin());
     c->set_parameter(val);
   }
-  mesh_crg.out_model_vtk("crg_model.vtk", 1,
-                         vector<string>(1,"crg"));
+  mesh_crg.out_model_vtk("crg_model.vtk", 1, vector<string>(1, "crg"));
 
 #ifdef USE_NETCDF
   mesh_crg.out_model_netcdf(string("crg_model.nc"), 0, "crg", "");
-#endif  
+#endif
 }
 
 void InversionBase::create_ref_model_from_data(string filename,

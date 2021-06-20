@@ -21,7 +21,10 @@ class InversionBase : public Fwd {
 
   void output_obs_data(string out_name);
 
+  void output_obs_data_vtk(string filename);
+
   void output_predicted_data(string out_name);
+  void output_predicted_data_vtk(string out_name);
 
   VectorXd& get_result() { return this->m; }
   VectorXd get_predicted_field();
@@ -152,6 +155,7 @@ class InversionBase : public Fwd {
   void update_S_crg();
 
   void out_data(const VectorXd& d, string out_name);
+  void out_data_vtk(const VectorXd& d, string out_name);
 
  protected:
   VectorXd m;

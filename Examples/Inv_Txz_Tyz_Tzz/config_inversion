@@ -8,13 +8,13 @@
 #a_s a_z a_x a_y a_crg
 1e-4 1e0 1e0 1e0 0
 
-2 1e-10
+2 0
 
 #Depth weighting exponent. 
 2
 
 #Maximal regularization parameter (lambda) used, number of lambda used for trial
-1e4 30 0.5
+1e2 30 0.5
 
 #Target misfit
 1
@@ -24,7 +24,7 @@
 0.02
 
 #Tolerance value and Maximal number of iterations for LSCG solver (least-square conjugate gradient) 
-1e-6 200
+1e-4 200
 
 #Maximal number of iterations for gauss-newton
 8
