@@ -403,8 +403,8 @@ void Mesh::generate_regular_mesh_with_padding(
   x_points.resize(n_x0 + 1 + 2 * n_pad_x);
   y_points.resize(n_y0 + 1 + 2 * n_pad_y);
   z_points.resize(n_z0 + 1 + n_pad_z);
-  cout << n_x0 << endl;
-  cout << n_x0 + 1 + 2 * n_pad_x << endl;
+  // cout << n_x0 << endl;
+  // cout << n_x0 + 1 + 2 * n_pad_x << endl;
   x_points.segment(n_pad_x, n_x0 + 1) = x_points_in;
   y_points.segment(n_pad_y, n_y0 + 1) = y_points_in;
   z_points.segment(0, n_z0 + 1) = z_points_in;
@@ -412,7 +412,7 @@ void Mesh::generate_regular_mesh_with_padding(
   double dx0 = x_points_in(1) - x_points_in(0);
   double dy0 = y_points_in(1) - y_points_in(0);
   double dz0 = z_points_in(1) - z_points_in(0);
-  cout << dx0 << ", " << dy0 << ", " << dz0 << ", " << endl;
+  // cout << dx0 << ", " << dy0 << ", " << dz0 << ", " << endl;
   for (int i = 0; i < n_pad_x; i++) {
     dx0 *= pad_stretch_x;
     x_points(n_pad_x + n_x0 + 1 + i) = x_points(n_pad_x + n_x0 + i) + dx0;
@@ -665,9 +665,9 @@ void Mesh::generate_regular_mesh(VectorXd& x_points0,
   this->y_lim[0] = y_points(0);
   this->z_lim[0] = z_points(0);
 
-  this->x_lim[1] = x_points(nx - 1);
-  this->y_lim[1] = y_points(ny - 1);
-  this->z_lim[1] = z_points(nz - 1);
+  this->x_lim[1] = x_points(x_points.size()-1);
+  this->y_lim[1] = y_points(y_points.size()-1);
+  this->z_lim[1] = z_points(z_points.size()-1);
 
   cells.push_back(vector<Cell*>(0));
   cells[0].resize(nz * nx * ny);
@@ -1686,21 +1686,42 @@ int Mesh::out_model_netcdf(string filename,
   double* yrange = new double[2];
   double* xrange = new double[2];
 
-  double x_space = (x_lim[1] - x_lim[0]) / NX;
-  for (unsigned int i = 0; i < NX; i++) {
-    xs[i] = x_lim[0] + 0.5 * x_space + i * x_space;
-    xs_bnd[i] = new double[2];
-    xs_bnd[i][0] = x_lim[0] + i * x_space;
-    xs_bnd[i][1] = x_lim[0] + (i + 1) * x_space;
+  // double x_space = (x_lim[1] - x_lim[0]) / NX;
+  // for (unsigned int i = 0; i < NX; i++) {
+  //   xs[i] = x_lim[0] + 0.5 * x_space + i * x_space;
+  //   xs_bnd[i] = new double[2];
+  //   xs_bnd[i][0] = x_lim[0] + i * x_space;
+  //   xs_bnd[i][1] = x_lim[0] + (i + 1) * x_space;
+  // }
+
+  // double y_space = (y_lim[1] - y_lim[0]) / NY;
+  // for (unsigned int j = 0; j < NY; j++) {
+  //   ys[j] = y_lim[0] + 0.5 * y_space + j * y_space;
+  //   ys_bnd[j] = new double[2];
+
+  //   ys_bnd[j][0] = y_lim[0] + j * y_space;
+  //   ys_bnd[j][1] = y_lim[0] + (j + 1) * y_space;
+  // }
+
+  for (unsigned int k = 0; k < nx; k++) {
+    double x_space = (x_points(k + 1) - x_points(k)) / (1.0 * N);
+    for (unsigned int k2 = 0; k2 < N; k2++) {
+      int index = k * N + k2;
+      xs[index] = x_points(k) + 0.5 * x_space + k2 * x_space;
+      xs_bnd[index] = new double[2];
+      xs_bnd[index][0] = x_points(k) + k2 * x_space;
+      xs_bnd[index][1] = x_points(k) + (k2 + 1) * x_space;
+    }
   }
-
-  double y_space = (y_lim[1] - y_lim[0]) / NY;
-  for (unsigned int j = 0; j < NY; j++) {
-    ys[j] = y_lim[0] + 0.5 * y_space + j * y_space;
-    ys_bnd[j] = new double[2];
-
-    ys_bnd[j][0] = y_lim[0] + j * y_space;
-    ys_bnd[j][1] = y_lim[0] + (j + 1) * y_space;
+  for (unsigned int k = 0; k < nx; k++) {
+    double y_space = (y_points(k + 1) - y_points(k)) / (1.0 * N);
+    for (unsigned int k2 = 0; k2 < N; k2++) {
+      int index = k * N + k2;
+      ys[index] = y_points(k) + 0.5 * y_space + k2 * y_space;
+      ys_bnd[index] = new double[2];
+      ys_bnd[index][0] = y_points(k) + k2 * y_space;
+      ys_bnd[index][1] = y_points(k) + (k2 + 1) * y_space;
+    }
   }
   for (unsigned int k = 0; k < nz; k++) {
     double z_space = (z_points(k + 1) - z_points(k)) / (1.0 * N);

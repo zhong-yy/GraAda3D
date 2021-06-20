@@ -75,4 +75,4 @@ GraInvRect:$(OBJS) ./src/GraInvRect.o
 
 .PHONY: clean
 clean:
-	@rm -rf *.o *~  $(OBJS) $(OBJS_TESSEROID) $(EXE) ./src/GraInvRect.o ./src/Synthetic_data1.o
+	@rm -rf *.o *~  $(OBJS) $(OBJS_TESSEROID) $(EXE) ./src/GraInvRect.o ./src/Synthetic_data1.o ./src/Padding_test.o

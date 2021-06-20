@@ -11,7 +11,7 @@
 #--"p": means Lp norm will be used
 #--"epsilon2" :a small value is used to avoid singularity
 #For L1-norm inversion (p=1), the inversion result is more focusing with smaller epsilon2, while larger value of epsilon2 produce smoother inversion results. 
-2 1e-9
+2 0
 
 #Depth weighting exponent. Generally, it's 2
 2

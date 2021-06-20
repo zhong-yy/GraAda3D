@@ -77,7 +77,7 @@ void GaussNewtonInversion::invert() {
   VectorXd delta_x(Nm), m_trial(Nm);  // m_trial_last(Nm), m_trial_last2(Nm);
   double misfit, misfit_last1, misfit_last2, misfit_last_iteration;
 
-  m = m_ini;
+  
   if (use_petrophysical_constraint) {
     m = m0;
     for (int i = 0; i < Nm; i++) {
@@ -88,7 +88,18 @@ void GaussNewtonInversion::invert() {
         m(i) = m_min(i) + 0.01;
       }
     }
+  } else {
+    m = m_ini;
+    for (int i = 0; i < Nm; i++) {
+      if (m(i) > m_max(i) || abs(m(i) - m_max(i)) < 1e-7) {
+        m(i) = 0.5*(m_max(i)+m_min(i));
+      }
+      if (m(i) < m_min(i) || abs(m(i) - m_min(i)) < 1e-7) {
+        m(i) = 0.5*(m_max(i)+m_min(i));
+      }
+    }
   }
+
   misfit = (Wd * (G * m - dobs)).squaredNorm() / Nd;
 
   misfit_last_iteration = 5 * misfit;
