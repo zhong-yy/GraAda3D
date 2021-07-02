@@ -8,6 +8,8 @@ bash GMT_slice_node_reg.sh
 
 
 
+These gmt templates are only suitable regular initial mesh without padding cells.
+
 **Primary files**
 
 1. GMT_slice_node_reg.sh: Slice 3D netcdf data, write out with node registration
