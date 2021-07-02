@@ -1,4 +1,4 @@
-GraInvRect
+GraAda3D
 ===========
 ## 1 Introduction
 It is a 3D gravity inversion program implemented with C++. The inversion domain is discretized as rectangular prismatic meshes in the Cartesian coordinate system. The inversion mesh can be adaptively refined to boost computational performance and avoid over-parameterization. In addition, users can choose to use L0-norm (minimum support) and L1-norm regularization to obtain a focused image, or use L2-norm regularization to get a smooth result. Furthermore, a-priori information can be incorporated in inversion through cross-gradient coupling or direct parameter relationship. 
@@ -25,7 +25,7 @@ Any combination of gravity field components or gravity gradient components (gz, 
 Build the program using Make,
 
 ```bash
-cd GraInvRect
+cd GraAda3D
 make
 ```
 By default, the program is built without netcdf support. In this way, you don't have to install the netcdf library in advance, but there are not *.nc files generated after inversion. The results are written in  *.vtk file, which can be visulaized by [Paraview](https://www.paraview.org/).
@@ -66,11 +66,11 @@ sudo yum install netcdf-cxx-devel
 
 ## 3 Examples
 
-Now, you have 2 executable programs in the GraInvRect folder: **GraInvRect** and **Synthetic_data1**.
+Now, you have 2 executable programs in the GraAda3D folder: **GraAda3D** and **Synthetic_data1**.
 
-The **GraInvRect** program is the  inversion program, and **Synthetic_data1** is used to generate a synthetic data set for validation of the inversion program. 
+The **GraAda3D** program is the  inversion program, and **Synthetic_data1** is used to generate a synthetic data set for validation of the inversion program. 
 
-Change from the current directory to `GraInvRect/Examples` and type the following command in the terminal:
+Change from the current directory to `GraAda3D/Examples` and type the following command in the terminal:
 
 ```
 ../Synthetic_data1
@@ -80,7 +80,7 @@ to generate synthetic data with noise. Then we get a text file named *dobs_g_z* 
 
 ### 3.1 A example of inversion using gz data
 
-1. cd `GraInvRect/Examples/Inv_gz` In this folder, we have prepared the following configuration files:  **config**, **config_data**, **config_inversion** and **config_model**. 
+1. cd `GraAda3D/Examples/Inv_gz` In this folder, we have prepared the following configuration files:  **config**, **config_data**, **config_inversion** and **config_model**. 
 
    The file **config** is the only parameter required by the inversion program, which specifies another 3 configuration files: **config_data**, **config_inversion** and **config_model**. 
 
@@ -93,13 +93,13 @@ to generate synthetic data with noise. Then we get a text file named *dobs_g_z* 
 2. Then, let's run the inversion
 
 ```
-../../GraInvRect config
+../../GraAda3D config
 ```
 After the inversion is finished,  the result is written into **gz_result.vtk** file. The vtk file can be visualized in [Paraview](https://www.paraview.org/). 
 
-If `GraInvRect` is compiled with NetCDF (`make USE_NETCDF=1`), the resulting model is also written into a ***.nc** file. A python script `crossSections2.py`  is used to read the result in *.nc file and plot cross sections.
+If `GraAda3D` is compiled with NetCDF (`make USE_NETCDF=1`), the resulting model is also written into a ***.nc** file. A python script `crossSections2.py`  is used to read the result in *.nc file and plot cross sections.
 
-3. Similarly, `cd GraInvRect/Examples/Inv_Tzz` and run the inversion of Tzz data with`../../GraInvRect config`.
+3. Similarly, `cd GraAda3D/Examples/Inv_Tzz` and run the inversion of Tzz data with`../../GraAda3D config`.
 
 ### 3.2 Inversion using  multiple components of gravity gradient tensor
 
@@ -109,7 +109,7 @@ The file **config_data** tells the program which data to be used.
 2. Run the inversion
 
 ```
-../../GraInvRect config
+../../GraAda3D config
 ```
 
 3. Show the inversion result in Paraview, or using python:
@@ -127,7 +127,7 @@ python Txz_Tyz_Tzz.py
 2.  Run the inversion
 
 ```
-../../GraInvRect config
+../../GraAda3D config
 ```
 
 3. Show the inversion result in Paraview, or using python:
@@ -145,7 +145,7 @@ python crossSections2.py
 2. Run the inversion,
 
 ```
-../../GraInvRect config
+../../GraAda3D config
 ```
 
 ### 3.5 Examples of inversion with a priori information
@@ -156,19 +156,19 @@ A priori information (e.g. existing velocity models) can be included in the inve
 
 Using direct empirical relations between density and the known parameter, we can obtain a reference density model. In this algorithm, if a reference model is specified, it will also serve as the initial model. 
 
-We have prepared a file **ref_model** in the GraInvRect/Examples folder, which contains gridded data of a reference model.
+We have prepared a file **ref_model** in the GraAda3D/Examples folder, which contains gridded data of a reference model.
 
-1. cd `GraInvRect/Examples/Inv_with_ref`, open the file **config_inversion**, look at line 70, which specify the reference model and see comments on lines 63-69 for explanation.
+1. cd `GraAda3D/Examples/Inv_with_ref`, open the file **config_inversion**, look at line 70, which specify the reference model and see comments on lines 63-69 for explanation.
 
 2. Run
 
 ```
-../../GraInvRect config
+../../GraAda3D config
 ```
 
 #### (2) Cross gradient constraint
 
-1. cd `GraInvRect/Examples/Inv_with_cross_gradient_constraint`, open **config_inversion**, look at line 65. 
+1. cd `GraAda3D/Examples/Inv_with_cross_gradient_constraint`, open **config_inversion**, look at line 65. 
 
 2. Run
 
