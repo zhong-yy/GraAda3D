@@ -106,9 +106,17 @@ int main(int argc, char** argv) {
          << " exists" << endl;
     return 1;
   }
+  
+  cout<<R"(  ____                     _          _           _____ ____  )"<<endl
+      <<R"( / ___|  _ __    __ _     / \      __| |   __ _  |___ /|  _ \ )"<<endl
+      <<R"(| |  _  | '__|  / _` |   / _ \    / _` |  / _` |   |_ \| | | |)"<<endl
+      <<R"(| |_| | | |    | (_| |  / ___ \  | (_| | | (_| |  ___) | |_| |)"<<endl
+      <<R"( \____| |_|     \__,_| /_/   \_\  \__,_|  \__,_| |____/|____/ )"<<endl;
 
   cout << "Using inversion parameters from configuration file: " << argv[1]
        << endl;
+       
+  
 
   GraAdaInv inv_case;
 

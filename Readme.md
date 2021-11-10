@@ -1,6 +1,13 @@
-GraAda3D
-===========
+```
+  ____                     _          _           _____ ____  
+ / ___|  _ __    __ _     / \      __| |   __ _  |___ /|  _ \ 
+| |  _  | '__|  / _` |   / _ \    / _` |  / _` |   |_ \| | | |
+| |_| | | |    | (_| |  / ___ \  | (_| | | (_| |  ___) | |_| |
+ \____| |_|     \__,_| /_/   \_\  \__,_|  \__,_| |____/|____/ 
+```
+
 ## 1 Introduction
+
 It is a 3D gravity inversion program implemented with C++. The inversion domain is discretized as rectangular prismatic meshes in the Cartesian coordinate system. The inversion mesh can be adaptively refined to boost computational performance and avoid over-parameterization. In addition, users can choose to use L0-norm (minimum support) and L1-norm regularization to obtain a focused image, or use L2-norm regularization to get a smooth result. Furthermore, a-priori information can be incorporated in inversion through cross-gradient coupling or direct parameter relationship. 
 
 Any combination of gravity field components or gravity gradient components (gz, gx, gy, Tzz, Txz, Tyz, Txx, Txy, Tyy) can be used as input data.  Exact analytical solutions of gravity field and gravity gradient tensor are used to ensure accuracy of the forward modeling. 
