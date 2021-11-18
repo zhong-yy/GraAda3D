@@ -145,6 +145,8 @@ class Mesh {
                      int n = 1,
                      vector<string> parameter_name = vector<string>(1,
                                                                     "density"));
+
+  void out_model_txt(string filename,int ith_para = 0);
 #ifdef USE_NETCDF
   int out_model_netcdf(string filename,
                        int ith_para = 0,

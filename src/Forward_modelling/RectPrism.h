@@ -4,21 +4,16 @@
 #include <string>
 // #include "Point.h"
 using namespace std;
-#include"gs.h"
+#include "gs.h"
 /**
  * @brief Rectangular prism
- * 
+ *
  */
 class RectPrism {
  public:
   RectPrism(double x[2], double y[2], double z[2]);
 
-  RectPrism(double x0,
-            double y0,
-            double z0,
-            double x1,
-            double y1,
-            double z1);
+  RectPrism(double x0, double y0, double z0, double x1, double y1, double z1);
 
   RectPrism();
   ~RectPrism(){};
@@ -31,6 +26,10 @@ class RectPrism {
   void get_size(double& dx, double& dy, double& dz) const;
 
   void get_center(double& xcenter, double& ycenter, double& zcenter) const;
+
+  void get_xlim(double& x0, double& x1)const;
+  void get_ylim(double& y0, double& y1)const;
+  void get_zlim(double& z0, double& z1)const;
 
  public:
   // int id;

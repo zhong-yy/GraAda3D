@@ -39,11 +39,11 @@ zs=node_to_pixel(z)
 z_id=get_slice_index(xs,350)
 z_slice=density[z_id,:,:]
 
-y_id=get_slice_index(ys,700)
-y_slice1=density[:,y_id,:]
+y_id1=get_slice_index(ys,700)
+y_slice1=density[:,y_id1,:]
 
-y_id=get_slice_index(ys,1450)
-y_slice2=density[:,y_id,:]
+y_id2=get_slice_index(ys,1450)
+y_slice2=density[:,y_id2,:]
 
 fig=plt.figure(figsize=(12,6))
 gs0 = gridspec.GridSpec(1, 2, figure=fig, width_ratios=[1, 1])
@@ -53,13 +53,13 @@ gs00 = gridspec.GridSpecFromSubplotSpec(2, 1, subplot_spec=gs0[0],hspace=0.4)
 #fig,(ax1,ax2)=plt.subplots(1,2,figsize=(12,6))
 print(np.max(density))
 print(np.min(density))
-min_value_shown=-300
-max_value_shown=300
+min_value_shown=-250
+max_value_shown=250
 fts=12
 clrmap='jet'
 ax1=fig.add_subplot(gs00[0])
-Y,Z=np.meshgrid(ys,zs)
-pc=ax1.pcolormesh(Y,Z,y_slice1,cmap=clrmap,vmin=min_value_shown,vmax=max_value_shown)
+X,Z=np.meshgrid(xs,zs)
+pc=ax1.pcolormesh(X,Z,y_slice1,cmap=clrmap,vmin=min_value_shown,vmax=max_value_shown)
 ax1.set_aspect('equal', 'box')#相当于matlab中的axis equal
 #ax1.set_title(r'Y=700m')
 ax1.yaxis.set_minor_locator(AutoMinorLocator())
@@ -73,7 +73,7 @@ ax1.text(0.01,0.9,"(a) Y=700 m",fontsize=fts, transform=ax1.transAxes)
 
 
 ax2=fig.add_subplot(gs00[1])
-pc=ax2.pcolormesh(Y,Z,y_slice2,cmap=clrmap,vmin=min_value_shown,vmax=max_value_shown)
+pc=ax2.pcolormesh(X,Z,y_slice2,cmap=clrmap,vmin=min_value_shown,vmax=max_value_shown)
 ax2.set_aspect('equal', 'box')#相当于matlab中的axis equal
 #ax2.set_title(r'Y=1450m')
 ax2.yaxis.set_minor_locator(AutoMinorLocator())
@@ -107,6 +107,6 @@ ax3.text(0.01,0.92,"(c) Z=350 m",fontsize=fts, transform=ax3.transAxes)
 for ax in fig.axes:
     ax.tick_params(which='both',labelsize=fts)
 
-plt.savefig('inversion_model_slices.jpg',dpi=300,bbox_inches='tight')
+plt.savefig('Inversion_Slices.jpg',dpi=300,bbox_inches='tight')
 
 

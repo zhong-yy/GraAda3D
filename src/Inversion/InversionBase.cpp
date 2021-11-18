@@ -747,13 +747,17 @@ void InversionBase::out_data_vtk(const VectorXd& d, string out_name) {
   vtk_mesh.close();
   cout << "Written data to: " << out_name << endl;
 }
-
+void InversionBase::result2text(string filename) {
+  this->set_density_to_mesh();
+  this->mesh.out_model_txt(filename+ string(".txt"));
+}
 void InversionBase::result2vtk(string filename) {
   this->set_density_to_mesh();
   this->set_reference_model_to_mesh();
   vector<string> parameter_name = {"model", "m0", "m0s"};
   mesh.out_model_vtk(filename + string(".vtk"), 3, parameter_name);
-  mesh.out_model_vtk_points(filename + string("_points.vtk"), 3, parameter_name);
+  mesh.out_model_vtk_points(filename + string("_points.vtk"), 3,
+                            parameter_name);
 }
 
 #ifdef USE_NETCDF

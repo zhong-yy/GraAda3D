@@ -137,7 +137,7 @@ class InversionBase : public Fwd {
       this->constraint_y[i] = y[i];
     }
   }
-
+  void result2text(string filename);
   void result2vtk(string filename);
 #ifdef USE_NETCDF
   void result2netcdf(string filename);

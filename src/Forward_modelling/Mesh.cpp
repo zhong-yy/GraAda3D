@@ -1142,6 +1142,46 @@ void Mesh::out_model_vtk_points(string filename,
        << endl;
 }
 
+void Mesh::out_model_txt(string filename,int ith_para) {
+  ofstream outfile(filename.c_str());
+  outfile<<"#The first 6 parameters give the dimensions of a cell. The 7-9 parameters are the cell center. The 10th parameter is the value within the cell."<<endl;
+  outfile << setw(22) << left << "#x0(m)" << setw(22) << left << "x1(m)" << setw(22)
+          << left << "#y0(m)" << setw(22) << left << "y1(m)" << setw(22) << left
+          << "#z0(m)" << setw(22) << left << "z1(m)" << setw(22) << left << "xc(m)"
+          << setw(22) << "yc(m)" << setw(22) << "zc(m)";
+  outfile<<setw(22)<<left<<"value"<<endl;
+  outfile << scientific;
+  for (int i = 0; i < n_elems(); i++) {
+    double x1, y1, z1;
+    double x2, y2, z2;
+    double xc, yc, zc;
+    double value;
+
+    x1 = this->get_elem(i)._x[0];
+    x2 = this->get_elem(i)._x[1];
+    y1 = this->get_elem(i)._y[0];
+    y2 = this->get_elem(i)._y[1];
+    z1 = this->get_elem(i)._z[0];
+    z2 = this->get_elem(i)._z[1];
+    
+    this->get_elem(i).get_center(xc,yc,zc);
+    
+    value=leaf_cells[i]->get_parameter(ith_para);
+    outfile <<setw(22)<<left<<setprecision(14)<<x1;
+    outfile <<setw(22)<<left<<setprecision(14)<<x2;
+    outfile <<setw(22)<<left<<setprecision(14)<<y1;
+    outfile <<setw(22)<<left<<setprecision(14)<<y2;
+    outfile <<setw(22)<<left<<setprecision(14)<<z1;
+    outfile <<setw(22)<<left<<setprecision(14)<<z2;
+    outfile <<setw(22)<<left<<setprecision(14)<<xc;
+    outfile <<setw(22)<<left<<setprecision(14)<<yc;
+    outfile <<setw(22)<<left<<setprecision(14)<<zc;
+    outfile <<setw(22)<<left<<setprecision(14)<<value;
+    outfile <<endl;
+  }
+  cout << "The model has been written to text file: " << filename << endl;
+}
+
 map<unsigned int, Cell*> Mesh::refinement(Cell* c) {
   // cout<<"count="<<std::count(leaf_cells.begin(), leaf_cells.end(), c)<<endl;
   // cout<<"isleaf="<<c->isleaf<<endl;

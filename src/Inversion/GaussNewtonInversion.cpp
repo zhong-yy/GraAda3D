@@ -391,20 +391,21 @@ void GaussNewtonInversion::invert() {
       Ws.makeCompressed();
       Ws.data().squeeze();
 
+      cout << "Initialize Wx" << endl;
       Wx.resize(Nm, Nm);
       Wx.reserve(2 * Nm);
       Wx = a_x * S_x * V * D_x1 * Z;
       Wx.makeCompressed();
       Wx.data().squeeze();
 
-      cout << "Initialize Wphi" << endl;
+      cout << "Initialize Wy" << endl;
       Wy.resize(Nm, Nm);
       Wy.reserve(2 * Nm);
       Wy = a_y * S_y * V * D_y1 * Z;
       Wy.makeCompressed();
       Wy.data().squeeze();
 
-      cout << "Initialize Wr" << endl;
+      cout << "Initialize Wz" << endl;
       Wz.resize(Nm, Nm);
       Wz.reserve(2 * Nm);
       Wz = a_z * S_z * V * D_z1 * Z;

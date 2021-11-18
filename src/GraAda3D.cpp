@@ -700,6 +700,7 @@ void GraAdaInv::start_inversion() {
 void GraAdaInv::write_result() {
   cout << "Writing the inversion model into file ..." << endl;
   inv->result2vtk(output_model_name);
+  inv->result2text(output_model_name);
   
 
 #ifdef USE_NETCDF

@@ -42,3 +42,18 @@ void RectPrism::get_center(double& xc, double& yc, double& zc) const {
   yc = 0.5 * (_y[1] + _y[0]);
   zc = 0.5 * (_z[1] + _z[0]);
 }
+
+void RectPrism::get_xlim(double& x0, double& x1) const {
+  x0 = _x[0];
+  x1 = _x[1];
+}
+
+void RectPrism::get_ylim(double& y0, double& y1) const {
+  y0 = _y[0];
+  y1 = _y[1];
+}
+
+void RectPrism::get_zlim(double& z0, double& z1) const {
+  z0 = _z[0];
+  z1 = _z[1];
+}
