@@ -65,7 +65,7 @@ none xyz 0 0 0 0
 none xyz 0 0 0 0
 
 #output file of inversion model
-gz_result
+gz_result_L1
 
 
 

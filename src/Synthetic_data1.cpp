@@ -35,6 +35,7 @@ int main() {
 #ifdef USE_NETCDF
   mesh.out_model_netcdf("test_model.nc");
 #endif
+  mesh.out_model_txt("test_model.txt");
 
   Mesh mesh2;
   mesh2.generate_regular_mesh(x_lim, 40, y_lim, 40, z_lim, 20);

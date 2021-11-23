@@ -2,7 +2,7 @@ import numpy as np
 from scipy.interpolate import griddata
 from scipy.interpolate import RBFInterpolator
 
-def interp_xslice(filename,x0,start_y,stop_y,num_y,start_z,stop_z,num_z):
+def interp_xslice(filename,x0,start_y,stop_y,num_y,start_z,stop_z,num_z,neighbors=None,kernel='thin_plate_spline'):
     #Load data
     x,y,z,v=np.loadtxt(filename,skiprows=2,usecols=[6,7,8,9],unpack=True)
     xyz=np.hstack((x[:,np.newaxis],y[:,np.newaxis],z[:,np.newaxis]))
@@ -17,7 +17,7 @@ def interp_xslice(filename,x0,start_y,stop_y,num_y,start_z,stop_z,num_z):
     ZI_flat=ZI.flatten()
     
     #Perform radial basis function interpolation
-    rbf=RBFInterpolator(xyz,v)
+    rbf=RBFInterpolator(xyz,v,neighbors=neighbors,kernel=kernel)
     XYZI_flat=XYZI_flat=np.hstack((XI_flat[:,np.newaxis],YI_flat[:,np.newaxis],ZI_flat[:,np.newaxis]))
     VI_flat=rbf(XYZI_flat)
     VI=np.reshape(VI_flat,XI.shape)
@@ -27,7 +27,7 @@ def interp_xslice(filename,x0,start_y,stop_y,num_y,start_z,stop_z,num_z):
     VI_2d=VI[:,0,:]
     return YI_2d,ZI_2d,VI_2d
     
-def interp_yslice(filename,y0,start_x,stop_x,num_x,start_z,stop_z,num_z):
+def interp_yslice(filename,y0,start_x,stop_x,num_x,start_z,stop_z,num_z,neighbors=None,kernel='thin_plate_spline'):
     #Load data
     x,y,z,v=np.loadtxt(filename,skiprows=2,usecols=[6,7,8,9],unpack=True)
     xyz=np.hstack((x[:,np.newaxis],y[:,np.newaxis],z[:,np.newaxis]))
@@ -42,7 +42,7 @@ def interp_yslice(filename,y0,start_x,stop_x,num_x,start_z,stop_z,num_z):
     ZI_flat=ZI.flatten()
     
     #Perform radial basis function interpolation
-    rbf=RBFInterpolator(xyz,v)
+    rbf=RBFInterpolator(xyz,v,neighbors=neighbors,kernel=kernel)
     XYZI_flat=XYZI_flat=np.hstack((XI_flat[:,np.newaxis],YI_flat[:,np.newaxis],ZI_flat[:,np.newaxis]))
     VI_flat=rbf(XYZI_flat)
     VI=np.reshape(VI_flat,XI.shape)
@@ -52,7 +52,7 @@ def interp_yslice(filename,y0,start_x,stop_x,num_x,start_z,stop_z,num_z):
     VI_2d=VI[0,:,:]
     return XI_2d,ZI_2d,VI_2d
     
-def interp_zslice(filename,z0,start_x,stop_x,num_x,start_y,stop_y,num_y):
+def interp_zslice(filename,z0,start_x,stop_x,num_x,start_y,stop_y,num_y,neighbors=None,kernel='thin_plate_spline'):
     #Load data
     x,y,z,v=np.loadtxt(filename,skiprows=2,usecols=[6,7,8,9],unpack=True)
     xyz=np.hstack((x[:,np.newaxis],y[:,np.newaxis],z[:,np.newaxis]))
@@ -67,7 +67,7 @@ def interp_zslice(filename,z0,start_x,stop_x,num_x,start_y,stop_y,num_y):
     ZI_flat=ZI.flatten()
     
     #Perform radial basis function interpolation
-    rbf=RBFInterpolator(xyz,v)
+    rbf=RBFInterpolator(xyz,v,neighbors=neighbors,kernel=kernel)
     XYZI_flat=XYZI_flat=np.hstack((XI_flat[:,np.newaxis],YI_flat[:,np.newaxis],ZI_flat[:,np.newaxis]))
     VI_flat=rbf(XYZI_flat)
     VI=np.reshape(VI_flat,XI.shape)

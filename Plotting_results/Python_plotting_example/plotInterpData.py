@@ -22,10 +22,11 @@ max_value_shown=250
 fts=12
 clrmap='jet'
 
+model='gz_result.txt'
 #Y=700
-Xi1,Zi1,Vi1=interpData.interp_yslice('gz_result.txt',y0=700,
+Xi1,Zi1,Vi1=interpData.interp_yslice(model,y0=700,
                          start_x=0,stop_x=2000,num_x=81,
-                         start_z=0,stop_z=1000,num_z=41)
+                         start_z=0,stop_z=1000,num_z=41,neighbors=100,kernel='linear')
                          
 ax1=fig.add_subplot(gs00[0])
 pc=ax1.pcolormesh(Xi1,Zi1,Vi1,cmap=clrmap,vmin=min_value_shown,vmax=max_value_shown,shading='gouraud')
@@ -38,9 +39,9 @@ ax1.set_ylabel("z (m)",fontsize=fts)
 ax1.text(0.01,0.9,"(a) Y=700 m",fontsize=fts, transform=ax1.transAxes)
 
 #Y=1450
-Xi2,Zi2,Vi2=interpData.interp_yslice('gz_result.txt',y0=1450,
+Xi2,Zi2,Vi2=interpData.interp_yslice(model,y0=1450,
                          start_x=0,stop_x=2000,num_x=81,
-                         start_z=0,stop_z=1000,num_z=41)
+                         start_z=0,stop_z=1000,num_z=41,neighbors=100,kernel='linear')
 ax2=fig.add_subplot(gs00[1])
 pc=ax2.pcolormesh(Xi2,Zi2,Vi2,cmap=clrmap,vmin=min_value_shown,vmax=max_value_shown,shading='gouraud')
 ax2.set_aspect('equal', 'box')#相当于matlab中的axis equal
@@ -53,9 +54,9 @@ ax2.text(0.01,0.9,"(b) Y=1450 m",fontsize=fts, transform=ax2.transAxes)
 
 
 #Z=350
-Xi3,Yi3,Vi3=interpData.interp_zslice('gz_result.txt',z0=350,
+Xi3,Yi3,Vi3=interpData.interp_zslice(model,z0=350,
                          start_x=0,stop_x=2000,num_x=81,
-                         start_y=0,stop_y=2000,num_y=81)
+                         start_y=0,stop_y=2000,num_y=81,neighbors=100,kernel='linear')
 gs01 = gridspec.GridSpecFromSubplotSpec(3, 1, subplot_spec=gs0[1],height_ratios=[1,7,1])
 ax3=fig.add_subplot(gs01[1,0])
 pc=ax3.pcolormesh(Xi3,Yi3,Vi3,cmap=clrmap,vmin=min_value_shown,vmax=max_value_shown,shading='gouraud')
