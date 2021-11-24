@@ -8,7 +8,7 @@ from matplotlib.ticker import (MultipleLocator, FormatStrFormatter, AutoMinorLoc
 import matplotlib.colors as mcolors
 import matplotlib.gridspec as gridspec
 
-mydata=Dataset('gz_result.nc', "r")# r mean read
+mydata=Dataset('Tzz_result.nc', "r")# r mean read
 print(mydata)
 var=mydata.variables
 x=var['x']

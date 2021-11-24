@@ -5,16 +5,17 @@ sys.path.append(include_path)
 #own module
 import interpData
 
-#import numpy and matplotlib
+#plot interpolated data
 import numpy as np
 import matplotlib.pyplot as plt
 from matplotlib.ticker import (MultipleLocator, FormatStrFormatter, AutoMinorLocator)
 import matplotlib.colors as mcolors
 import matplotlib.gridspec as gridspec
 
-
-
-x,y,z,density=np.loadtxt('gz_result.txt',skiprows=2,usecols=[6,7,8,9],unpack=True)
+#own module
+import interpData
+model='Tzz_result.txt'
+x,y,z,density=np.loadtxt(model,skiprows=2,usecols=[6,7,8,9],unpack=True)
 print(np.min(density),np.max(density))
 
 fig=plt.figure(figsize=(12,6))
@@ -27,7 +28,6 @@ max_value_shown=250
 fts=12
 clrmap='jet'
 
-model='gz_result.txt'
 #Y=700
 Xi1,Zi1,Vi1=interpData.interp_yslice(model,y0=700,
                          start_x=0,stop_x=2000,num_x=81,

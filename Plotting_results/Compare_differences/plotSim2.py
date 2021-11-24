@@ -29,7 +29,7 @@ max_value_shown2=300
 min_value_shown3=-1
 max_value_shown3=1
 fts=12
-clrmap1='jet'
+clrmap1='bwr'
 clrmap='Blues_r'
 
 model1='gz_result.txt'

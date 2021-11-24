@@ -5,7 +5,7 @@
 #Weights of different regularization terms, last term a_crg is the weight of cross-gradient constraint, which makes sense only
 #if the cross-gradient constraint is used
 #a_s a_z a_x a_y a_crg
-1e-1 1e0 1e0 1e0 0
+1e-2 1e0 1e0 1e0 0
 
 #Lp norm parameters: p, epsilon2
 #--"p": means Lp norm will be used
@@ -27,7 +27,7 @@
 0.02
 
 #Tolerance value and Maximal number of iterations for LSCG solver (least-square conjugate gradient) 
-1e-5 100
+1e-4 100
 
 #Maximal number of iterations for gauss-newton
 8

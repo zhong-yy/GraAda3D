@@ -1,3 +1,9 @@
+import sys
+import os
+include_path=os.path.abspath('../../PythonPlot')
+sys.path.append(include_path)
+#own module
+import interpData
 
 #plot interpolated data
 import numpy as np
@@ -34,7 +40,7 @@ ax1.set_aspect('equal', 'box')#相当于matlab中的axis equal
 ax1.yaxis.set_minor_locator(AutoMinorLocator())
 ax1.xaxis.set_minor_locator(AutoMinorLocator())
 ax1.invert_yaxis()
-ax1.set_xlabel("y (m)",fontsize=fts)
+ax1.set_xlabel("x (m)",fontsize=fts)
 ax1.set_ylabel("z (m)",fontsize=fts)
 ax1.text(0.01,0.9,"(a) Y=700 m",fontsize=fts, transform=ax1.transAxes)
 
@@ -48,7 +54,7 @@ ax2.set_aspect('equal', 'box')#相当于matlab中的axis equal
 ax2.yaxis.set_minor_locator(AutoMinorLocator())
 ax2.xaxis.set_minor_locator(AutoMinorLocator())
 ax2.invert_yaxis()
-ax2.set_xlabel("y (m)",fontsize=fts)
+ax2.set_xlabel("x (m)",fontsize=fts)
 ax2.set_ylabel("z (m)",fontsize=fts)
 ax2.text(0.01,0.9,"(b) Y=1450 m",fontsize=fts, transform=ax2.transAxes)
 
