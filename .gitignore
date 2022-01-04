@@ -2,11 +2,11 @@
 *.o
 *.obj
 ./compile_commands.json
-*.nc
-*.txt
-*.vtk
-*.jpg
-*.eps
+Examples/*.nc
+Examples/*.txt
+Examples/*.vtk
+Examples/*.jpg
+Examples/*.eps
 
 todo.md
 build
