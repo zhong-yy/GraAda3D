@@ -27,7 +27,9 @@ Any combination of gravity field components or gravity gradient components (gz, 
 
 ### 2.2 Buiding
 
-#### (1) Build
+#### Build with Make
+
+##### (1) Build
 
 Build the program using Make,
 
@@ -37,7 +39,7 @@ make
 ```
 By default, the program is built without netcdf support. In this way, you don't have to install the netcdf library in advance, but there are not *.nc files generated after inversion. The results are written in  *.vtk file, which can be visulaized by [Paraview](https://www.paraview.org/).
 
-#### (2) Use Intel compilers
+##### (2) Use Intel compilers
 
 The default compiler is g++. To build with an [Intel C++ compiler](https://software.intel.com/content/www/us/en/develop/tools/oneapi/base-toolkit/download.html) (`icpc`, `icpx`, `dpcpp`), use the CXX option,
 
@@ -47,7 +49,7 @@ make CXX=icpx
 
 > The latest Intel compiler is the Intel oneAPI DPC++/C++ Compiler (now free to use), whose command is `icpx` or `dpcpp`. The classic one is `icpc`. It seems that the icpx or icpc shows a slightly better performance than g++.
 
-#### (3) Build with NetCDF library
+##### (3) Build with NetCDF library
 
 If you have installed netcdf library (including netcdf C++ interfaces) and wish to store your inversion model in .nc file, you can build the program with netcdf support by using the USE_NETCDF option,
 ```bash
@@ -68,6 +70,51 @@ sudo yum install netcdf-cxx-devel
 ```
 
 > For CentOS user, recommend to build netcdf-c and netcdf-cxx from the source code. See https://www.unidata.ucar.edu/software/netcdf/docs/getting_and_building_netcdf.html for netcdf-c and https://github.com/Unidata/netcdf-cxx4 for the netcdf c++ library.
+
+#### Build with CMake
+
+(1) Create a build folder
+
+```
+mkdir build
+cd build
+```
+
+(2) Generate a building system (makefile)
+
+Using gnu compiler, type
+
+```
+cmake ..
+```
+
+Using Intel OneAPI compiler, type
+
+```
+CXX=icpx USE_MKL=1 cmake ..
+```
+
+To link the netcdf libraray,
+
+```
+USE_NETCDF=1 cmake ..
+```
+
+
+
+(3) Compile
+
+Type
+
+```
+make
+```
+
+To show compiling process, type
+
+```
+make VERBOSE=1
+```
 
 
 

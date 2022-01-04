@@ -1,4 +1,4 @@
-CXX:= g++ 
+CXX:= g++
 CXX:=$(strip $(CXX))
 ifeq ($(CXX),g++)
 CXXFLAGS:=-std=c++11 -O3 -fopenmp -Wfatal-errors #-g
@@ -31,23 +31,23 @@ LINKFLAGS+=  -L${MKLROOT}/lib/intel64 -lmkl_intel_lp64 -lmkl_intel_thread -lmkl_
 endif
 
 #libraries
-#DIR_EIGEN               :=./contrib/Eigen3.3.7
-DIR_EIGEN               :=./contrib/eigen
-DIR_LINTERP             :=./contrib/Linterp
-DIR_BOOST               :=./contrib/boost_1_72_0
+#DIR_EIGEN               :=./3rd_party_lib/Eigen3.3.7
+DIR_EIGEN               :=./3rd_party_lib/eigen
+DIR_LINTERP             :=./3rd_party_lib/Linterp
+DIR_BOOST               :=./3rd_party_lib/boost_1_72_0
 INCLUDE_EIGEN           :=-I$(DIR_EIGEN)
 INCLUDE_LINTERP         :=-I$(DIR_LINTERP)
 INCLUDE_BOOST           :=-I$(DIR_BOOST)
-INCLUDE_TIMER           :=-I./contrib/Timer
-INCLUDE_CONTRIB         :=-I$(DIR_EIGEN) -I$(DIR_LINTERP) -I$(DIR_BOOST) $(INCLUDE_TIMER)
+INCLUDE_TIMER           :=-I./3rd_party_lib/Timer
+INCLUDE_LIBRARIES         :=-I$(DIR_EIGEN) -I$(DIR_LINTERP) -I$(DIR_BOOST) $(INCLUDE_TIMER)
 
 ifeq ($(USE_NETCDF),1)
 CXXFLAGS+=-D USE_NETCDF
 LINKFLAGS   +=-lnetcdf_c++4
-DIR_NETCDF_CXX          :=./contrib/netcdf/netcdf-cxx4-4.3.1
-DIR_NETCDF_C            :=./contrib/netcdf/netcdf-c-4.7.4
+DIR_NETCDF_CXX          :=./3rd_party_lib/netcdf/netcdf-cxx4-4.3.1
+DIR_NETCDF_C            :=./3rd_party_lib/netcdf/netcdf-c-4.7.4
 INCLUDE_NETCDF          :=-I$(DIR_NETCDF_CXX) -I$(DIR_NETCDF_C)
-INCLUDE_CONTRIB         +=$(INCLUDE_NETCDF)
+INCLUDE_LIBRARIES         +=$(INCLUDE_NETCDF)
 endif
 
 
@@ -61,7 +61,7 @@ SRCS             += $(wildcard $(DIR_FWD)/*.cpp)
 OBJS             := $(patsubst %.cpp, %.o, $(SRCS))
 
 %.o: %.cpp
-	$(CXX) $(CXXFLAGS) $(INCLUDE_CONTRIB) $(INCLUDE_SRC) $ -c $< -o $@
+	$(CXX) $(CXXFLAGS) $(INCLUDE_LIBRARIES) $(INCLUDE_SRC) $ -c $< -o $@
 
 EXE:=Synthetic_data1 GraAda3D Padding_test
 ALL:$(EXE)
