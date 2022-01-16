@@ -8,6 +8,10 @@ Examples/*.vtk
 Examples/*.jpg
 Examples/*.eps
 
+makefile
+CMakeLists.txt
+MISC/
+
 todo.md
 build
 
