@@ -12,9 +12,7 @@ Any combination of gravity field components or gravity gradient components (gz, 
 - Incorporation of  a-priori constraints through cross-gradient coupling or direct parameter relation
 - Lp-norm regularization (p=0,1,2,...)
 
-## 2 Installation
-
-## 3 Examples
+## 2 How to use it
 
 I am reworking on the documentation. It will be available soon.
 
