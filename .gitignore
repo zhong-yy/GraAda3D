@@ -11,9 +11,13 @@ Examples/*.eps
 makefile
 CMakeLists.txt
 MISC/
+Readme.md
+Examples/
 
 todo.md
 build
+
+
 
 PlotTest
 
