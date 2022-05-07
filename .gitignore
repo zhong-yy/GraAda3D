@@ -8,11 +8,13 @@ Examples/*.vtk
 Examples/*.jpg
 Examples/*.eps
 
-makefile
-CMakeLists.txt
+#makefile
+#CMakeLists.txt
 MISC/
-Readme.md
-Examples/
+
+# Examples/
+
+__pycache__/
 
 todo.md
 build

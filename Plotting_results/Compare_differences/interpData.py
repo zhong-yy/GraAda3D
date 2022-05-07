@@ -22,9 +22,9 @@ def interp_xslice(filename,x0,start_y,stop_y,num_y,start_z,stop_z,num_z,neighbor
     VI_flat=rbf(XYZI_flat)
     VI=np.reshape(VI_flat,XI.shape)
      
-    YI_2d=YI[:,0,:] # shape of YI is (ny,nx,nz)
-    ZI_2d=ZI[:,0,:] # shape of ZI is (ny,nx,nz)
-    VI_2d=VI[:,0,:]
+    YI_2d=YI[:,0,:].T # shape of YI is (ny,nx,nz)
+    ZI_2d=ZI[:,0,:].T # shape of ZI is (ny,nx,nz)
+    VI_2d=VI[:,0,:].T
     return YI_2d,ZI_2d,VI_2d
     
 def interp_yslice(filename,y0,start_x,stop_x,num_x,start_z,stop_z,num_z,neighbors=None,kernel='thin_plate_spline'):
@@ -47,9 +47,9 @@ def interp_yslice(filename,y0,start_x,stop_x,num_x,start_z,stop_z,num_z,neighbor
     VI_flat=rbf(XYZI_flat)
     VI=np.reshape(VI_flat,XI.shape)
      
-    XI_2d=XI[0,:,:] # shape of XI is (ny,nx,nz)
-    ZI_2d=ZI[0,:,:] # shape of ZI is (ny,nx,nz)
-    VI_2d=VI[0,:,:]
+    XI_2d=XI[0,:,:].T # shape of XI is (ny,nx,nz)
+    ZI_2d=ZI[0,:,:].T # shape of ZI is (ny,nx,nz)
+    VI_2d=VI[0,:,:].T
     return XI_2d,ZI_2d,VI_2d
     
 def interp_zslice(filename,z0,start_x,stop_x,num_x,start_y,stop_y,num_y,neighbors=None,kernel='thin_plate_spline'):
