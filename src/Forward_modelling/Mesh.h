@@ -15,14 +15,15 @@
 #include "Point.h"
 
 #ifdef USE_NETCDF
-#include <netcdf>  //The library netcdf-cxx is required
+#include <netcdf> //The library netcdf-cxx is required
 using namespace netCDF;
 using namespace netCDF::exceptions;
 #define NC_ERR 2
 #endif
 
-class Mesh {
- public:
+class Mesh
+{
+public:
   Mesh();
   Mesh(const Mesh&);
   Mesh& operator=(const Mesh&);
@@ -30,7 +31,8 @@ class Mesh {
 
   void clear_all();
 
-  void set_n_parameter(int n) {
+  void set_n_parameter(int n)
+  {
     this->n_parameters = n;
     for (int i = 0; i < leaf_cells.size(); i++) {
       leaf_cells[i]->parameters.resize(n);
@@ -42,17 +44,14 @@ class Mesh {
 
   // Generate a regular mesh
   void generate_regular_mesh(
-      double
-          x_model[2],  // the dimension of the area of interest in x direction
-      int n_x,         // the number of cells in x direction
-      double
-          y_model[2],  // the dimension of the area of interest in y direction
-      int n_y,         // the number of cells in y direction
-      double
-          z_model[2],  // the dimension of the area of interest in z direction
-      int n_z,         // the number of cells in z direction
-      int num_para =
-          1);  // the number of types of parameters will be stored in this model
+    double x_model[2], // the dimension of the area of interest in x direction
+    int n_x,           // the number of cells in x direction
+    double y_model[2], // the dimension of the area of interest in y direction
+    int n_y,           // the number of cells in y direction
+    double z_model[2], // the dimension of the area of interest in z direction
+    int n_z,           // the number of cells in z direction
+    int num_para =
+      1); // the number of types of parameters will be stored in this model
 
   void generate_regular_mesh(double x_model[2],
                              int n_x,
@@ -62,28 +61,28 @@ class Mesh {
                              int num_para = 1);
 
   void generate_regular_mesh(
-      VectorXd& x_points0,  // Coordinates of grid points in the x direction
-      VectorXd& y_points0,
-      VectorXd& z_points0,
-      int num_para = 1);
+    VectorXd& x_points0, // Coordinates of grid points in the x direction
+    VectorXd& y_points0,
+    VectorXd& z_points0,
+    int num_para = 1);
 
   void generate_regular_mesh_with_padding(
-      double x_model[2],  // dimension of the area of interest in x direction
-      int n_x,            // number of cells in x direction
-      double y_model[2],  // dimension of the area of interest in y direction
-      int n_y,            // number of cells in y direction
-      double z_model[2],  // dimension of the area of interest in z direction
-      int n_z,            // number of cells in z direction
-      int n_pad_x = 7,    // number of padding cells on +x and -x sides
-      double pad_stretch_x =
-          1.5,  // increasing factor for sizes of padding cells in x direction
-      int n_pad_y = 7,  // number of padding cells on +y and -y sides
-      double pad_stretch_y =
-          1.5,  // increasing factor for sizes of padding cells in y direction
-      int n_pad_z = 3,  // number of padding cells on +z and -z sides
-      double pad_stretch_z =
-          1.2,  // increasing factor for sizes of padding cells  in z direction
-      int num_para = 1);
+    double x_model[2], // dimension of the area of interest in x direction
+    int n_x,           // number of cells in x direction
+    double y_model[2], // dimension of the area of interest in y direction
+    int n_y,           // number of cells in y direction
+    double z_model[2], // dimension of the area of interest in z direction
+    int n_z,           // number of cells in z direction
+    int n_pad_x = 7,   // number of padding cells on +x and -x sides
+    double pad_stretch_x =
+      1.5, // increasing factor for sizes of padding cells in x direction
+    int n_pad_y = 7, // number of padding cells on +y and -y sides
+    double pad_stretch_y =
+      1.5, // increasing factor for sizes of padding cells in y direction
+    int n_pad_z = 3, // number of padding cells on +z and -z sides
+    double pad_stretch_z =
+      1.2, // increasing factor for sizes of padding cells  in z direction
+    int num_para = 1);
 
   void set_parameter_in_a_region(double x[2],
                                  double y[2],
@@ -108,7 +107,8 @@ class Mesh {
                            double para_value,
                            int i_th = 0);
 
-  void get_minimum_size(double& dx, double& dy, double& dz, int& lev) {
+  void get_minimum_size(double& dx, double& dy, double& dz, int& lev)
+  {
     assert(cells[cells.size() - 1].size() > 0);
     int num = cells[cells.size() - 1].size();
     Cell* c = cells[cells.size() - 1][0];
@@ -128,7 +128,8 @@ class Mesh {
     }
   }
 
-  void set_ith_cell_parameter(double para_value, int id, int i) {
+  void set_ith_cell_parameter(double para_value, int id, int i)
+  {
     leaf_cells[id]->set_parameter(para_value, i);
   };
 
@@ -141,12 +142,12 @@ class Mesh {
                      int n = 1,
                      vector<string> parameter_name = vector<string>(1,
                                                                     "density"));
-  void out_model_vtk_points(string filename,
-                     int n = 1,
-                     vector<string> parameter_name = vector<string>(1,
-                                                                    "density"));
+  void out_model_vtk_points(
+    string filename,
+    int n = 1,
+    vector<string> parameter_name = vector<string>(1, "density"));
 
-  void out_model_txt(string filename,int ith_para = 0);
+  void out_model_txt(string filename, int ith_para = 0);
 #ifdef USE_NETCDF
   int out_model_netcdf(string filename,
                        int ith_para = 0,
@@ -171,8 +172,10 @@ class Mesh {
   void get_model_parameter_from_mesh(VectorXd& m, int ith = 0);
 
   void sort(int level);
+  int get_reordered_id(const unsigned int& i) const;
 
   RectPrism& get_elem(unsigned int i);
+  RectPrism& get_elem_reordered(unsigned int i);
 
   Cell* get_element_level_0(unsigned int i_lat,
                             unsigned int j_lon,
@@ -186,18 +189,25 @@ class Mesh {
 
   vector<Cell*> leaf_cells;
   vector<Face*> leaf_faces;
+  vector<Cell*> ro_leaf_cells;
+
   int num_leaf_cells;
   int num_leaf_faces;
 
-  vector<vector<Cell*>> cells;  // cells of different levels
-  vector<vector<Face*>> faces;  // faces of different levels
+  vector<vector<Cell*>> cells; // cells of different levels
+  vector<vector<Face*>> faces; // faces of different levels
 
   vector<int> num_cell;
   vector<int> num_face;
 
+  // ordering model elements in a continuous way (to make consecutive indices
+  // label adjacent model cells)
+  vector<int> new_to_old_index;
+  vector<int> old_to_new_index;
+
   int n_parameters;
 
-  int nz, nx, ny;  // number of cells along x, y, z directions for level 0
+  int nz, nx, ny; // number of cells along x, y, z directions for level 0
   // vector<double> r_intervals;
   VectorXd z_points;
   VectorXd x_points;
