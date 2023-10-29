@@ -11,20 +11,23 @@
 #include "gs.h"
 using namespace std;
 
-class Fwd {
- public:
+class Fwd
+{
+public:
   Fwd();
   Fwd(const Mesh &mesh_, const Observation &ob_,
       unsigned long long field_flag_ = Compute_g_z);
   Fwd(const Mesh &mesh_, const Observation &ob_, bitset<10> field_flag);
   virtual ~Fwd();
 
-  VectorXd compute_gobs(const VectorXd &rho) {
+  VectorXd compute_gobs(const VectorXd &rho)
+  {
     VectorXd d = this->G * rho;
     return d;
   }
 
-  void set_field_flag(unsigned long long field_flag1) {
+  void set_field_flag(unsigned long long field_flag1)
+  {
     field_flag = field_flag1;
   }
 
@@ -42,13 +45,20 @@ class Fwd {
 
   unsigned int get_n_fields() { return field_flag.count(); }
 
- protected:
+  Mesh &get_mesh() { return mesh; }
+  void set_compression_threshold(double eps)
+  {
+    assert((std::fabs(eps) < 1e-15 || eps > 0) && (eps < 1));
+    this->compression_threshold = eps;
+  }
+
+protected:
   Eigen::MatrixXd G;
   Mesh mesh;
   Observation ob;
-  int Nm;     // number of parameters
-  int N_obs;  // number of data points
-  int Nd;     // number of observations
+  int Nm;    // number of parameters
+  int N_obs; // number of data points
+  int Nd;    // number of observations
 
   bitset<10> field_flag;
 

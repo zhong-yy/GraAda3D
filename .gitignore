@@ -18,11 +18,17 @@ __pycache__/
 
 todo.md
 build
+test
 
 
 
 PlotTest
 
 .clangd
+.cache
+CMakeFiles
+cmake_install.cmake
+compile_commands.json
+.vscode
 
 

@@ -59,6 +59,8 @@ target_link_libraries(Forward_obj
         PUBLIC
         OpenMP::OpenMP_CXX
         $<$<BOOL:$ENV{USE_NETCDF}>:netcdf_c++4>
+        gsl
+        gslcblas        
         )
     
 target_compile_options(Forward_obj
@@ -102,6 +104,13 @@ target_link_options(GraAda3D
     $<$<BOOL:$ENV{USE_MKL}>:-L$ENV{MKLROOT}/lib/intel64 -lmkl_intel_lp64 -lmkl_intel_thread -lmkl_core -liomp5 -lpthread -lm -ldl>
     )
 target_link_libraries(GraAda3D
+    PRIVATE
+    Forward_obj
+    Inversion_obj
+    )
+add_executable(Test_ordering
+    src/Test_ordering.cpp)
+target_link_libraries(Test_ordering
     PRIVATE
     Forward_obj
     Inversion_obj

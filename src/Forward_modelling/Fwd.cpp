@@ -14,8 +14,7 @@ Fwd::Fwd() : field_flag(Compute_g_z)
 
 Fwd::~Fwd() {}
 
-Fwd::Fwd(const Mesh &mesh_,
-         const Observation &ob_,
+Fwd::Fwd(const Mesh &mesh_, const Observation &ob_,
          unsigned long long field_flag_)
     : field_flag(field_flag_)
 {
@@ -95,9 +94,8 @@ void Fwd::set_observation(const Observation &ob0)
 void Fwd::display_info_fields() const
 {
   int n = field_flag.count();
-  vector<string> strs = {"V", "g_z", "g_x", "g_y",
-                         "T_zz", "T_xz", "T_yz", "T_xx",
-                         "T_xy", "T_yy"};
+  vector<string> strs = {"V", "g_z", "g_x", "g_y", "T_zz",
+                         "T_xz", "T_yz", "T_xx", "T_xy", "T_yy"};
   vector<int> to_be_computed;
   for (int i = 0; i < strs.size(); i++)
   {

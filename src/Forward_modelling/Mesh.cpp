@@ -2,10 +2,13 @@
 Mesh::Mesh()
     : leaf_cells(0),
       leaf_faces(0),
+      ro_leaf_cells(0),
       cells(0),
       faces(0),
       num_cell(0),
-      num_face(0)
+      num_face(0),
+      new_to_old_index(0),
+      old_to_new_index(0)
 {
   nz = 0;
   nx = 0;
@@ -43,6 +46,8 @@ Mesh::Mesh(const Mesh &source_mesh)
   this->num_leaf_cells = source_mesh.num_leaf_cells;
   this->num_leaf_faces = source_mesh.num_leaf_faces;
   this->n_parameters = source_mesh.n_parameters;
+  this->new_to_old_index = source_mesh.new_to_old_index;
+  this->old_to_new_index = source_mesh.old_to_new_index;
 
   // cout<<"A"<<endl;
   // deep copy pointers
@@ -61,6 +66,7 @@ Mesh::Mesh(const Mesh &source_mesh)
                    c->_z[1], c->level, c->parameters.size(), c->isleaf);
       this->cells[i][j]->set_id(c->id);
       // this->cells[i][j]->_density = c->_density;
+      this->cells[i][j]->set_ordering_forward(c->get_ordering_forward());
       cc_mp[c] = this->cells[i][j];
     }
   }
@@ -196,11 +202,17 @@ Mesh::Mesh(const Mesh &source_mesh)
   }
 
   leaf_cells.resize(source_mesh.leaf_cells.size());
+  ro_leaf_cells.resize(source_mesh.ro_leaf_cells.size());
   leaf_faces.resize(source_mesh.leaf_faces.size());
   for (int i = 0; i < leaf_cells.size(); i++)
   {
     Cell *c = source_mesh.leaf_cells[i];
     this->leaf_cells[i] = cc_mp[c];
+  }
+  for (int i = 0; i < ro_leaf_cells.size(); i++)
+  {
+    Cell *c = source_mesh.ro_leaf_cells[i];
+    this->ro_leaf_cells[i] = cc_mp[c];
   }
   for (int i = 0; i < leaf_faces.size(); i++)
   {
@@ -231,6 +243,8 @@ Mesh &Mesh::operator=(const Mesh &source_mesh)
   this->num_leaf_cells = source_mesh.num_leaf_cells;
   this->num_leaf_faces = source_mesh.num_leaf_faces;
   this->n_parameters = source_mesh.n_parameters;
+  this->new_to_old_index = source_mesh.new_to_old_index;
+  this->old_to_new_index = source_mesh.old_to_new_index;
 
   // cout<<"A"<<endl;
   // deep copy pointers
@@ -249,6 +263,7 @@ Mesh &Mesh::operator=(const Mesh &source_mesh)
                    c->_z[1], c->level, c->parameters.size(), c->isleaf);
       this->cells[i][j]->set_id(c->id);
       // this->cells[i][j]->_density = c->_density;
+      this->cells[i][j]->set_ordering_forward(c->get_ordering_forward());
       cc_mp[c] = this->cells[i][j];
     }
   }
@@ -384,11 +399,17 @@ Mesh &Mesh::operator=(const Mesh &source_mesh)
   }
 
   leaf_cells.resize(source_mesh.leaf_cells.size());
+  ro_leaf_cells.resize(source_mesh.ro_leaf_cells.size());
   leaf_faces.resize(source_mesh.leaf_faces.size());
   for (int i = 0; i < leaf_cells.size(); i++)
   {
     Cell *c = source_mesh.leaf_cells[i];
     this->leaf_cells[i] = cc_mp[c];
+  }
+  for (int i = 0; i < ro_leaf_cells.size(); i++)
+  {
+    Cell *c = source_mesh.ro_leaf_cells[i];
+    this->ro_leaf_cells[i] = cc_mp[c];
   }
   for (int i = 0; i < leaf_faces.size(); i++)
   {
@@ -434,6 +455,7 @@ void Mesh::clear_all()
   faces.clear();
   leaf_cells.clear();
   leaf_faces.clear();
+  ro_leaf_cells.clear();
   num_leaf_cells = 0;
   num_leaf_faces = 0;
   nz = 0;
@@ -441,6 +463,8 @@ void Mesh::clear_all()
   ny = 0;
   num_cell.clear();
   num_face.clear();
+  new_to_old_index.clear();
+  old_to_new_index.clear();
 }
 RectPrism &Mesh::get_elem(const unsigned int i)
 {
@@ -820,6 +844,46 @@ void Mesh::generate_regular_mesh(VectorXd &x_points0, VectorXd &y_points0,
   for (int i = 0; i < num_leaf_cells; i++)
   {
     leaf_cells[i] = cells[0][i];
+  }
+
+  new_to_old_index.resize(num_leaf_cells);
+  id = 0;
+  assert(num_leaf_cells = (nx * ny * nz));
+  int forward = 1; // forward: 1, inverse: 0
+  for (int i = 0; i < nx; i++)
+  {
+    for (int j = 0; j < ny; j++)
+    {
+      for (int k = 0; k < nz; k++)
+      {
+        assert(id == (i * (ny * nz) + j * nz + k));
+        new_to_old_index[i * (ny * nz) + j * nz + k] =
+            i * (ny * nz) + j * nz + forward * k +
+            (1 - forward) * (nz - 1 - k);
+        if (forward == 1)
+        {
+          leaf_cells[id]->set_ordering_forward(true);
+        }
+        else
+        {
+          leaf_cells[id]->set_ordering_forward(false);
+        }
+        id++;
+      }
+      forward = 1 - forward;
+    }
+  }
+  old_to_new_index.resize(num_leaf_cells);
+  for (int i = 0; i < num_leaf_cells; i++)
+  {
+    int old_index = new_to_old_index[i];
+    int new_index = i;
+    old_to_new_index[old_index] = new_index;
+  }
+  ro_leaf_cells.resize(num_leaf_cells);
+  for (int i = 0; i < num_leaf_cells; ++i)
+  {
+    ro_leaf_cells[i] = leaf_cells[new_to_old_index[i]]; // very important
   }
   // construct faces
 
@@ -1532,6 +1596,7 @@ map<unsigned int, Cell *> Mesh::refinement(Cell *c)
     for (int i = 0; i < 8; i++)
     {
       c->child_cells[i] = c_child[i];
+      c_child[i]->set_ordering_forward(c->get_ordering_forward());
       cells[child_level].push_back(c_child[i]);
     }
 
@@ -1873,6 +1938,22 @@ map<unsigned int, Cell *> Mesh::refinement(Cell *c)
 
     num_cell[child_level] = num_cell[child_level] + 8;
 
+    vector<Cell *>::iterator c_iter_ro =
+        std::find(ro_leaf_cells.begin(), ro_leaf_cells.end(), c);
+    vector<Cell *>::iterator iter_ro = ro_leaf_cells.erase(c_iter_ro);
+    if (c->get_ordering_forward())
+    {
+      ro_leaf_cells.insert(
+          iter_ro, {c_child[0], c_child[2], c_child[6], c_child[4],
+                    c_child[5], c_child[7], c_child[3], c_child[1]});
+    }
+    else
+    {
+      ro_leaf_cells.insert(
+          iter_ro, {c_child[1], c_child[3], c_child[7], c_child[5],
+                    c_child[4], c_child[6], c_child[2], c_child[0]});
+    }
+
     // assert(iter2 != leaf_cells.end());
     // split_cells[c->id]=iter2;
     split_cells.insert(pair<unsigned int, Cell *>(c->id, c));
@@ -1906,9 +1987,24 @@ void Mesh::get_model_parameter_from_mesh(VectorXd &m, int ith)
 
 void Mesh::rearrange_id()
 {
+#pragma omp parallel for
   for (int i = 0; i < leaf_cells.size(); i++)
   {
     leaf_cells[i]->set_id(i);
+  }
+  new_to_old_index.resize(leaf_cells.size());
+  old_to_new_index.resize(leaf_cells.size());
+#pragma omp parallel for
+  for (int i = 0; i < leaf_cells.size(); i++)
+  {
+    new_to_old_index[i] = ro_leaf_cells[i]->get_id();
+  }
+#pragma omp parallel for
+  for (int i = 0; i < leaf_cells.size(); i++)
+  {
+    int old_index = new_to_old_index[i];
+    int new_index = i;
+    old_to_new_index[old_index] = new_index;
   }
 }
 
@@ -2103,7 +2199,7 @@ void Mesh::fill_data(int offset_i, int offset_j, int offset_k, double ***data,
   {
     int level_difference = max_level - c->child_cells[0]->level;
     int N = pow(2, level_difference);
-    // 递归
+    // recursion
     fill_data(offset_i, offset_j, offset_k, data, c->child_cells[0],
               max_level, ith_para);
     fill_data(offset_i, offset_j, offset_k + N, data, c->child_cells[1],
@@ -2120,6 +2216,58 @@ void Mesh::fill_data(int offset_i, int offset_j, int offset_k, double ***data,
               max_level, ith_para);
     fill_data(offset_i + N, offset_j + N, offset_k + N, data,
               c->child_cells[7], max_level, ith_para);
+  }
+}
+void Mesh::show_ordering()
+{
+  int max_level = cells.size() - 1;
+  if (max_level == 0)
+  {
+    for (int i = 0; i < nx; i++)
+    {
+      for (int k = 0; k < nz; k++)
+      {
+        for (int j = 0; j < ny; j++)
+        {
+          int id = i * nz * ny + j * nz + k;
+          int original_id = leaf_cells[id]->get_id();
+          assert(id == original_id);
+          int reordered_id = old_to_new_index[id];
+          double x, y, z;
+          leaf_cells[id]->get_center(x, y, z);
+          cout << "{" << original_id << ", " << reordered_id
+               << ((leaf_cells[id]->get_ordering_forward())
+                       ? " forward"
+                       : " inverse")
+               << ": ( z: " << z << ", x: "
+               << x << ", y: "
+               << y << ")}";
+          cout << "\t";
+        }
+        cout << endl;
+      }
+      cout << endl
+           << endl;
+    }
+  }
+  else
+  {
+    cout << "{original_id, new_id: (z, x, y)}" << endl;
+    for (int i = 0; i < ro_leaf_cells.size(); ++i)
+    {
+      int reordered_id = i;
+      int original_id = ro_leaf_cells[i]->get_id();
+      assert(old_to_new_index[original_id] == i);
+      double x, y, z;
+      ro_leaf_cells[i]->get_center(x, y, z);
+      cout << "{" << original_id << ", " << reordered_id
+           << ((leaf_cells[original_id]->get_ordering_forward()) ? (" forward")
+                                                                 : (" inverse"))
+           << ((ro_leaf_cells[i]->get_ordering_forward()) ? (" forward")
+                                                          : (" inverse"))
+           << ": ( z:" << z << ", x:" << x
+           << ", y:" << y << ")}" << endl;
+    }
   }
 }
 #ifdef USE_NETCDF
