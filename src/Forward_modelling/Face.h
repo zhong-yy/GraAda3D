@@ -1,7 +1,7 @@
 #ifndef _FACE
 #define _FACE
 #include "Cell.h"
-#include<iomanip>
+#include <iomanip>
 class Cell;
 class Face
 {

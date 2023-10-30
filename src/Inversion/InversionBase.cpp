@@ -14,12 +14,13 @@ InversionBase::InversionBase()
       interpolator_m0(NULL),
       interpolator_m0s(NULL),
       use_cross_gradient_constraint(false),
-      use_petrophysical_constraint(false) {
+      use_petrophysical_constraint(false)
+{
   mesh.set_n_parameter(5);
 }
 
-InversionBase::InversionBase(const Mesh& mesh_,
-                             const Observation& ob_,
+InversionBase::InversionBase(const Mesh &mesh_,
+                             const Observation &ob_,
                              unsigned long long field_flag_)
     : Fwd(mesh_, ob_, field_flag_),
       target_misfit(1),
@@ -30,7 +31,8 @@ InversionBase::InversionBase(const Mesh& mesh_,
       interpolator_m0(NULL),
       interpolator_m0s(NULL),
       use_cross_gradient_constraint(false),
-      use_petrophysical_constraint(false) {
+      use_petrophysical_constraint(false)
+{
   int n_field = field_flag.count();
   this->init_matrices();
 
@@ -62,16 +64,20 @@ InversionBase::InversionBase(const Mesh& mesh_,
   // this->update_S_crg();
 }
 
-InversionBase::~InversionBase() {
-  if (this->interpolator_m0 != NULL) {
+InversionBase::~InversionBase()
+{
+  if (this->interpolator_m0 != NULL)
+  {
     delete interpolator_m0;
   }
-  if (this->interpolator_m0s != NULL) {
+  if (this->interpolator_m0s != NULL)
+  {
     delete interpolator_m0s;
   }
 }
 
-void InversionBase::set_mesh(const Mesh& mesh0) {
+void InversionBase::set_mesh(const Mesh &mesh0)
+{
   this->mesh = mesh0;
   this->Nm = this->mesh.n_elems();
   mesh.set_n_parameter(5);
@@ -86,7 +92,8 @@ void InversionBase::set_mesh(const Mesh& mesh0) {
   this->init_matrices();
 }
 
-void InversionBase::set_S() {
+void InversionBase::set_S()
+{
   S_s.resize(Nm, Nm);
   S_s.reserve(Nm);
   S_s.setZero();
@@ -110,8 +117,9 @@ void InversionBase::set_S() {
   double dz, dx, dy;
   double z0, x0, y0;
 
-  for (int i = 0; i < Nm; i++) {
-    Cell* c = mesh.leaf_cells[i];
+  for (int i = 0; i < Nm; i++)
+  {
+    Cell *c = mesh.leaf_cells[i];
     c->get_size(dx, dy, dz);
     c->get_center(x0, y0, z0);
 
@@ -135,7 +143,8 @@ void InversionBase::set_S() {
   // S_z=S_z/min_side;
 }
 
-void InversionBase::init_matrices() {
+void InversionBase::init_matrices()
+{
   // This is necesseary because cell number is changed after the mesh is refines
   this->Nm = this->mesh.n_elems();
   V.resize(Nm, Nm);
@@ -177,14 +186,16 @@ void InversionBase::init_matrices() {
   D_z1.data().squeeze();
 }
 
-void InversionBase::set_difference_matrix() {
+void InversionBase::set_difference_matrix()
+{
   D_s.setZero();
   D_x1.setZero();
   D_y1.setZero();
   D_z1.setZero();
 
-  for (int i = 0; i < Nm; i++) {
-    Cell* c = mesh.leaf_cells[i];
+  for (int i = 0; i < Nm; i++)
+  {
+    Cell *c = mesh.leaf_cells[i];
     int id0 = c->get_id();
     double dz0, dx0, dy0, dz1, dx1, dy1;
     double z0c, x0c, y0c;
@@ -194,19 +205,24 @@ void InversionBase::set_difference_matrix() {
 
     D_s.coeffRef(id0, id0) += 1.0;
 
-    Face* f = c->external_faces_x[1];
-    if (f->isleaf) {
-      Cell* neigh = f->neigh_cells[1];
-      if (f->neigh_cells[0] != NULL && f->neigh_cells[1] != NULL) {
+    Face *f = c->external_faces_x[1];
+    if (f->isleaf)
+    {
+      Cell *neigh = f->neigh_cells[1];
+      if (f->neigh_cells[0] != NULL && f->neigh_cells[1] != NULL)
+      {
         // if()
         neigh->get_size(dx1, dy1, dz1);
         int id1 = neigh->get_id();
         assert(id0 != id1);
         D_x1.coeffRef(id0, id0) += -1.0 / (0.5 * (dx0 + dx1));
         D_x1.coeffRef(id0, id1) += 1.0 / (0.5 * (dx0 + dx1));
-      } else {
+      }
+      else
+      {
         f = c->external_faces_x[0];
-        if (f->isleaf) {
+        if (f->isleaf)
+        {
           neigh = f->neigh_cells[0];
           // if (neigh == NULL)
           // {
@@ -217,24 +233,30 @@ void InversionBase::set_difference_matrix() {
           assert(id0 != id1);
           D_x1.coeffRef(id0, id0) += 1.0 / (0.5 * (dx0 + dx1));
           D_x1.coeffRef(id0, id1) += -1.0 / (0.5 * (dx0 + dx1));
-        } else {
-          Cell* neigh = f->child_faces[0]->neigh_cells[0];
+        }
+        else
+        {
+          Cell *neigh = f->child_faces[0]->neigh_cells[0];
           neigh->get_size(dx1, dy1, dz1);
           D_x1.coeffRef(id0, id0) += 1.0 / (0.5 * (dx0 + dx1));
-          for (int k = 0; k < 4; k++) {
-            Cell* neigh = f->child_faces[k]->neigh_cells[0];
+          for (int k = 0; k < 4; k++)
+          {
+            Cell *neigh = f->child_faces[k]->neigh_cells[0];
             int id1 = neigh->get_id();
             assert(id0 != id1);
             D_x1.coeffRef(id0, id1) += -1.0 / (0.5 * (dx0 + dx1)) * 0.25;
           }
         }
       }
-    } else {
-      Cell* neigh = f->child_faces[0]->neigh_cells[1];
+    }
+    else
+    {
+      Cell *neigh = f->child_faces[0]->neigh_cells[1];
       neigh->get_size(dx1, dy1, dz1);
       D_x1.coeffRef(id0, id0) += -1.0 / (0.5 * (dx0 + dx1));
-      for (int k = 0; k < 4; k++) {
-        Cell* neigh = f->child_faces[k]->neigh_cells[1];
+      for (int k = 0; k < 4; k++)
+      {
+        Cell *neigh = f->child_faces[k]->neigh_cells[1];
         int id1 = neigh->get_id();
         assert(id0 != id1);
         D_x1.coeffRef(id0, id1) += 1.0 / (0.5 * (dx0 + dx1)) * 0.25;
@@ -243,17 +265,22 @@ void InversionBase::set_difference_matrix() {
     // y
 
     f = c->external_faces_y[1];
-    if (f->isleaf) {
-      Cell* neigh = f->neigh_cells[1];
-      if (f->neigh_cells[0] != NULL && f->neigh_cells[1] != NULL) {
+    if (f->isleaf)
+    {
+      Cell *neigh = f->neigh_cells[1];
+      if (f->neigh_cells[0] != NULL && f->neigh_cells[1] != NULL)
+      {
         int id1 = neigh->get_id();
         neigh->get_size(dx1, dy1, dz1);
         assert(id0 != id1);
         D_y1.coeffRef(id0, id0) += -1.0 / (0.5 * (dy0 + dy1));
         D_y1.coeffRef(id0, id1) += 1.0 / (0.5 * (dy0 + dy1));
-      } else {
+      }
+      else
+      {
         f = c->external_faces_y[0];
-        if (f->isleaf) {
+        if (f->isleaf)
+        {
           neigh = f->neigh_cells[0];
           // if (neigh == NULL)
           // {
@@ -264,24 +291,30 @@ void InversionBase::set_difference_matrix() {
           assert(id0 != id1);
           D_y1.coeffRef(id0, id0) += 1.0 / (0.5 * (dy0 + dy1));
           D_y1.coeffRef(id0, id1) += -1.0 / (0.5 * (dy0 + dy1));
-        } else {
-          Cell* neigh = f->child_faces[0]->neigh_cells[0];
+        }
+        else
+        {
+          Cell *neigh = f->child_faces[0]->neigh_cells[0];
           neigh->get_size(dx1, dy1, dz1);
           D_y1.coeffRef(id0, id0) += 1.0 / (0.5 * (dy0 + dy1));
-          for (int k = 0; k < 4; k++) {
-            Cell* neigh = f->child_faces[k]->neigh_cells[0];
+          for (int k = 0; k < 4; k++)
+          {
+            Cell *neigh = f->child_faces[k]->neigh_cells[0];
             int id1 = neigh->get_id();
             assert(id0 != id1);
             D_y1.coeffRef(id0, id1) += -1.0 / (0.5 * (dy0 + dy1)) * 0.25;
           }
         }
       }
-    } else {
-      Cell* neigh = f->child_faces[0]->neigh_cells[1];
+    }
+    else
+    {
+      Cell *neigh = f->child_faces[0]->neigh_cells[1];
       neigh->get_size(dx1, dy1, dz1);
       D_y1.coeffRef(id0, id0) += -1.0 / (0.5 * (dy0 + dy1));
-      for (int k = 0; k < 4; k++) {
-        Cell* neigh = f->child_faces[k]->neigh_cells[1];
+      for (int k = 0; k < 4; k++)
+      {
+        Cell *neigh = f->child_faces[k]->neigh_cells[1];
         int id1 = neigh->get_id();
         assert(id0 != id1);
         D_y1.coeffRef(id0, id1) += 1.0 / (0.5 * (dy0 + dy1)) * 0.25;
@@ -290,51 +323,63 @@ void InversionBase::set_difference_matrix() {
 
     // z
     f = c->external_faces_z[1];
-    if (f->isleaf) {
-      Cell* neigh = f->neigh_cells[1];
-      if (f->neigh_cells[0] != NULL && f->neigh_cells[1] != NULL) {
+    if (f->isleaf)
+    {
+      Cell *neigh = f->neigh_cells[1];
+      if (f->neigh_cells[0] != NULL && f->neigh_cells[1] != NULL)
+      {
         int id1 = neigh->get_id();
         neigh->get_size(dx1, dy1, dz1);
-        if (id0 == id1) {
+        if (id0 == id1)
+        {
           cout << "c" << endl;
           cout << "x direction" << endl;
-          for (int j = 0; j < 2; j++) {
+          for (int j = 0; j < 2; j++)
+          {
             c->external_faces_x[j]->display();
           }
           cout << "y direction" << endl;
-          for (int j = 0; j < 2; j++) {
+          for (int j = 0; j < 2; j++)
+          {
             c->external_faces_y[j]->display();
           }
           cout << "z direction" << endl;
-          for (int j = 0; j < 2; j++) {
+          for (int j = 0; j < 2; j++)
+          {
             c->external_faces_z[j]->display();
           }
           cout << "-----------------------------" << endl;
           cout << "neigh 0" << endl;
           cout << "x direction" << endl;
-          for (int j = 0; j < 2; j++) {
+          for (int j = 0; j < 2; j++)
+          {
             f->neigh_cells[0]->external_faces_x[j]->display();
           }
           cout << "y direction" << endl;
-          for (int j = 0; j < 2; j++) {
+          for (int j = 0; j < 2; j++)
+          {
             f->neigh_cells[0]->external_faces_y[j]->display();
           }
           cout << "z direction" << endl;
-          for (int j = 0; j < 2; j++) {
+          for (int j = 0; j < 2; j++)
+          {
             f->neigh_cells[0]->external_faces_z[j]->display();
           }
           cout << "-----------------------------" << endl;
           cout << "neigh 1" << endl;
           cout << "x direction" << endl;
-          for (int j = 0; j < 2; j++) {
+          for (int j = 0; j < 2; j++)
+          {
             f->neigh_cells[1]->external_faces_x[j]->display();
           }
           cout << "y direction" << endl;
-          for (int j = 0; j < 2; j++) {
+          for (int j = 0; j < 2; j++)
+          {
             f->neigh_cells[1]->external_faces_y[j]->display();
           }
           cout << "z direction" << endl;
-          for (int j = 0; j < 2; j++) {
+          for (int j = 0; j < 2; j++)
+          {
             f->neigh_cells[1]->external_faces_z[j]->display();
           }
         }
@@ -342,21 +387,27 @@ void InversionBase::set_difference_matrix() {
 
         D_z1.coeffRef(id0, id0) += -1.0 / (0.5 * (dz0 + dz1));
         D_z1.coeffRef(id0, id1) += 1.0 / (0.5 * (dz0 + dz1));
-      } else if (c->external_faces_z[0]->neigh_cells[0] != NULL) {
+      }
+      else if (c->external_faces_z[0]->neigh_cells[0] != NULL)
+      {
         f = c->external_faces_z[0];
-        if (f->isleaf) {
+        if (f->isleaf)
+        {
           neigh = f->neigh_cells[0];
           neigh->get_size(dx1, dy1, dz1);
           int id1 = neigh->get_id();
           assert(id0 != id1);
           D_z1.coeffRef(id0, id0) += 1.0 / (0.5 * (dz0 + dz1));
           D_z1.coeffRef(id0, id1) += -1.0 / (0.5 * (dz0 + dz1));
-        } else {
-          Cell* neigh = f->child_faces[0]->neigh_cells[0];
+        }
+        else
+        {
+          Cell *neigh = f->child_faces[0]->neigh_cells[0];
           neigh->get_size(dx1, dy1, dz1);
           D_z1.coeffRef(id0, id0) += 1.0 / (0.5 * (dz0 + dz1));
-          for (int k = 0; k < 4; k++) {
-            Cell* neigh = f->child_faces[k]->neigh_cells[0];
+          for (int k = 0; k < 4; k++)
+          {
+            Cell *neigh = f->child_faces[k]->neigh_cells[0];
             neigh->get_size(dx1, dy1, dz1);
             int id1 = neigh->get_id();
             assert(id0 != id1);
@@ -364,12 +415,15 @@ void InversionBase::set_difference_matrix() {
           }
         }
       }
-    } else {
-      Cell* neigh = f->child_faces[0]->neigh_cells[1];
+    }
+    else
+    {
+      Cell *neigh = f->child_faces[0]->neigh_cells[1];
       neigh->get_size(dx1, dy1, dz1);
       D_z1.coeffRef(id0, id0) += -1.0 / (0.5 * (dz0 + dz1));
-      for (int k = 0; k < 4; k++) {
-        Cell* neigh = f->child_faces[k]->neigh_cells[1];
+      for (int k = 0; k < 4; k++)
+      {
+        Cell *neigh = f->child_faces[k]->neigh_cells[1];
         neigh->get_size(dx1, dy1, dz1);
         int id1 = neigh->get_id();
         assert(id0 != id1);
@@ -379,23 +433,31 @@ void InversionBase::set_difference_matrix() {
   }
 }
 
-void InversionBase::show_differece_matrix(unsigned int direction) {
-  if (direction == NORTH_SOUTH) {
+void InversionBase::show_differece_matrix(unsigned int direction)
+{
+  if (direction == NORTH_SOUTH)
+  {
     cout << D_x1 << endl;
-  } else if (direction == WEST_EAST) {
+  }
+  else if (direction == WEST_EAST)
+  {
     cout << D_y1 << endl;
-  } else if (direction == UP_DOWN) {
+  }
+  else if (direction == UP_DOWN)
+  {
     cout << D_z1 << endl;
   }
 }
 
-void InversionBase::set_Vmatrix() {
+void InversionBase::set_Vmatrix()
+{
   V.setZero();
   // V.setIdentity();
   assert(N_obs != 0);
   assert(Nm != 0);
-  for (int i = 0; i < mesh.n_elems(); i++) {
-    const RectPrism& t = mesh.get_elem(i);
+  for (int i = 0; i < mesh.n_elems(); i++)
+  {
+    const RectPrism &t = mesh.get_elem(i);
     double v = t.get_volumn();
     V.coeffRef(i, i) += sqrt(v);
     // V.coeffRef(i, i) += 1;
@@ -403,7 +465,8 @@ void InversionBase::set_Vmatrix() {
   // cout<<V<<endl;
 }
 
-void InversionBase::set_Tmatrix() {
+void InversionBase::set_Tmatrix()
+{
   T_z.resize(Nm, Nm);
   T_z.setZero();
   T_x.resize(Nm, Nm);
@@ -420,7 +483,8 @@ void InversionBase::set_Tmatrix() {
   Dzs.setZero();
   Dxs.setZero();
   Dys.setZero();
-  for (int i = 0; i < Nm; i++) {
+  for (int i = 0; i < Nm; i++)
+  {
     Dzs.coeffRef(i, i) = Dzs_v(i);
     Dxs.coeffRef(i, i) = Dxs_v(i);
     Dys.coeffRef(i, i) = Dys_v(i);
@@ -430,34 +494,41 @@ void InversionBase::set_Tmatrix() {
   T_y = V * (Dxs * D_z1 - Dzs * D_x1);
 }
 
-void InversionBase::set_depth_weighting(double beta, int flag) {
+void InversionBase::set_depth_weighting(double beta, int flag)
+{
   this->depth_weighting_factor = beta;
   Z.setZero();
-  assert(N_obs != 0);  // Nd>=N_obs>=0
+  assert(N_obs != 0); // Nd>=N_obs>=0
   assert(Nm != 0);
-  if (flag == 0) {
+  if (flag == 0)
+  {
     double zp = 0;
-    for (int i = 0; i < N_obs; i++) {
+    for (int i = 0; i < N_obs; i++)
+    {
       Point p = ob(i);
       zp += p.z();
     }
     zp = zp / N_obs;
-    for (int i = 0; i < Nm; i++) {
-      const RectPrism& t = mesh.get_elem(i);
+    for (int i = 0; i < Nm; i++)
+    {
+      const RectPrism &t = mesh.get_elem(i);
       double z = 0.5 * (t._z[0] + t._z[1]);
       double weight = 1.0 / pow(std::abs(zp - z), beta * 0.5);
       Z.coeffRef(i, i) += weight;
     }
   }
-  if (flag == 1) {
-    for (int i = 0; i < Nm; i++) {
+  if (flag == 1)
+  {
+    for (int i = 0; i < Nm; i++)
+    {
       double t = (G.col(i)).norm() / Nd;
       Z.coeffRef(i, i) += sqrt(t);
     }
   }
 }
 
-void InversionBase::set_dobs(const VectorXd& d) {
+void InversionBase::set_dobs(const VectorXd &d)
+{
   int n = field_flag.count();
   assert(Nd == d.size());
 
@@ -465,14 +536,16 @@ void InversionBase::set_dobs(const VectorXd& d) {
   // cout<<dobs.rows()<<endl;
   Wd.resize(Nd, Nd);
   Wd.setZero();
-  for (int i = 0; i < Nd; i++) {
+  for (int i = 0; i < Nd; i++)
+  {
     Wd.coeffRef(i, i) += 1.0;
   }
 }
 
-void InversionBase::set_dobs(const VectorXd& d,
+void InversionBase::set_dobs(const VectorXd &d,
                              double relative_error,
-                             double a) {
+                             double a)
+{
   assert(relative_error < 0.7);
   int n = field_flag.count();
   assert(Nd == d.size());
@@ -480,36 +553,43 @@ void InversionBase::set_dobs(const VectorXd& d,
   this->dobs = d;
   Wd.resize(Nd, Nd);
   Wd.setZero();
-  for (int i = 0; i < Nd; i++) {
+  for (int i = 0; i < Nd; i++)
+  {
     Wd.coeffRef(i, i) += 1.0 / (relative_error * std::fabs(dobs(i)) + a);
   }
 }
-void InversionBase::set_dobs(const VectorXd& d,
+void InversionBase::set_dobs(const VectorXd &d,
                              vector<double> relative_error,
-                             vector<double> a) {
+                             vector<double> a)
+{
   int n_fields = field_flag.count();
   assert(relative_error.size() == n_fields && a.size() == n_fields);
   assert(Nd == d.size());
   this->dobs = d;
   Wd.resize(Nd, Nd);
   Wd.setZero();
-  for (int i = 0; i < n_fields; i++) {
-    for (int j = 0; j < N_obs; j++) {
+  for (int i = 0; i < n_fields; i++)
+  {
+    for (int j = 0; j < N_obs; j++)
+    {
       Wd.coeffRef(j + i * N_obs, j + i * N_obs) +=
           1.0 / (relative_error[i] * std::fabs(dobs(j + i * N_obs)) + a[i]);
     }
   }
 }
 
-void InversionBase::set_Wd(const VectorXd& sigma) {
+void InversionBase::set_Wd(const VectorXd &sigma)
+{
   assert(sigma.rows() == Wd.cols());
   Wd.setZero();
-  for (int i = 0; i < Nd; i++) {
+  for (int i = 0; i < Nd; i++)
+  {
     Wd.coeffRef(i, i) += 1.0 / sigma(i);
   }
 }
 
-void InversionBase::set_observation(const Observation& ob0) {
+void InversionBase::set_observation(const Observation &ob0)
+{
   this->ob = ob0;
   N_obs = ob.get_n_obs();
   int n_fields = field_flag.count();
@@ -524,7 +604,8 @@ void InversionBase::set_weights_of_objectives(double a_s,
                                               double a_z,
                                               double a_x,
                                               double a_y,
-                                              double a_crg) {
+                                              double a_crg)
+{
   this->a_s = a_s;
   this->a_z = a_z;
   this->a_x = a_x;
@@ -532,39 +613,48 @@ void InversionBase::set_weights_of_objectives(double a_s,
   this->a_crg = a_crg;
 }
 
-void InversionBase::set_reference_model(VectorXd& m_ref) {
+void InversionBase::set_reference_model(VectorXd &m_ref)
+{
   this->m0 = m_ref;
 }
 
-void InversionBase::set_geometry_reference_model(VectorXd& m_ref) {
+void InversionBase::set_geometry_reference_model(VectorXd &m_ref)
+{
   this->m0_s = m_ref;
 }
-void InversionBase::set_m(VectorXd& m_) {
+void InversionBase::set_m(VectorXd &m_)
+{
   this->m = m_;
 }
 
-void InversionBase::set_m_ini(VectorXd& m_ini_) {
+void InversionBase::set_m_ini(VectorXd &m_ini_)
+{
   this->m_ini = m_ini_;
 }
 
-void InversionBase::set_min_max(VectorXd& m_min_, VectorXd& m_max_) {
+void InversionBase::set_min_max(VectorXd &m_min_, VectorXd &m_max_)
+{
   this->m_min = m_min_;
   this->m_max = m_max_;
 }
 
-void InversionBase::set_density_to_mesh() {
+void InversionBase::set_density_to_mesh()
+{
   assert(m.size() == Nm);
-  for (int i = 0; i < Nm; i++) {
-    Cell* t = mesh.leaf_cells[i];
+  for (int i = 0; i < Nm; i++)
+  {
+    Cell *t = mesh.leaf_cells[i];
     t->set_parameter(m(i), 0);
     // t.set_density(log10(Z.coeffRef(i,i)));
   }
 }
 
-void InversionBase::set_reference_model_to_mesh() {
+void InversionBase::set_reference_model_to_mesh()
+{
   assert(m0.size() == Nm);
-  for (int i = 0; i < Nm; i++) {
-    Cell* t = mesh.leaf_cells[i];
+  for (int i = 0; i < Nm; i++)
+  {
+    Cell *t = mesh.leaf_cells[i];
     assert(t->parameters.size() > 1);
     t->set_parameter(m0(i), 1);
     t->set_parameter(m0_s(i), 2);
@@ -572,10 +662,12 @@ void InversionBase::set_reference_model_to_mesh() {
   }
 }
 
-void InversionBase::set_min_max_to_mesh() {
+void InversionBase::set_min_max_to_mesh()
+{
   assert(m.size() == Nm);
-  for (int i = 0; i < Nm; i++) {
-    Cell* t = mesh.leaf_cells[i];
+  for (int i = 0; i < Nm; i++)
+  {
+    Cell *t = mesh.leaf_cells[i];
     t->set_parameter(m_min(i), 3);
     t->set_parameter(m_max(i), 4);
     // t.set_density(log10(Z.coeffRef(i,i)));
@@ -583,11 +675,13 @@ void InversionBase::set_min_max_to_mesh() {
 }
 
 void InversionBase::set_petrophysics_constraint(
-    VectorXd& m_ref_other_para,
-    function<double(double)> relation) {
+    VectorXd &m_ref_other_para,
+    function<double(double)> relation)
+{
   int ns = m_ref_other_para.size();
   assert(ns == Nm);
-  for (int i = 0; i < Nm; i++) {
+  for (int i = 0; i < Nm; i++)
+  {
     // if (fabs(m_ref_other_para(i)) < 1e-9)
     // {
     //     this->m0(i) = 0;
@@ -599,14 +693,17 @@ void InversionBase::set_petrophysics_constraint(
   }
 }
 
-VectorXd InversionBase::get_predicted_field() {
+VectorXd InversionBase::get_predicted_field()
+{
   VectorXd d_pre = (this->G) * (this->m);
   return d_pre;
 }
 
-void InversionBase::update_S_crg() {
+void InversionBase::update_S_crg()
+{
   S_crg.setZero();
-  for (int i_CELL = 0; i_CELL < Nm; i_CELL++) {
+  for (int i_CELL = 0; i_CELL < Nm; i_CELL++)
+  {
     double zc, xc, yc;
     mesh.leaf_cells[i_CELL]->get_center(xc, yc, zc);
 
@@ -615,33 +712,39 @@ void InversionBase::update_S_crg() {
         (xc < constraint_x[1] || std::abs(xc - constraint_x[1]) < 1e-10) &&
         (xc > constraint_x[0] || std::abs(xc - constraint_x[0]) < 1e-10) &&
         (yc < constraint_y[1] || std::abs(yc - constraint_y[1]) < 1e-10) &&
-        (yc > constraint_y[0] || std::abs(yc - constraint_y[0]) < 1e-10)) {
+        (yc > constraint_y[0] || std::abs(yc - constraint_y[0]) < 1e-10))
+    {
       S_crg.coeffRef(i_CELL, i_CELL) += 1;
     }
   }
 }
 
-void InversionBase::output_predicted_data(string out_name) {
+void InversionBase::output_predicted_data(string out_name)
+{
   VectorXd d_pre = this->get_predicted_field();
   this->out_data(d_pre, out_name);
 }
 
-void InversionBase::output_obs_data(string out_name) {
+void InversionBase::output_obs_data(string out_name)
+{
   // cout<<this->dobs.rows()<<endl;
   this->out_data(this->dobs, out_name);
 }
 
-void InversionBase::out_data(const VectorXd& d, string out_name) {
-  vector<string> strs = {"V",    "g_z",  "g_x",  "g_y",  "T_zz",
+void InversionBase::out_data(const VectorXd &d, string out_name)
+{
+  vector<string> strs = {"V", "g_z", "g_x", "g_y", "T_zz",
                          "T_xz", "T_yz", "T_xx", "T_xy", "T_yy"};
   vector<unsigned int> field_label;
-  for (unsigned int i = 0; i < strs.size(); i++) {
-    if (field_flag[i]) {
+  for (unsigned int i = 0; i < strs.size(); i++)
+  {
+    if (field_flag[i])
+    {
       field_label.push_back(i);
     }
   }
 
-  int n_com = field_flag.count();  // number of used components
+  int n_com = field_flag.count(); // number of used components
   int n_ob = ob.get_n_obs();
   int nd = d.rows();
   // cout<<"xx  "<<d.rows()<<endl;
@@ -651,11 +754,13 @@ void InversionBase::out_data(const VectorXd& d, string out_name) {
   assert(nd % n_ob == 0);
   assert(nd / n_ob == n_com);
 
-  for (int j = 0; j < n_com; j++) {
+  for (int j = 0; j < n_com; j++)
+  {
     string file_name = out_name + "_" + strs[field_label[j]];
     ofstream out_s(file_name);
-    for (int i = 0; i < n_ob; i++) {
-      const Point& p = ob(i);
+    for (int i = 0; i < n_ob; i++)
+    {
+      const Point &p = ob(i);
       out_s << scientific;
       out_s << setw(30) << setprecision(15) << left << p.x() << setw(30) << left
             << p.y();
@@ -665,22 +770,27 @@ void InversionBase::out_data(const VectorXd& d, string out_name) {
   }
 }
 
-void InversionBase::output_predicted_data_vtk(string out_name) {
+void InversionBase::output_predicted_data_vtk(string out_name)
+{
   VectorXd d_pre = this->get_predicted_field();
   this->out_data_vtk(d_pre, out_name);
 }
 
-void InversionBase::output_obs_data_vtk(string out_name) {
+void InversionBase::output_obs_data_vtk(string out_name)
+{
   // cout<<this->dobs.rows()<<endl;
   this->out_data_vtk(this->dobs, out_name);
 }
 
-void InversionBase::out_data_vtk(const VectorXd& d, string out_name) {
-  vector<string> strs = {"V",    "g_z",  "g_x",  "g_y",  "T_zz",
+void InversionBase::out_data_vtk(const VectorXd &d, string out_name)
+{
+  vector<string> strs = {"V", "g_z", "g_x", "g_y", "T_zz",
                          "T_xz", "T_yz", "T_xx", "T_xy", "T_yy"};
   vector<unsigned int> field_label;
-  for (unsigned int i = 0; i < strs.size(); i++) {
-    if (field_flag[i]) {
+  for (unsigned int i = 0; i < strs.size(); i++)
+  {
+    if (field_flag[i])
+    {
       field_label.push_back(i);
     }
   }
@@ -688,15 +798,18 @@ void InversionBase::out_data_vtk(const VectorXd& d, string out_name) {
   // Open a file stream
   std::ofstream vtk_mesh(out_name.c_str());
 
-  if (!vtk_mesh.good()) {
+  if (!vtk_mesh.good())
+  {
     std::cerr << "Can not open file:\t" << out_name + ".vtk" << std::endl;
-  } else {
+  }
+  else
+  {
     // Parts 1-2-3, mandatory
     vtk_mesh
-        << "# vtk DataFile Version 3.0\n"  // File version and identifier
-                                           // Header info, doublely cool data
+        << "# vtk DataFile Version 3.0\n" // File version and identifier
+                                          // Header info, doublely cool data
         << "Gravity effects\n"
-        << "ASCII\n";  // ASCII data (not BINARY)
+        << "ASCII\n"; // ASCII data (not BINARY)
 
     // Part 4, Geometry/topology, unstructured mesh
     vtk_mesh << "DATASET UNSTRUCTURED_GRID\n";
@@ -705,53 +818,62 @@ void InversionBase::out_data_vtk(const VectorXd& d, string out_name) {
     // POINTS info (0-->n-1)
     vtk_mesh << "\nPOINTS\t" << n_ob << "\tdouble\n";
 
-    for (unsigned int i = 0; i < n_ob; i++) {
-      const Point& p = ob(i);
+    for (unsigned int i = 0; i < n_ob; i++)
+    {
+      const Point &p = ob(i);
       vtk_mesh << p.x() << "\t" << p.y() << "\t" << p.z() << endl;
     }
 
     vtk_mesh << "\nCELLS\t" << n_ob << "\t" << n_ob * (1 + 1) << endl;
-    for (unsigned int i = 0; i < n_ob; i++) {
+    for (unsigned int i = 0; i < n_ob; i++)
+    {
       vtk_mesh << (unsigned int)1 << "\t" << i << endl;
     }
 
     vtk_mesh << "\nCELL_TYPES\t" << n_ob << "\n";
-    for (unsigned int i = 0; i < n_ob; i++) {
-      vtk_mesh << (unsigned int)1 << "\n";  // VTK_VERTEX=1
+    for (unsigned int i = 0; i < n_ob; i++)
+    {
+      vtk_mesh << (unsigned int)1 << "\n"; // VTK_VERTEX=1
     }
 
-    int n_com = field_flag.count();  // number of used components
+    int n_com = field_flag.count(); // number of used components
     vtk_mesh << "\nCELL_DATA\t" << n_ob << "\n";
-    for (int j = 0; j < n_com; j++) {
+    for (int j = 0; j < n_com; j++)
+    {
       vtk_mesh << "SCALARS " << strs[field_label[j]] << " double 1\n"
                << "LOOKUP_TABLE "
                << "table" << j << endl;
-      for (unsigned int i = 0; i < n_ob; i++) {
+      for (unsigned int i = 0; i < n_ob; i++)
+      {
         double value = d(i + j * n_ob);
         vtk_mesh << value << "\n";
       }
     }
     vtk_mesh << "\nPOINT_DATA\t" << n_ob << "\n";
-    for (int j = 0; j < n_com; j++) {
+    for (int j = 0; j < n_com; j++)
+    {
       vtk_mesh << "SCALARS " << strs[field_label[j]] << " double 1\n"
                << "LOOKUP_TABLE "
                << "table" << j << endl;
-      for (unsigned int i = 0; i < n_ob; i++) {
+      for (unsigned int i = 0; i < n_ob; i++)
+      {
         double value = d(i + j * n_ob);
         vtk_mesh << value << "\n";
       }
     }
     vtk_mesh << "\n";
-  }  // file opened successfully
+  } // file opened successfully
 
   vtk_mesh.close();
   cout << "Written data to: " << out_name << endl;
 }
-void InversionBase::result2text(string filename) {
+void InversionBase::result2text(string filename)
+{
   this->set_density_to_mesh();
-  this->mesh.out_model_txt(filename+ string(".txt"));
+  this->mesh.out_model_txt(filename + string(".txt"));
 }
-void InversionBase::result2vtk(string filename) {
+void InversionBase::result2vtk(string filename)
+{
   this->set_density_to_mesh();
   this->set_reference_model_to_mesh();
   vector<string> parameter_name = {"model", "m0", "m0s"};
@@ -761,7 +883,8 @@ void InversionBase::result2vtk(string filename) {
 }
 
 #ifdef USE_NETCDF
-void InversionBase::result2netcdf(string filename) {
+void InversionBase::result2netcdf(string filename)
+{
   this->set_density_to_mesh();
   this->mesh.out_model_netcdf(filename + string(".nc"));
 }
@@ -772,10 +895,12 @@ void InversionBase::create_crg_model_from_data(string filename,
                                                int y_size,
                                                int z_size,
                                                string data_order,
-                                               int fast_dimension) {
+                                               int fast_dimension)
+{
   this->use_cross_gradient_constraint = true;
   // cout<<use_cross_gradient_constraint<<endl;
-  if (this->interpolator_m0s != NULL) {
+  if (this->interpolator_m0s != NULL)
+  {
     delete interpolator_m0s;
     interpolator_m0s = NULL;
   }
@@ -785,9 +910,9 @@ void InversionBase::create_crg_model_from_data(string filename,
   assert(input_file.good());
   cout << "Read cross-gradient constraint model from " << filename << endl;
 
-  vector<double> grid_x;  // x
-  vector<double> grid_y;  // y
-  vector<double> grid_z;  // z
+  vector<double> grid_x; // x
+  vector<double> grid_y; // y
+  vector<double> grid_z; // z
 
   grid_x.resize(x_size);
   grid_y.resize(y_size);
@@ -802,79 +927,120 @@ void InversionBase::create_crg_model_from_data(string filename,
   int num_elements = grid_sizes[0] * grid_sizes[1] * grid_sizes[2];
   std::vector<double> f_values(num_elements);
 
-  double x, y, z, val;  // each column
+  double x, y, z, val; // each column
 
-  if (fast_dimension == 0) {
-    for (int k = 0; k < grid_z.size(); k++) {
-      for (int j = 0; j < grid_y.size(); j++) {
-        for (int i = 0; i < grid_x.size(); i++) {
-          if (data_order == "yxz") {
+  if (fast_dimension == 0)
+  {
+    for (int k = 0; k < grid_z.size(); k++)
+    {
+      for (int j = 0; j < grid_y.size(); j++)
+      {
+        for (int i = 0; i < grid_x.size(); i++)
+        {
+          if (data_order == "yxz")
+          {
             input_file >> y >> x >> z >> val;
-          } else if (data_order == "xyz") {
+          }
+          else if (data_order == "xyz")
+          {
             input_file >> x >> y >> z >> val;
-          } else if (data_order == "zxy") {
+          }
+          else if (data_order == "zxy")
+          {
             input_file >> z >> x >> y >> val;
-          } else if (data_order == "zyx") {
+          }
+          else if (data_order == "zyx")
+          {
             input_file >> z >> y >> x >> val;
-          } else if (data_order == "yzx") {
+          }
+          else if (data_order == "yzx")
+          {
             input_file >> y >> z >> x >> val;
-          } else if (data_order == "xzy") {
+          }
+          else if (data_order == "xzy")
+          {
             input_file >> x >> z >> y >> val;
-          } else {
+          }
+          else
+          {
             cout << "data_order should be one of the following:" << endl;
             cout << "xyz yxz zxy zyx xzy yzx" << endl;
             std::abort();
           }
 
-          if (k == 0 && j == 0) {
-            grid_x[i] = x;  // x
+          if (k == 0 && j == 0)
+          {
+            grid_x[i] = x; // x
           }
 
           f_values[i * grid_sizes[1] * grid_sizes[2] + j * grid_sizes[2] + k] =
               val;
         }
-        if (k == 0) {
-          grid_y[j] = y;  // y
+        if (k == 0)
+        {
+          grid_y[j] = y; // y
         }
       }
-      grid_z[k] = z;  // z
+      grid_z[k] = z; // z
     }
-  } else if (fast_dimension == 1) {
-    for (int k = 0; k < grid_z.size(); k++) {
-      for (int i = 0; i < grid_x.size(); i++) {
-        for (int j = 0; j < grid_y.size(); j++) {
-          if (data_order == "yxz") {
+  }
+  else if (fast_dimension == 1)
+  {
+    for (int k = 0; k < grid_z.size(); k++)
+    {
+      for (int i = 0; i < grid_x.size(); i++)
+      {
+        for (int j = 0; j < grid_y.size(); j++)
+        {
+          if (data_order == "yxz")
+          {
             input_file >> y >> x >> z >> val;
-          } else if (data_order == "xyz") {
+          }
+          else if (data_order == "xyz")
+          {
             input_file >> x >> y >> z >> val;
-          } else if (data_order == "zxy") {
+          }
+          else if (data_order == "zxy")
+          {
             input_file >> z >> x >> y >> val;
-          } else if (data_order == "zyx") {
+          }
+          else if (data_order == "zyx")
+          {
             input_file >> z >> y >> x >> val;
-          } else if (data_order == "yzx") {
+          }
+          else if (data_order == "yzx")
+          {
             input_file >> y >> z >> x >> val;
-          } else if (data_order == "xzy") {
+          }
+          else if (data_order == "xzy")
+          {
             input_file >> x >> z >> y >> val;
-          } else {
+          }
+          else
+          {
             cout << "data_order should be one of the following:" << endl;
             cout << "xyz yxz zxy zyx xzy yzx" << endl;
             std::abort();
           }
 
-          if (k == 0 && i == 0) {
-            grid_y[j] = y;  // y
+          if (k == 0 && i == 0)
+          {
+            grid_y[j] = y; // y
           }
 
           f_values[i * grid_sizes[1] * grid_sizes[2] + j * grid_sizes[2] + k] =
               val;
         }
-        if (k == 0) {
-          grid_x[i] = x;  // x
+        if (k == 0)
+        {
+          grid_x[i] = x; // x
         }
       }
-      grid_z[k] = z;  // z
+      grid_z[k] = z; // z
     }
-  } else {
+  }
+  else
+  {
     cout << "Parameter fast_dimension"
          << " should be 0 or 1" << endl;
   }
@@ -901,7 +1067,7 @@ void InversionBase::create_crg_model_from_data(string filename,
   double y_space =
       (grid_y[grid_y.size() - 1] - grid_y[0]) / (grid_y.size() - 1);
   double z_space =
-      (grid_z[grid_z.size() - 1] - grid_z[0]) / (grid_z.size() - 1);  // km
+      (grid_z[grid_z.size() - 1] - grid_z[0]) / (grid_z.size() - 1); // km
   double x_model[2] = {grid_x[0] - 0.5 * x_space,
                        grid_x[grid_x.size() - 1] + 0.5 * x_space};
   double y_model[2] = {grid_y[0] - 0.5 * y_space,
@@ -911,8 +1077,9 @@ void InversionBase::create_crg_model_from_data(string filename,
   mesh_crg.generate_regular_mesh(x_model, x_size, y_model, y_size, z_model,
                                  z_size);
 
-  for (int i = 0; i < mesh_crg.n_elems(); i++) {
-    Cell* c = mesh_crg.leaf_cells[i];
+  for (int i = 0; i < mesh_crg.n_elems(); i++)
+  {
+    Cell *c = mesh_crg.leaf_cells[i];
     double xc, yc, zc;
     c->get_center(xc, yc, zc);
 
@@ -932,9 +1099,11 @@ void InversionBase::create_ref_model_from_data(string filename,
                                                int y_size,
                                                int z_size,
                                                string data_order,
-                                               int fast_dimension) {
+                                               int fast_dimension)
+{
   this->use_petrophysical_constraint = true;
-  if (this->interpolator_m0 != NULL) {
+  if (this->interpolator_m0 != NULL)
+  {
     delete interpolator_m0;
     interpolator_m0 = NULL;
   }
@@ -944,9 +1113,9 @@ void InversionBase::create_ref_model_from_data(string filename,
   assert(input_file.good());
   cout << "Read converted density model from " << filename << endl;
 
-  vector<double> grid_x;  // x
-  vector<double> grid_y;  // y
-  vector<double> grid_z;  // z
+  vector<double> grid_x; // x
+  vector<double> grid_y; // y
+  vector<double> grid_z; // z
 
   grid_x.resize(x_size);
   grid_y.resize(y_size);
@@ -961,79 +1130,120 @@ void InversionBase::create_ref_model_from_data(string filename,
   int num_elements = grid_sizes[0] * grid_sizes[1] * grid_sizes[2];
   std::vector<double> f_values(num_elements);
 
-  double x, y, z, val;  // each column
+  double x, y, z, val; // each column
 
-  if (fast_dimension == 0) {
-    for (int k = 0; k < grid_z.size(); k++) {
-      for (int j = 0; j < grid_y.size(); j++) {
-        for (int i = 0; i < grid_x.size(); i++) {
-          if (data_order == "yxz") {
+  if (fast_dimension == 0)
+  {
+    for (int k = 0; k < grid_z.size(); k++)
+    {
+      for (int j = 0; j < grid_y.size(); j++)
+      {
+        for (int i = 0; i < grid_x.size(); i++)
+        {
+          if (data_order == "yxz")
+          {
             input_file >> y >> x >> z >> val;
-          } else if (data_order == "xyz") {
+          }
+          else if (data_order == "xyz")
+          {
             input_file >> x >> y >> z >> val;
-          } else if (data_order == "zxy") {
+          }
+          else if (data_order == "zxy")
+          {
             input_file >> z >> x >> y >> val;
-          } else if (data_order == "zyx") {
+          }
+          else if (data_order == "zyx")
+          {
             input_file >> z >> y >> x >> val;
-          } else if (data_order == "yzx") {
+          }
+          else if (data_order == "yzx")
+          {
             input_file >> y >> z >> x >> val;
-          } else if (data_order == "xzy") {
+          }
+          else if (data_order == "xzy")
+          {
             input_file >> x >> z >> y >> val;
-          } else {
+          }
+          else
+          {
             cout << "data_order should be one of the following:" << endl;
             cout << "xyz yxz zxy zyx xzy yzx" << endl;
             std::abort();
           }
 
-          if (k == 0 && j == 0) {
-            grid_x[i] = x;  // x
+          if (k == 0 && j == 0)
+          {
+            grid_x[i] = x; // x
           }
 
           f_values[i * grid_sizes[1] * grid_sizes[2] + j * grid_sizes[2] + k] =
               val;
         }
-        if (k == 0) {
-          grid_y[j] = y;  // y
+        if (k == 0)
+        {
+          grid_y[j] = y; // y
         }
       }
-      grid_z[k] = z;  // z
+      grid_z[k] = z; // z
     }
-  } else if (fast_dimension == 1) {
-    for (int k = 0; k < grid_z.size(); k++) {
-      for (int i = 0; i < grid_x.size(); i++) {
-        for (int j = 0; j < grid_y.size(); j++) {
-          if (data_order == "yxz") {
+  }
+  else if (fast_dimension == 1)
+  {
+    for (int k = 0; k < grid_z.size(); k++)
+    {
+      for (int i = 0; i < grid_x.size(); i++)
+      {
+        for (int j = 0; j < grid_y.size(); j++)
+        {
+          if (data_order == "yxz")
+          {
             input_file >> y >> x >> z >> val;
-          } else if (data_order == "xyz") {
+          }
+          else if (data_order == "xyz")
+          {
             input_file >> x >> y >> z >> val;
-          } else if (data_order == "zxy") {
+          }
+          else if (data_order == "zxy")
+          {
             input_file >> z >> x >> y >> val;
-          } else if (data_order == "zyx") {
+          }
+          else if (data_order == "zyx")
+          {
             input_file >> z >> y >> x >> val;
-          } else if (data_order == "yzx") {
+          }
+          else if (data_order == "yzx")
+          {
             input_file >> y >> z >> x >> val;
-          } else if (data_order == "xzy") {
+          }
+          else if (data_order == "xzy")
+          {
             input_file >> x >> z >> y >> val;
-          } else {
+          }
+          else
+          {
             cout << "data_order should be one of the following:" << endl;
             cout << "xyz yxz zxy zyx xzy yzx" << endl;
             std::abort();
           }
 
-          if (k == 0 && i == 0) {
-            grid_y[j] = y;  // y
+          if (k == 0 && i == 0)
+          {
+            grid_y[j] = y; // y
           }
 
           f_values[i * grid_sizes[1] * grid_sizes[2] + j * grid_sizes[2] + k] =
               val;
         }
-        if (k == 0) {
-          grid_x[i] = x;  // x
+        if (k == 0)
+        {
+          grid_x[i] = x; // x
         }
       }
-      grid_z[k] = z;  // z
+      grid_z[k] = z; // z
     }
-  } else {
+  }
+  else
+  {
     cout << "Parameter fast_dimension"
          << " should be 0 or 1" << endl;
   }
@@ -1060,7 +1270,7 @@ void InversionBase::create_ref_model_from_data(string filename,
   double y_space =
       (grid_y[grid_y.size() - 1] - grid_y[0]) / (grid_y.size() - 1);
   double z_space =
-      (grid_z[grid_z.size() - 1] - grid_z[0]) / (grid_z.size() - 1);  // km
+      (grid_z[grid_z.size() - 1] - grid_z[0]) / (grid_z.size() - 1); // km
   double x_model[2] = {grid_x[0] - 0.5 * x_space,
                        grid_x[grid_x.size() - 1] + 0.5 * x_space};
   double y_model[2] = {grid_y[0] - 0.5 * y_space,
@@ -1070,8 +1280,9 @@ void InversionBase::create_ref_model_from_data(string filename,
   mesh_ref.generate_regular_mesh(x_model, x_size, y_model, y_size, z_model,
                                  z_size);
 
-  for (int i = 0; i < mesh_ref.n_elems(); i++) {
-    Cell* c = mesh_ref.leaf_cells[i];
+  for (int i = 0; i < mesh_ref.n_elems(); i++)
+  {
+    Cell *c = mesh_ref.leaf_cells[i];
     double xc, yc, zc;
     c->get_center(xc, yc, zc);
 

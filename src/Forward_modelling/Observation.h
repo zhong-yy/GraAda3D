@@ -10,11 +10,12 @@
 #include "Point.h"
 #include "gs.h"
 using namespace std;
-class Observation {
- public:
+class Observation
+{
+public:
   Observation();
   ~Observation();
-  void add_point(const Point& p);
+  void add_point(const Point &p);
   void add_point(double x, double y, double z);
   void add_point_pre(double x, double y, double z);
 
@@ -36,32 +37,36 @@ class Observation {
                 double end_y,
                 double z0);
 
-  void read_site(const string& name);
-  const Point& operator()(unsigned i) const {
+  void read_site(const string &name);
+  const Point &operator()(unsigned i) const
+  {
     assert(i < n_obs);
     return obs[i];
   }
-  void set_obs(unsigned i, double x, double y, double z) {
+  void set_obs(unsigned i, double x, double y, double z)
+  {
     assert(i < n_obs);
     this->obs[i].set_xyz(x, y, z);
   }
   unsigned int get_n_obs() const { return n_obs; }
-  friend ostream& operator<<(ostream& output, Observation& observation);
+  friend ostream &operator<<(ostream &output, Observation &observation);
 
-  void clear() {
+  void clear()
+  {
     this->obs.clear();
     this->n_obs = 0;
   }
 
- private:
+private:
   vector<Point> obs;
   unsigned int n_obs;
 
-  void line_process(string& line, const string comment_str = "#") {
+  void line_process(string &line, const string comment_str = "#")
+  {
     // if(line.size()==1&&(line[0]=='\n'||line[0]=='\r')){
     // 	cout<<"23333"<<endl;
     // }
-    for (char& c : line)
+    for (char &c : line)
       if (c == '\t' || c == ',' || c == ';' || c == '\r' || c == '\n')
         c = ' ';
     line.erase(0, line.find_first_not_of(" "));

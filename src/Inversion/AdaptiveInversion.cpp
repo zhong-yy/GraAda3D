@@ -1,5 +1,5 @@
 #include "AdaptiveInversion.h"
-AdaptiveInversion::AdaptiveInversion(const Mesh& mesh_, const Observation& ob_,
+AdaptiveInversion::AdaptiveInversion(const Mesh &mesh_, const Observation &ob_,
                                      unsigned long long field_flag_)
     : InversionBase(mesh_, ob_, field_flag_),
       refinement_percentage(0.1),
@@ -20,7 +20,8 @@ AdaptiveInversion::AdaptiveInversion()
 
 AdaptiveInversion::~AdaptiveInversion() {}
 
-void AdaptiveInversion::expand_G(const map<unsigned int, Cell*>& split_cells) {
+void AdaptiveInversion::expand_G(const map<unsigned int, Cell *> &split_cells)
+{
     int num_newcells = split_cells.size();
     // cout << "num_newcells=" << num_newcells << endl;
     MatrixXd G2 = this->G;
@@ -46,27 +47,33 @@ void AdaptiveInversion::expand_G(const map<unsigned int, Cell*>& split_cells) {
     assert(N_obs > 0);
 
     vector<int> basic_field_index;
-    for (int i = 0; i < 10; i++) {
+    for (int i = 0; i < 10; i++)
+    {
         // bool status = flag[i];
-        if (field_flag[i]) {
+        if (field_flag[i])
+        {
             basic_field_index.push_back(i);
         }
     }
 
     assert(basic_field_index.size() == n_fields);
-    map<unsigned int, Cell*>::const_iterator map_it = split_cells.begin();
+    map<unsigned int, Cell *>::const_iterator map_it = split_cells.begin();
     G.block(0, 0, rows_number, map_it->first) =
         G2.block(0, 0, rows_number, map_it->first);
-    Cell* parent_cell;
-    for (int i_cell = 0; i_cell < num_newcells; i_cell++) {
+    Cell *parent_cell;
+    for (int i_cell = 0; i_cell < num_newcells; i_cell++)
+    {
         int index = map_it->first;
-        Cell* parent_cell = map_it->second;
-        for (int j = 0; j < 8; j++) {
+        Cell *parent_cell = map_it->second;
+        for (int j = 0; j < 8; j++)
+        {
             assert(parent_cell->child_cells[j]->isleaf);
         }
-        for (int i = 0; i < N_obs; i++) {
+        for (int i = 0; i < N_obs; i++)
+        {
 #pragma omp parallel for
-            for (int j = 0; j < 8; j++) {
+            for (int j = 0; j < 8; j++)
+            {
                 GravFormula gra;
                 vector<double> field;
 
@@ -76,14 +83,16 @@ void AdaptiveInversion::expand_G(const map<unsigned int, Cell*>& split_cells) {
                                                  *(parent_cell->child_cells[j]),
                                                  1.0, field, field_flag);
 
-                for (int k = 0; k < n_fields; k++) {
+                for (int k = 0; k < n_fields; k++)
+                {
                     temp(i + k * N_obs, j) = field[basic_field_index[k]];
                 }
             }
         }
         G.block(0, index + i_cell * 7, rows_number, 8) = temp;
         map_it++;
-        if (map_it != split_cells.end()) {
+        if (map_it != split_cells.end())
+        {
             G.block(0, index + i_cell * 7 + 8, rows_number,
                     map_it->first - index - 1) =
                 G2.block(0, index + 1, rows_number, map_it->first - index - 1);
@@ -96,30 +105,38 @@ void AdaptiveInversion::expand_G(const map<unsigned int, Cell*>& split_cells) {
         G2.block(0, index + 1, rows_number, G2.cols() - 1 - index);
 }
 
-void AdaptiveInversion::indicator_calculator(VectorXd& indicator) {
+void AdaptiveInversion::indicator_calculator(VectorXd &indicator)
+{
     indicator.resize(Nm);
     indicator.setZero();
     double dx, dy, dz;
 
-    for (int i = 0; i < Nm; i++) {
-        Cell* c = this->mesh.leaf_cells[i];
+    for (int i = 0; i < Nm; i++)
+    {
+        Cell *c = this->mesh.leaf_cells[i];
         double mc = m(c->get_id());
         c->get_size(dx, dy, dz);
-        for (int j = 0; j < 2; j++) {
-            Face* fx = c->external_faces_x[j];
-            if (fx->isleaf) {
-                if (fx->neigh_cells[0] != NULL && fx->neigh_cells[1] != NULL) {
-                    Cell* neigh = fx->neigh_cells[j];
+        for (int j = 0; j < 2; j++)
+        {
+            Face *fx = c->external_faces_x[j];
+            if (fx->isleaf)
+            {
+                if (fx->neigh_cells[0] != NULL && fx->neigh_cells[1] != NULL)
+                {
+                    Cell *neigh = fx->neigh_cells[j];
                     int id = neigh->get_id();
                     double area = (c->_z[1] - c->_z[0]) * (c->_y[1] - c->_y[0]);
                     indicator(i) += (m(id) - mc) * (m(id) - mc) * area;
                     // double vol = neigh->get_volumn();
                     // indicator(i) += (m(id) - mc) * (m(id) - mc) * vol;
                 }
-            } else {
-                for (int k = 0; k < 4; k++) {
-                    Face* f = fx->child_faces[k];
-                    Cell* neigh = f->neigh_cells[j];
+            }
+            else
+            {
+                for (int k = 0; k < 4; k++)
+                {
+                    Face *f = fx->child_faces[k];
+                    Cell *neigh = f->neigh_cells[j];
                     int id = neigh->get_id();
                     double area = (neigh->_z[1] - neigh->_z[0]) *
                                   (neigh->_y[1] - neigh->_y[0]);
@@ -129,20 +146,25 @@ void AdaptiveInversion::indicator_calculator(VectorXd& indicator) {
                 }
             }
 
-            Face* fy = c->external_faces_y[j];
-            if (fy->isleaf) {
-                if (fy->neigh_cells[0] != NULL && fy->neigh_cells[1] != NULL) {
-                    Cell* neigh = fy->neigh_cells[j];
+            Face *fy = c->external_faces_y[j];
+            if (fy->isleaf)
+            {
+                if (fy->neigh_cells[0] != NULL && fy->neigh_cells[1] != NULL)
+                {
+                    Cell *neigh = fy->neigh_cells[j];
                     int id = neigh->get_id();
                     double area = (c->_z[1] - c->_z[0]) * (c->_x[1] - c->_x[0]);
                     indicator(i) += (m(id) - mc) * (m(id) - mc) * area;
                     // double vol = neigh->get_volumn();
                     // indicator(i) += (m(id) - mc) * (m(id) - mc) * vol;
                 }
-            } else {
-                for (int k = 0; k < 4; k++) {
-                    Face* f = fy->child_faces[k];
-                    Cell* neigh = f->neigh_cells[j];
+            }
+            else
+            {
+                for (int k = 0; k < 4; k++)
+                {
+                    Face *f = fy->child_faces[k];
+                    Cell *neigh = f->neigh_cells[j];
                     int id = neigh->get_id();
                     double area = (neigh->_z[1] - neigh->_z[0]) *
                                   (neigh->_x[1] - neigh->_x[0]);
@@ -152,20 +174,25 @@ void AdaptiveInversion::indicator_calculator(VectorXd& indicator) {
                 }
             }
 
-            Face* fz = c->external_faces_z[j];
-            if (fz->isleaf) {
-                if (fz->neigh_cells[0] != NULL && fz->neigh_cells[1] != NULL) {
-                    Cell* neigh = fz->neigh_cells[j];
+            Face *fz = c->external_faces_z[j];
+            if (fz->isleaf)
+            {
+                if (fz->neigh_cells[0] != NULL && fz->neigh_cells[1] != NULL)
+                {
+                    Cell *neigh = fz->neigh_cells[j];
                     int id = neigh->get_id();
                     double area = (c->_x[1] - c->_x[0]) * (c->_y[1] - c->_y[0]);
                     indicator(i) += (m(id) - mc) * (m(id) - mc) * area;
                     // double vol = neigh->get_volumn();
                     // indicator(i) += (m(id) - mc) * (m(id) - mc) * vol;
                 }
-            } else {
-                for (int k = 0; k < 4; k++) {
-                    Face* f = fz->child_faces[k];
-                    Cell* neigh = f->neigh_cells[j];
+            }
+            else
+            {
+                for (int k = 0; k < 4; k++)
+                {
+                    Face *f = fz->child_faces[k];
+                    Cell *neigh = f->neigh_cells[j];
                     int id = neigh->get_id();
                     double area = (neigh->_x[1] - neigh->_x[0]) *
                                   (neigh->_y[1] - neigh->_y[0]);
@@ -177,8 +204,9 @@ void AdaptiveInversion::indicator_calculator(VectorXd& indicator) {
 }
 
 void AdaptiveInversion::refine_mesh(double a,
-                                    InterpMultilinear<3, double>& interp,
-                                    string flag) {
+                                    InterpMultilinear<3, double> &interp,
+                                    string flag)
+{
     this->set_density_to_mesh();
     this->set_reference_model_to_mesh();
     this->set_min_max_to_mesh();
@@ -201,69 +229,87 @@ void AdaptiveInversion::refine_mesh(double a,
     VectorXi sorted_index;
     sort_vec(indicator, sorted_indicator, sorted_index);
 
-    vector<Cell*> cells_marked(0);
+    vector<Cell *> cells_marked(0);
     cells_marked.clear();
     assert(Nm == mesh.leaf_cells.size());
 
     double tol = sorted_indicator(int(a * Nm));
-    for (int i = 0; i < Nm; i++) {
-        if (indicator(i) > tol) {
-            Cell* c = this->mesh.leaf_cells[i];
+    for (int i = 0; i < Nm; i++)
+    {
+        if (indicator(i) > tol)
+        {
+            Cell *c = this->mesh.leaf_cells[i];
             double c_dx;
             double c_dy;
             double c_dz;
             c->get_size(c_dx, c_dy, c_dz);
             if (c_dx < min_dx || std::abs(c_dx - min_dx) < 1e-7 ||
                 c_dy < min_dy || std::abs(c_dy - min_dy) < 1e-7 ||
-                c_dz < min_dz || std::abs(c_dz - min_dz) < 1e-7) {
+                c_dz < min_dz || std::abs(c_dz - min_dz) < 1e-7)
+            {
                 // If the size of the cell is less than the limit of minimum
                 // size, do nothing
-            } else {
+            }
+            else
+            {
                 cells_marked.push_back(c);
             }
         }
     }
 
-    for (int i = 1; i < cells_marked.size(); i++) {
+    for (int i = 1; i < cells_marked.size(); i++)
+    {
         assert(cells_marked[i - 1]->id < cells_marked[i]->id);
     }
 
     int counter = 0;
-    map<unsigned int, Cell*> split_cells;
-    for (int i = 0; i < cells_marked.size(); i++) {
-        if (cells_marked[i]->isleaf) {
-            map<unsigned int, Cell*> split_cells0 =
+    map<unsigned int, Cell *> split_cells;
+    for (int i = 0; i < cells_marked.size(); i++)
+    {
+        if (cells_marked[i]->isleaf)
+        {
+            map<unsigned int, Cell *> split_cells0 =
                 mesh.refinement(cells_marked[i]);
             split_cells.insert(split_cells0.begin(), split_cells0.end());
         }
     }
 
-    if (split_cells.size() > 0) {
+    if (split_cells.size() > 0)
+    {
         expand_G(split_cells);
 
-        map<unsigned int, Cell*>::const_iterator map_it = split_cells.begin();
-        Cell* parent_cell;
-        for (int i = 0; i < split_cells.size(); i++) {
+        map<unsigned int, Cell *>::const_iterator map_it = split_cells.begin();
+        Cell *parent_cell;
+        for (int i = 0; i < split_cells.size(); i++)
+        {
             int index = map_it->first;
             parent_cell = map_it->second;
-            for (int j = 0; j < 8; j++) {
+            for (int j = 0; j < 8; j++)
+            {
                 assert(parent_cell->child_cells[j]->isleaf);
                 double xc, yc, zc;
                 parent_cell->child_cells[j]->get_center(xc, yc, zc);
                 array<double, 3> args = {xc, yc, zc};
 
-                if (flag == "crg") {
+                if (flag == "crg")
+                {
                     parent_cell->child_cells[j]->set_parameter(
                         interp.interp(args.begin()), 2);
-                } else if (flag == "pet") {
+                }
+                else if (flag == "pet")
+                {
                     parent_cell->child_cells[j]->set_parameter(
                         interp.interp(args.begin()), 1);
-                } else if (flag == "both") {
+                }
+                else if (flag == "both")
+                {
                     parent_cell->child_cells[j]->set_parameter(
                         interp.interp(args.begin()), 2);
                     parent_cell->child_cells[j]->set_parameter(
                         interp.interp(args.begin()), 1);
-                } else {
+                }
+                else
+                {
                     cout << "flag must be \"crg\" or \"pet\" or\"both\""
                          << endl;
                     abort();
@@ -284,8 +330,9 @@ void AdaptiveInversion::refine_mesh(double a,
     // this->compute_G();
 }
 void AdaptiveInversion::refine_mesh(
-    double a, InterpMultilinear<3, double>& interp_ML_crg,
-    InterpMultilinear<3, double>& interp_ML_m0) {
+    double a, InterpMultilinear<3, double> &interp_ML_crg,
+    InterpMultilinear<3, double> &interp_ML_m0)
+{
     this->set_density_to_mesh();
     this->set_reference_model_to_mesh();
     this->set_min_max_to_mesh();
@@ -308,52 +355,63 @@ void AdaptiveInversion::refine_mesh(
     VectorXi sorted_index;
     sort_vec(indicator, sorted_indicator, sorted_index);
 
-    vector<Cell*> cells_marked(0);
+    vector<Cell *> cells_marked(0);
     cells_marked.clear();
     assert(Nm == mesh.leaf_cells.size());
 
     double tol = sorted_indicator(int(a * Nm));
-    for (int i = 0; i < Nm; i++) {
-        if (indicator(i) > tol || abs(indicator(i) - tol) < 1e-6) {
-            Cell* c = this->mesh.leaf_cells[i];
+    for (int i = 0; i < Nm; i++)
+    {
+        if (indicator(i) > tol || abs(indicator(i) - tol) < 1e-6)
+        {
+            Cell *c = this->mesh.leaf_cells[i];
             double c_dx;
             double c_dy;
             double c_dz;
             c->get_size(c_dx, c_dy, c_dz);
             if (c_dx < min_dx || std::abs(c_dx - min_dx) < 1e-7 ||
                 c_dy < min_dy || std::abs(c_dy - min_dy) < 1e-7 ||
-                c_dz < min_dz || std::abs(c_dz - min_dz) < 1e-7) {
+                c_dz < min_dz || std::abs(c_dz - min_dz) < 1e-7)
+            {
                 // If the size of the cell is less than the limit of minimum
                 // size, do nothing
-            } else {
+            }
+            else
+            {
                 cells_marked.push_back(c);
             }
         }
     }
 
-    for (int i = 1; i < cells_marked.size(); i++) {
+    for (int i = 1; i < cells_marked.size(); i++)
+    {
         assert(cells_marked[i - 1]->id < cells_marked[i]->id);
     }
 
     int counter = 0;
-    map<unsigned int, Cell*> split_cells;
-    for (int i = 0; i < cells_marked.size(); i++) {
-        if (cells_marked[i]->isleaf) {
-            map<unsigned int, Cell*> split_cells0 =
+    map<unsigned int, Cell *> split_cells;
+    for (int i = 0; i < cells_marked.size(); i++)
+    {
+        if (cells_marked[i]->isleaf)
+        {
+            map<unsigned int, Cell *> split_cells0 =
                 mesh.refinement(cells_marked[i]);
             split_cells.insert(split_cells0.begin(), split_cells0.end());
         }
     }
 
-    if (split_cells.size() > 0) {
+    if (split_cells.size() > 0)
+    {
         expand_G(split_cells);
 
-        map<unsigned int, Cell*>::const_iterator map_it = split_cells.begin();
-        Cell* parent_cell;
-        for (int i = 0; i < split_cells.size(); i++) {
+        map<unsigned int, Cell *>::const_iterator map_it = split_cells.begin();
+        Cell *parent_cell;
+        for (int i = 0; i < split_cells.size(); i++)
+        {
             int index = map_it->first;
             parent_cell = map_it->second;
-            for (int j = 0; j < 8; j++) {
+            for (int j = 0; j < 8; j++)
+            {
                 assert(parent_cell->child_cells[j]->isleaf);
                 double xc, yc, zc;
                 parent_cell->child_cells[j]->get_center(xc, yc, zc);
@@ -482,8 +540,10 @@ void AdaptiveInversion::refine_mesh(
 //     // this->compute_G();
 // }
 
-void AdaptiveInversion::refine_mesh(double a) {
-    if (a < 0 || abs(a * Nm) < 1) return;
+void AdaptiveInversion::refine_mesh(double a)
+{
+    if (a < 0 || abs(a * Nm) < 1)
+        return;
     this->set_density_to_mesh();
     this->set_reference_model_to_mesh();
     this->set_min_max_to_mesh();
@@ -499,46 +559,55 @@ void AdaptiveInversion::refine_mesh(double a) {
     VectorXi sorted_index;
     sort_vec(indicator, sorted_indicator, sorted_index);
 
-    vector<Cell*> cells_marked(0);
+    vector<Cell *> cells_marked(0);
     cells_marked.clear();
     assert(Nm == mesh.leaf_cells.size());
 
     double tol = sorted_indicator(int(a * Nm));
     // cout<<tol<<endl;
     // cout<<a * Nm<<endl;
-    for (int i = 0; i < Nm; i++) {
-        if (indicator(i) > tol) {
-            Cell* c = this->mesh.leaf_cells[i];
+    for (int i = 0; i < Nm; i++)
+    {
+        if (indicator(i) > tol)
+        {
+            Cell *c = this->mesh.leaf_cells[i];
             double c_dx;
             double c_dy;
             double c_dz;
             c->get_size(c_dx, c_dy, c_dz);
             if (c_dx < min_dx || std::abs(c_dx - min_dx) < 1e-7 ||
                 c_dy < min_dy || std::abs(c_dy - min_dy) < 1e-7 ||
-                c_dz < min_dz || std::abs(c_dz - min_dz) < 1e-7) {
+                c_dz < min_dz || std::abs(c_dz - min_dz) < 1e-7)
+            {
                 // If the size of the cell is less than the limit of minimum
                 // size, do nothing
-            } else {
+            }
+            else
+            {
                 cells_marked.push_back(c);
             }
         }
     }
     // cout<<cells_marked.size()<<endl;
 
-    for (int i = 1; i < cells_marked.size(); i++) {
+    for (int i = 1; i < cells_marked.size(); i++)
+    {
         assert(cells_marked[i - 1]->id < cells_marked[i]->id);
     }
 
     int counter = 0;
-    map<unsigned int, Cell*> split_cells;
-    for (int i = 0; i < cells_marked.size(); i++) {
-        if (cells_marked[i]->isleaf) {
-            map<unsigned int, Cell*> split_cells0 =
+    map<unsigned int, Cell *> split_cells;
+    for (int i = 0; i < cells_marked.size(); i++)
+    {
+        if (cells_marked[i]->isleaf)
+        {
+            map<unsigned int, Cell *> split_cells0 =
                 mesh.refinement(cells_marked[i]);
             split_cells.insert(split_cells0.begin(), split_cells0.end());
         }
     }
-    if (split_cells.size() > 0) {
+    if (split_cells.size() > 0)
+    {
         expand_G(split_cells);
     }
 

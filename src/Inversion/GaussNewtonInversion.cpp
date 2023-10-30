@@ -1,9 +1,12 @@
 #include "GaussNewtonInversion.h"
-void GaussNewtonInversion::invert() {
+void GaussNewtonInversion::invert()
+{
   // set reference model using interpolation
-  if (use_petrophysical_constraint == true) {
-    for (int i = 0; i < Nm; i++) {
-      Cell* c = this->mesh.leaf_cells[i];
+  if (use_petrophysical_constraint == true)
+  {
+    for (int i = 0; i < Nm; i++)
+    {
+      Cell *c = this->mesh.leaf_cells[i];
       double xc, yc, zc;
       c->get_center(xc, yc, zc);
       array<double, 3> args = {xc, yc, zc};
@@ -15,10 +18,12 @@ void GaussNewtonInversion::invert() {
     mesh.get_model_parameter_from_mesh(m0, 1);
   }
 
-  if (use_cross_gradient_constraint == true) {
+  if (use_cross_gradient_constraint == true)
+  {
     cout << "Cross gradient constraint is used" << endl;
-    for (int i = 0; i < Nm; i++) {
-      Cell* c = this->mesh.leaf_cells[i];
+    for (int i = 0; i < Nm; i++)
+    {
+      Cell *c = this->mesh.leaf_cells[i];
       double xc, yc, zc;
       c->get_center(xc, yc, zc);
       array<double, 3> args = {xc, yc, zc};
@@ -74,28 +79,36 @@ void GaussNewtonInversion::invert() {
 
   double lambda = this->max_lambda;
 
-  VectorXd delta_x(Nm), m_trial(Nm);  // m_trial_last(Nm), m_trial_last2(Nm);
+  VectorXd delta_x(Nm), m_trial(Nm); // m_trial_last(Nm), m_trial_last2(Nm);
   double misfit, misfit_last1, misfit_last2, misfit_last_iteration;
 
-  
-  if (use_petrophysical_constraint) {
+  if (use_petrophysical_constraint)
+  {
     m = m0;
-    for (int i = 0; i < Nm; i++) {
-      if (m(i) > m_max(i) || abs(m(i) - m_max(i)) < 1e-7) {
+    for (int i = 0; i < Nm; i++)
+    {
+      if (m(i) > m_max(i) || abs(m(i) - m_max(i)) < 1e-7)
+      {
         m(i) = m_max(i) - 0.01;
       }
-      if (m(i) < m_min(i) || abs(m(i) - m_min(i)) < 1e-7) {
+      if (m(i) < m_min(i) || abs(m(i) - m_min(i)) < 1e-7)
+      {
         m(i) = m_min(i) + 0.01;
       }
     }
-  } else {
+  }
+  else
+  {
     m = m_ini;
-    for (int i = 0; i < Nm; i++) {
-      if (m(i) > m_max(i) || abs(m(i) - m_max(i)) < 1e-7) {
-        m(i) = 0.5*(m_max(i)+m_min(i));
+    for (int i = 0; i < Nm; i++)
+    {
+      if (m(i) > m_max(i) || abs(m(i) - m_max(i)) < 1e-7)
+      {
+        m(i) = 0.5 * (m_max(i) + m_min(i));
       }
-      if (m(i) < m_min(i) || abs(m(i) - m_min(i)) < 1e-7) {
-        m(i) = 0.5*(m_max(i)+m_min(i));
+      if (m(i) < m_min(i) || abs(m(i) - m_min(i)) < 1e-7)
+      {
+        m(i) = 0.5 * (m_max(i) + m_min(i));
       }
     }
   }
@@ -104,7 +117,8 @@ void GaussNewtonInversion::invert() {
 
   misfit_last_iteration = 5 * misfit;
 
-  for (int id = 0; id < Nm; id++) {
+  for (int id = 0; id < Nm; id++)
+  {
     P.coeffRef(id, id) =
         (m_max(id) - m(id)) * (m(id) - m_min(id)) / (m_max(id) - m_min(id));
   }
@@ -137,14 +151,17 @@ void GaussNewtonInversion::invert() {
              Wz.nonZeros());
   A.reserve(nnz);
   cout << "Set G to A" << endl;
-  for (size_t r_id = 0; r_id < Nd; r_id++) {
-    for (size_t c_id = 0; c_id < Nm; c_id++) {
+  for (size_t r_id = 0; r_id < Nd; r_id++)
+  {
+    for (size_t c_id = 0; c_id < Nm; c_id++)
+    {
       A.insert(r_id, c_id) = Wd.coeffRef(r_id, r_id) * G(r_id, c_id);
     }
   }
   b.head(Nd) = Wd * dobs;
 
-  for (i = 0; i < GN_iter; i++) {
+  for (i = 0; i < GN_iter; i++)
+  {
     cout << "The " << i + 1 << " th"
          << " Gauss-Newton Iteration:" << endl;
     cout << "Number of elements: " << Nm << endl;
@@ -158,8 +175,8 @@ void GaussNewtonInversion::invert() {
          << "dz= " << min_cell_dz << " m)" << endl;
 
     m_trial = m;
-    misfit_last1 = 10 * misfit;   // misfit for last lambda
-    misfit_last2 = 100 * misfit;  // misfit for the lambda before last lambda
+    misfit_last1 = 10 * misfit;  // misfit for last lambda
+    misfit_last2 = 100 * misfit; // misfit for the lambda before last lambda
     misfit_last_iteration = misfit;
     lambda = this->max_lambda;
 
@@ -169,7 +186,8 @@ void GaussNewtonInversion::invert() {
     A.middleRows(Nd + 3 * Nm, Nm) = sqrt(lambda) * WL1_y * Wy;
     // cout << S_crg.rows() << endl;
     // cout << S_crg.cols() << endl;
-    if (use_cross_gradient_constraint == true) {
+    if (use_cross_gradient_constraint == true)
+    {
       A.middleRows(Nd + 4 * Nm, Nm) = this->a_crg * S_crg * T_z;
       A.middleRows(Nd + 5 * Nm, Nm) = this->a_crg * S_crg * T_x;
       A.middleRows(Nd + 6 * Nm, Nm) = this->a_crg * S_crg * T_y;
@@ -181,18 +199,23 @@ void GaussNewtonInversion::invert() {
     // b.segment(Nd + 2 * Nm, Nm) = sqrt(lambda) * Wtheta_m0;
     // b.segment(Nd + 3 * Nm, Nm) = sqrt(lambda) * Wphi_m0;
 
-    if (cg_iteration_factor < 1) {
+    if (cg_iteration_factor < 1)
+    {
       lscg.setMaxIterations(cg_iteration_factor * Nm);
-    } else {
+    }
+    else
+    {
       lscg.setMaxIterations(int(cg_iteration_factor));
     }
-    for (int id = 0; id < Nm; id++) {
+    for (int id = 0; id < Nm; id++)
+    {
       int n = 1.0;
       P.coeffRef(id, id) = n * (m_max(id) - m(id)) * (m(id) - m_min(id)) /
                            (m_max(id) - m_min(id));
     }
     delta_x.setZero();
-    for (j = 0; j < n_lambda; j++) {
+    for (j = 0; j < n_lambda; j++)
+    {
       lscg.compute(A * P);
       // delta_x = lscg.solveWithGuess(b - A * m, delta_x);
       delta_x = lscg.solve(b - A * m);
@@ -201,26 +224,38 @@ void GaussNewtonInversion::invert() {
       // m_trial_last = m_trial;
       double temp, temp2, temp3;
       // update
-      for (int id = 0; id < Nm; id++) {
+      for (int id = 0; id < Nm; id++)
+      {
         temp = exp(delta_x(id));
         temp2 = (m_min(id) * (m_max(id) - m(id)) +
                  m_max(id) * (m(id) - m_min(id)) * temp);
         temp3 = ((m_max(id) - m(id)) + (m(id) - m_min(id)) * temp);
-        if (std::isinf(temp) || std::isinf(temp2)) {
+        if (std::isinf(temp) || std::isinf(temp2))
+        {
           m_trial(id) = (m_max(id) - 1e-6 + m_trial(id)) / 2.0;
-          if (id == 0) {
+          if (id == 0)
+          {
             m_trial(id) = 0.5 * (m_trial(id) + m_trial(id + 1));
-          } else {
+          }
+          else
+          {
             m_trial(id) = 0.5 * (m_trial(id) + m_trial(id - 1));
           }
-        } else if (fabs(temp3) < 1e-10) {
+        }
+        else if (fabs(temp3) < 1e-10)
+        {
           m_trial(id) = (m_min(id) + 1e-6 + m_trial(id)) / 2.0;
-          if (id == 0) {
+          if (id == 0)
+          {
             m_trial(id) = 0.5 * (m_trial(id) + m_trial(id + 1));
-          } else {
+          }
+          else
+          {
             m_trial(id) = 0.5 * (m_trial(id) + m_trial(id - 1));
           }
-        } else {
+        }
+        else
+        {
           m_trial(id) = temp2 / temp3;
         }
       }
@@ -236,7 +271,8 @@ void GaussNewtonInversion::invert() {
                         << scientific << setw(25) << setprecision(14)
                         << (misfit) << endl;
 
-      if (j == 0 || misfit < misfit_opt) {
+      if (j == 0 || misfit < misfit_opt)
+      {
         misfit_opt = misfit;
         m_opt = m_trial;
         lambda_opt = lambda;
@@ -246,17 +282,21 @@ void GaussNewtonInversion::invert() {
           (std::abs(misfit_last1 - misfit_last2) /
                min(misfit_last1, misfit_last2) <
            stag_tol) &&
-          j > 1) {
+          j > 1)
+      {
         cout << "  Misfit stagnates, go to next Gauss-Newton iteration."
              << endl;
         break;
       }
-      if (misfit > misfit_last1 && misfit_last1 > misfit_last2 && j > 1) {
+      if (misfit > misfit_last1 && misfit_last1 > misfit_last2 && j > 1)
+      {
         cout
             << "  Misfit starts to increase, go to next Gauss-Newton iteration."
             << endl;
         break;
-      } else {
+      }
+      else
+      {
         lambda = lambda * lambda_decreasing_rate;
 
         Wsm_m0 = Ws * (m_opt - m0);
@@ -264,7 +304,8 @@ void GaussNewtonInversion::invert() {
         Wym = Wy * m_opt;
         Wzm = Wz * m_opt;
 
-        for (int i = 0; i < Nm; i++) {
+        for (int i = 0; i < Nm; i++)
+        {
           WL1_s.coeffRef(i, i) =
               pow(Wsm_m0(i) * Wsm_m0(i) + epsilon2, -(2 - Lp) / 4.0);
           WL1_x.coeffRef(i, i) =
@@ -279,7 +320,8 @@ void GaussNewtonInversion::invert() {
         A.middleRows(Nd + Nm, Nm) = sqrt(lambda) * WL1_z * Wz;
         A.middleRows(Nd + 2 * Nm, Nm) = sqrt(lambda) * WL1_x * Wx;
         A.middleRows(Nd + 3 * Nm, Nm) = sqrt(lambda) * WL1_y * Wy;
-        if (use_cross_gradient_constraint == true) {
+        if (use_cross_gradient_constraint == true)
+        {
           A.middleRows(Nd + 4 * Nm, Nm) = this->a_crg * S_crg * T_z;
           A.middleRows(Nd + 5 * Nm, Nm) = this->a_crg * S_crg * T_x;
           A.middleRows(Nd + 6 * Nm, Nm) = this->a_crg * S_crg * T_y;
@@ -287,7 +329,8 @@ void GaussNewtonInversion::invert() {
 
         b.segment(Nd, Nm) = sqrt(lambda) * WL1_s * Ws_m0;
       }
-      if (misfit < target_misfit) {
+      if (misfit < target_misfit)
+      {
         break;
       }
     }
@@ -299,17 +342,20 @@ void GaussNewtonInversion::invert() {
                          << ((j == n_lambda) ? n_lambda : (j + 1)) << scientific
                          << setw(25) << setprecision(14) << misfit << endl;
 
-    if (record_process) {
+    if (record_process)
+    {
       this->set_density_to_mesh();
       this->set_reference_model_to_mesh();
 
 #ifdef USE_NETCDF
-      if (use_cross_gradient_constraint == true) {
+      if (use_cross_gradient_constraint == true)
+      {
         this->mesh.out_model_netcdf(
             string("Structural_constraint_at_") + to_string(i) + string(".nc"),
             2, "crg", "");
       }
-      if (use_petrophysical_constraint == true) {
+      if (use_petrophysical_constraint == true)
+      {
         this->mesh.out_model_netcdf(string("Converted_density_model_at_") +
                                         to_string(i) + string(".nc"),
                                     1, "ref", "");
@@ -322,11 +368,15 @@ void GaussNewtonInversion::invert() {
                                string(".vtk"));
     }
 
-    if (misfit < target_misfit || i == GN_iter - 1) {
-      if (misfit < target_misfit) {
+    if (misfit < target_misfit || i == GN_iter - 1)
+    {
+      if (misfit < target_misfit)
+      {
         cout << "Stop iteration, because the target misift has been achieved"
              << endl;
-      } else if (i == GN_iter - 1) {
+      }
+      else if (i == GN_iter - 1)
+      {
         cout << "Stop iteration, because the maximum iteration has been reached"
              << endl;
       }
@@ -337,20 +387,25 @@ void GaussNewtonInversion::invert() {
     bool flag1 = abs(misfit - misfit_last_iteration) /
                      min(misfit, misfit_last_iteration) <
                  stag_tol;
-    if (c_refinement >= max_refinement_number && flag1) {
+    if (c_refinement >= max_refinement_number && flag1)
+    {
       cout << "Stop iteration, because the misfit stagnated" << endl;
       cout << "Gauss-Newton iteration number:" << i + 1 << endl;
       break;
     }
 
     if ((c_refinement < max_refinement_number) &&
-        (++i_between_refinement % interval_between_refinements == 0 || flag1)) {
+        (++i_between_refinement % interval_between_refinements == 0 || flag1))
+    {
       cout << "\n";
       i_between_refinement = 0;
       ++c_refinement;
-      if (flag1) {
+      if (flag1)
+      {
         cout << "Misfit stagnates, refine mesh ..." << endl;
-      } else {
+      }
+      else
+      {
         cout << interval_between_refinements
              << ((i_between_refinement == 1) ? string(" iteration has")
                                              : string(" iterations have"))
@@ -365,19 +420,26 @@ void GaussNewtonInversion::invert() {
            << " refinement." << endl
            << endl;
 
-      if (use_cross_gradient_constraint && use_petrophysical_constraint) {
+      if (use_cross_gradient_constraint && use_petrophysical_constraint)
+      {
         refine_mesh(refinement_percentage, *interpolator_m0s, *interpolator_m0);
         // cout<<"stop here"<<endl;
         // abort();
-      } else if (use_cross_gradient_constraint &&
-                 (!use_petrophysical_constraint)) {
+      }
+      else if (use_cross_gradient_constraint &&
+               (!use_petrophysical_constraint))
+      {
         refine_mesh(refinement_percentage, *interpolator_m0s, "crg");
         // cout<<"2"<<endl;
-      } else if (use_petrophysical_constraint &&
-                 (!use_cross_gradient_constraint)) {
+      }
+      else if (use_petrophysical_constraint &&
+               (!use_cross_gradient_constraint))
+      {
         refine_mesh(refinement_percentage, *interpolator_m0, "pet");
         // cout << "2" << endl;
-      } else {
+      }
+      else
+      {
         refine_mesh(refinement_percentage);
         // cout<<"2"<<endl;
       }
@@ -435,7 +497,8 @@ void GaussNewtonInversion::invert() {
       Wym = Wy * m;
       Wzm = Wz * m;
 
-      for (int i = 0; i < Nm; i++) {
+      for (int i = 0; i < Nm; i++)
+      {
         WL1_s.coeffRef(i, i) =
             pow(Wsm_m0(i) * Wsm_m0(i) + epsilon2, -(2 - Lp) / 4.0);
         WL1_x.coeffRef(i, i) = pow(Wxm(i) * Wxm(i) + epsilon2, -(2 - Lp) / 4.0);
@@ -447,7 +510,8 @@ void GaussNewtonInversion::invert() {
       // cout<<S_crg<<endl;
 
       Ws_m0 = Ws * m0;
-      if (use_cross_gradient_constraint == true) {
+      if (use_cross_gradient_constraint == true)
+      {
         this->set_Tmatrix();
       }
 
@@ -463,8 +527,10 @@ void GaussNewtonInversion::invert() {
                    Wz.nonZeros());
       A.reserve(nnz);
       cout << "Set G to A" << endl;
-      for (size_t r_id = 0; r_id < Nd; r_id++) {
-        for (size_t c_id = 0; c_id < Nm; c_id++) {
+      for (size_t r_id = 0; r_id < Nd; r_id++)
+      {
+        for (size_t c_id = 0; c_id < Nm; c_id++)
+        {
           A.insert(r_id, c_id) = Wd.coeffRef(r_id, r_id) * G(r_id, c_id);
         }
       }
@@ -483,7 +549,8 @@ void GaussNewtonInversion::invert() {
     }
     // cout << i << endl;
   }
-  if (i == GN_iter) {
+  if (i == GN_iter)
+  {
     cout << "Gauss-Newton iteration number:" << GN_iter << endl;
   }
 
@@ -496,13 +563,15 @@ void GaussNewtonInversion::invert() {
 }
 
 void GaussNewtonInversion::set_CG_parameter(double cg_tol_,
-                                            double cg_iteration_factor_) {
+                                            double cg_iteration_factor_)
+{
   cg_tol = cg_tol_;
   cg_iteration_factor_ = abs(cg_iteration_factor_);
   this->cg_iteration_factor = cg_iteration_factor_;
 }
 
-void GaussNewtonInversion::display_inversion_parameters() const {
+void GaussNewtonInversion::display_inversion_parameters() const
+{
   display_info_fields();
   cout << endl;
 
@@ -529,10 +598,13 @@ void GaussNewtonInversion::display_inversion_parameters() const {
        << endl;
 
   cout << endl;
-  if (cg_iteration_factor < 1) {
+  if (cg_iteration_factor < 1)
+  {
     cout << "Maximum number of iterations of the conjugate gradient method is "
          << cg_iteration_factor * 100 << "% of the element number" << endl;
-  } else {
+  }
+  else
+  {
     cout << "Maximum number of iterations of the conjugate gradient method is "
          << cg_iteration_factor << endl;
   }
@@ -546,7 +618,8 @@ void GaussNewtonInversion::display_inversion_parameters() const {
        << "[" << m_min.minCoeff() << ", " << m_max.maxCoeff() << "]"
        << "kg/m3" << endl;
 
-  if (max_refinement_number > 0) {
+  if (max_refinement_number > 0)
+  {
     cout << endl;
     cout << "The inversion mesh will be adaptively refined at every "
          << interval_between_refinements << " iteration." << endl;
@@ -565,14 +638,19 @@ void GaussNewtonInversion::display_inversion_parameters() const {
          << endl;
     cout << "Cells smaller than (dx=" << min_dx << "m, dy=" << min_dy
          << "m, dz=" << min_dz << "m) cannot be refined" << endl;
-  } else {
+  }
+  else
+  {
     cout << endl;
     cout << "The inversion mesh will not be refined." << endl;
   }
   cout << "Will the inversion model be recorded at each iteration?";
-  if (record_process == 1) {
+  if (record_process == 1)
+  {
     cout << " Yes" << endl;
-  } else {
+  }
+  else
+  {
     cout << " No" << endl;
   }
   cout << endl;

@@ -1,5 +1,6 @@
 #include "LinearInversion.h"
-void LinearInversion::invert() {
+void LinearInversion::invert()
+{
   SMatrix Ws = a_s * S_s * V * D_s * Z;
   SMatrix Wz = a_z * S_z * V * D_z1 * Z;
   SMatrix Wx = a_x * S_x * V * D_x1 * Z;
@@ -29,9 +30,12 @@ void LinearInversion::invert() {
 
   // LeastSquaresConjugateGradient<SMatrix,Eigen::IdentityPreconditioner> lscg;
   LeastSquaresConjugateGradient<SMatrix> lscg;
-  if (cg_iteration_factor < 5) {
+  if (cg_iteration_factor < 5)
+  {
     lscg.setMaxIterations(cg_iteration_factor * Nm);
-  } else {
+  }
+  else
+  {
     lscg.setMaxIterations(int(cg_iteration_factor));
   }
   lscg.setTolerance(cg_tol);
@@ -39,7 +43,8 @@ void LinearInversion::invert() {
   m = m_ini;
 
   // cout<<n_lambda<<endl;
-  for (int i = 0; i < n_lambda; i++) {
+  for (int i = 0; i < n_lambda; i++)
+  {
     lscg.compute(A);
     m = lscg.solveWithGuess(b, m);
 
@@ -55,12 +60,15 @@ void LinearInversion::invert() {
                       << endl;
     if (misfit < target_misfit ||
         (std::abs(last_misfit - misfit) / min(misfit, last_misfit) <
-         stag_tol)) {
+         stag_tol))
+    {
       cout << "Stop, because the target misift has been achieved or the misfit "
               "stagnated"
            << endl;
       break;
-    } else {
+    }
+    else
+    {
       lambda = lambda * lambda_decreasing_rate;
 
       A.middleRows(Nd, Nm) = sqrt(lambda) * Ws;

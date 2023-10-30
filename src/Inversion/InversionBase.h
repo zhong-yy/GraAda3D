@@ -9,11 +9,12 @@
 #include "linterp.h"
 using namespace std;
 using namespace Eigen;
-class InversionBase : public Fwd {
- public:
+class InversionBase : public Fwd
+{
+public:
   InversionBase();
-  InversionBase(const Mesh& mesh_,
-                const Observation& ob_,
+  InversionBase(const Mesh &mesh_,
+                const Observation &ob_,
                 unsigned long long field_flag_ = Compute_g_z);
   ~InversionBase();
 
@@ -26,18 +27,18 @@ class InversionBase : public Fwd {
   void output_predicted_data(string out_name);
   void output_predicted_data_vtk(string out_name);
 
-  VectorXd& get_result() { return this->m; }
+  VectorXd &get_result() { return this->m; }
   VectorXd get_predicted_field();
   double get_final_misfit() const { return final_misfit; }
   double get_final_lambda() const { return final_lambda; }
 
-  void set_Wd(const VectorXd& sigma);
+  void set_Wd(const VectorXd &sigma);
 
-  void set_dobs(const VectorXd& d);
-  void set_dobs(const VectorXd& d,
+  void set_dobs(const VectorXd &d);
+  void set_dobs(const VectorXd &d,
                 double relative_error,
                 double constant_error = 0);
-  void set_dobs(const VectorXd& d,
+  void set_dobs(const VectorXd &d,
                 vector<double> relative_error,
                 vector<double> constant_error);
 
@@ -45,7 +46,8 @@ class InversionBase : public Fwd {
   void set_target_misfit(double x) { this->target_misfit = x; }
   void set_max_lambda(double max_lambda_) { this->max_lambda = max_lambda_; }
   void set_n_lambda(int n_lambda_) { this->n_lambda = n_lambda_; }
-  void set_lambda_decreasing_rate(double rate) {
+  void set_lambda_decreasing_rate(double rate)
+  {
     this->lambda_decreasing_rate = rate;
   }
 
@@ -60,22 +62,22 @@ class InversionBase : public Fwd {
                                  double a_crg = 0);
 
   // set mesh of tesseroids
-  void set_mesh(const Mesh& mesh0);
+  void set_mesh(const Mesh &mesh0);
 
   // set computation points, overwrite
-  void set_observation(const Observation& ob0);
+  void set_observation(const Observation &ob0);
 
   void set_density_to_mesh();
   void set_reference_model_to_mesh();
   void set_min_max_to_mesh();
 
-  void set_reference_model(VectorXd& m_ref);
-  void set_geometry_reference_model(VectorXd& m_ref);
-  void set_m(VectorXd& m_);
-  void set_m_ini(VectorXd& m_ini_);
-  void set_min_max(VectorXd& m_min_, VectorXd& m_max_);
+  void set_reference_model(VectorXd &m_ref);
+  void set_geometry_reference_model(VectorXd &m_ref);
+  void set_m(VectorXd &m_);
+  void set_m_ini(VectorXd &m_ini_);
+  void set_min_max(VectorXd &m_min_, VectorXd &m_max_);
 
-  void set_petrophysics_constraint(VectorXd& s,
+  void set_petrophysics_constraint(VectorXd &s,
                                    function<double(double)> relation);
 
   /**
@@ -120,18 +122,22 @@ class InversionBase : public Fwd {
                                   string format_of_coordinates = "yxz",
                                   int fast_dimension = 0);
 
-  void set_interpolator_m0s(InterpMultilinear<3, double>* interp) {
+  void set_interpolator_m0s(InterpMultilinear<3, double> *interp)
+  {
     this->use_cross_gradient_constraint = true;
     interpolator_m0s = interp;
   }
 
-  void set_interpolator_m0(InterpMultilinear<3, double>* interp) {
+  void set_interpolator_m0(InterpMultilinear<3, double> *interp)
+  {
     this->use_petrophysical_constraint = true;
     interpolator_m0 = interp;
   }
 
-  void set_constraint_region(double x[2], double y[2], double z[2]) {
-    for (int i = 0; i < 2; i++) {
+  void set_constraint_region(double x[2], double y[2], double z[2])
+  {
+    for (int i = 0; i < 2; i++)
+    {
       this->constraint_z[i] = z[i];
       this->constraint_x[i] = x[i];
       this->constraint_y[i] = y[i];
@@ -143,7 +149,7 @@ class InversionBase : public Fwd {
   void result2netcdf(string filename);
 #endif
 
- protected:
+protected:
   void init_matrices();
 
   void set_S();
@@ -154,23 +160,23 @@ class InversionBase : public Fwd {
 
   void update_S_crg();
 
-  void out_data(const VectorXd& d, string out_name);
-  void out_data_vtk(const VectorXd& d, string out_name);
+  void out_data(const VectorXd &d, string out_name);
+  void out_data_vtk(const VectorXd &d, string out_name);
 
- protected:
+protected:
   VectorXd m;
   VectorXd dobs;
-  VectorXd m0;    // reference model
-  VectorXd m0_s;  // structure similarity
+  VectorXd m0;   // reference model
+  VectorXd m0_s; // structure similarity
   VectorXd m_min;
   VectorXd m_max;
 
   // a 3D interpolator of cross-gradient constraint model. Once the mesh is
   // changed, the constraint model is updated using this interpolator
-  InterpMultilinear<3, double>* interpolator_m0;
+  InterpMultilinear<3, double> *interpolator_m0;
 
   // a 3D interpolator of the reference model
-  InterpMultilinear<3, double>* interpolator_m0s;
+  InterpMultilinear<3, double> *interpolator_m0s;
 
   bool use_cross_gradient_constraint;
   bool use_petrophysical_constraint;
@@ -180,21 +186,21 @@ class InversionBase : public Fwd {
   double constraint_x[2];
   double constraint_y[2];
 
-  SMatrix Wd;  // diagonal matrix whose i-th element is 1/sigma_i, sigma_i is
-               // the standard deviation of i-th datum
-  SMatrix Z;   // depth weighting
+  SMatrix Wd; // diagonal matrix whose i-th element is 1/sigma_i, sigma_i is
+              // the standard deviation of i-th datum
+  SMatrix Z;  // depth weighting
   SMatrix V;
 
   SMatrix S_s;
   SMatrix S_z;
   SMatrix S_x;
-  SMatrix S_y;  // spatially dependent 3D weighting function, diagonal matrix
+  SMatrix S_y; // spatially dependent 3D weighting function, diagonal matrix
   SMatrix S_crg;
 
   SMatrix D_s;
   SMatrix D_z1;
   SMatrix D_x1;
-  SMatrix D_y1;  // first-order finite-difference representation
+  SMatrix D_y1; // first-order finite-difference representation
 
   SMatrix T_z;
   SMatrix T_x;

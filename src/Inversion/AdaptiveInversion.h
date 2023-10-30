@@ -6,40 +6,44 @@
 #include "InversionBase.h"
 
 // AdaptiveInversion--Adaptive inversion interface
-class AdaptiveInversion : public InversionBase {
- protected:
-  double refinement_percentage;  // percentage of cells to be refined every time
-  int max_refinement_number;     // maximal times of refinement
-  int interval_between_refinements;  // interval of iterations beween successive
-                                     // refinements
+class AdaptiveInversion : public InversionBase
+{
+protected:
+  double refinement_percentage;     // percentage of cells to be refined every time
+  int max_refinement_number;        // maximal times of refinement
+  int interval_between_refinements; // interval of iterations beween successive
+                                    // refinements
   double min_dx;
   double min_dy;
   double min_dz;
- public:
+
+public:
   AdaptiveInversion();
-  AdaptiveInversion(const Mesh& mesh_,
-                    const Observation& ob_,
+  AdaptiveInversion(const Mesh &mesh_,
+                    const Observation &ob_,
                     unsigned long long field_flag_);
   virtual ~AdaptiveInversion();
 
   void set_max_refinement_number(int n) { max_refinement_number = n; }
 
   void set_refinement_percentage(double x) { refinement_percentage = x; }
-  void set_min_cell_size_in_adaptive_mesh(double min_dx0,double min_dy0,double min_dz0){
-    this->min_dx=min_dx0;
-    this->min_dy=min_dy0;
-    this->min_dz=min_dz0;
+  void set_min_cell_size_in_adaptive_mesh(double min_dx0, double min_dy0, double min_dz0)
+  {
+    this->min_dx = min_dx0;
+    this->min_dy = min_dy0;
+    this->min_dz = min_dz0;
   }
-  void set_interval_between_refinements(int n) {
+  void set_interval_between_refinements(int n)
+  {
     interval_between_refinements = n;
   }
 
   // update sensitivity matrix of gravity forward modelling after mesh is
   // refined
-  void expand_G(const map<unsigned int, Cell*>& split_cells);
+  void expand_G(const map<unsigned int, Cell *> &split_cells);
 
   // calculate refinement index for each grid cell
-  void indicator_calculator(VectorXd& indicator);
+  void indicator_calculator(VectorXd &indicator);
 
   void refine_mesh(double a);
 
@@ -59,24 +63,27 @@ class AdaptiveInversion : public InversionBase {
    *      InversionBase::create_ref_model_from_data(...)
    */
   void refine_mesh(double a,
-                   InterpMultilinear<3, double>& interp,
+                   InterpMultilinear<3, double> &interp,
                    string flag = "crg");
 
   void refine_mesh(double a,
-                   InterpMultilinear<3, double>& interp_m0s,
-                   InterpMultilinear<3, double>& interp_m0);
+                   InterpMultilinear<3, double> &interp_m0s,
+                   InterpMultilinear<3, double> &interp_m0);
 
-  void sort_vec(const VectorXd& vec, VectorXd& sorted_vec, VectorXi& ind) {
+  void sort_vec(const VectorXd &vec, VectorXd &sorted_vec, VectorXi &ind)
+  {
     //[0 1 2 3 ... N-1]
     ind = VectorXi::LinSpaced(vec.size(), 0, vec.size() - 1);
 
-    auto rule = [vec](int i, int j) -> bool {
+    auto rule = [vec](int i, int j) -> bool
+    {
       return vec(i) > vec(j);
     };
     std::sort(ind.data(), ind.data() + ind.size(), rule);
     // data() return the pointer to the first element of VectorXd, which is similar to begin()
     sorted_vec.resize(vec.size());
-    for (int i = 0; i < vec.size(); i++) {
+    for (int i = 0; i < vec.size(); i++)
+    {
       sorted_vec(i) = vec(ind(i));
     }
   }
