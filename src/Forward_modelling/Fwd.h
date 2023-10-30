@@ -33,6 +33,8 @@ public:
 
   void compute_G();
   void compute_G_wavelet();
+  void GT_vec_mul(const VectorXd &vec, VectorXd &product) const;
+  void G_vec_mul(const VectorXd &vec, VectorXd &product) const;
 
   void set_use_wavelet(bool use_wavelet0);
   // bind mesh of tesseroids

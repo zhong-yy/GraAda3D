@@ -55,7 +55,6 @@ void Fwd::compute_G()
   vector<int> basic_field_index;
   for (int i = 0; i < 10; i++)
   {
-    // bool status = flag[i];
     if (field_flag[i])
     {
       basic_field_index.push_back(i);
@@ -77,6 +76,156 @@ void Fwd::compute_G()
       }
     }
   }
+}
+void Fwd::GT_vec_mul(const VectorXd &vec, VectorXd &product) const
+{
+  int n0 = vec.size();
+  // assert(n0 == Nd);
+  product.resize(Nm);
+  if (use_wavelet)
+  {
+    vector<double> product_wavelet(n_dy_for_wavelet, 0);
+    // #pragma omp parallel for
+    for (int i = 0; i < Nd; i++)
+    {
+      int nnz_of_current_row = 0;
+      nnz_of_current_row = comp_col_ids[i].size();
+#pragma omp parallel for
+      for (int j = 0; j < nnz_of_current_row; j++)
+      {
+        int id = comp_col_ids[i][j];
+        // #pragma omp atomic
+        product_wavelet[id] += comp_G_coeffs[i][j] * vec(i);
+      }
+    }
+    inverse_wavelet_transform_vec(product_wavelet);
+#pragma omp parallel for
+    for (int i = 0; i < Nm; i++)
+    {
+      int original_id_of_i_re_oredered_cell = mesh.get_reordered_id(i);
+      product(original_id_of_i_re_oredered_cell) = product_wavelet[i];
+    }
+  }
+  else
+  {
+    product = G.transpose() * vec;
+  }
+}
+void Fwd::G_vec_mul(const VectorXd &vec, VectorXd &product) const
+{
+  int n0 = vec.size();
+  // assert(n0 == Nm);
+  product.resize(Nd);
+  if (use_wavelet)
+  {
+    vector<double> wavelet_coeffs(n0);
+#pragma omp parallel for
+    for (int i = 0; i < n0; i++)
+    {
+      wavelet_coeffs[i] = vec[mesh.get_reordered_id(i)];
+    }
+    int n_coeff = wavelet_transform_vec(wavelet_coeffs);
+    // assert(n_coeff == n_dy_for_wavelet);
+
+#pragma omp parallel for
+    for (int i = 0; i < Nd; ++i)
+    {
+      int n_non_zero = 0;
+      n_non_zero = comp_col_ids[i].size();
+      product(i) = 0.0;
+      for (int j = 0; j < n_non_zero; ++j)
+      {
+        int col_id = comp_col_ids[i][j];
+        product(i) += comp_G_coeffs[i][j] * wavelet_coeffs[col_id];
+      }
+    }
+  }
+  else
+  {
+    product = G * vec;
+  }
+}
+void Fwd::compute_G_wavelet()
+{
+  int n_fields = field_flag.count();
+  assert(Nm > 0);
+  assert(N_obs > 0);
+
+  comp_col_ids.clear();
+  comp_col_ids.resize(n_fields * N_obs);
+  comp_G_coeffs.clear();
+  comp_G_coeffs.resize(n_fields * N_obs);
+
+  G.resize(0, 0); // In the wavelet mode, G matrix is not longer used. Use G_vec_mul() and GT_vec_mul() instead.
+
+  vector<int> basic_field_index;
+  for (int i = 0; i < 10; i++)
+  {
+    if (field_flag[i])
+    {
+      basic_field_index.push_back(i);
+    }
+  }
+  cout << "Relative threshold for wavelet compression: "
+       << this->compression_threshold << endl;
+  vector<vector<double>> sensitivity_data(basic_field_index.size());
+  for (int ii = 0; ii < sensitivity_data.size(); ii++)
+  {
+    sensitivity_data[ii].resize(Nm);
+    for (int jj = 0; jj < Nm; jj++)
+    {
+      sensitivity_data[ii][jj] = 0.0;
+    }
+  }
+#pragma omp parallel for firstprivate(sensitivity_data)
+  for (int i = 0; i < N_obs; i++)
+  {
+    for (int j = 0; j < Nm; j++)
+    { // here j denotes the reordered index
+      GravFormula gra;
+      vector<double> field;
+      int ro_id = mesh.get_reordered_id(j);
+      gra.field_caused_by_single_prism(ob(i), mesh.get_elem(ro_id), 1.0, field,
+                                       field_flag);
+      assert(basic_field_index.size() == n_fields);
+
+      for (int k = 0; k < n_fields; k++)
+      {
+        sensitivity_data[k][j] = field[basic_field_index[k]];
+        // G(i + k * N_obs, j) = field[basic_field_index[k]];
+      }
+    }
+
+    for (int k = 0; k < n_fields; ++k)
+    {
+      this->n_dy_for_wavelet = compress_vec(
+          sensitivity_data[k], comp_col_ids[i + k * N_obs],
+          comp_G_coeffs[i + k * N_obs], this->compression_threshold);
+      assert(n_dy_for_wavelet == sensitivity_data[k].size());
+      // comp_col_ids[i + k * N_obs].clear();
+      // comp_G_coeffs[i + k * N_obs].clear();
+      // for (int j = 0; j < n_dy_for_wavelet; ++j) {
+      //    if (std::fabs(sensitivity_data[k][j]) > 1e-15) {
+      //        n_non_zero++;
+      //        comp_col_ids[i + k * N_obs].push_back(j);
+      //        comp_G_coeffs[i + k * N_obs].push_back(
+      //            sensitivity_data[k][j]);
+      //    }
+      //}
+    }
+  }
+  int n_non_zero = 0;
+#pragma omp parallel for reduction(+ : n_non_zero)
+  for (int i = 0; i < comp_col_ids.size(); ++i)
+  {
+    n_non_zero += comp_col_ids[i].size();
+  }
+  cout << "n_dy=" << n_dy_for_wavelet << endl;
+  double compression_ratio = (n_fields * N_obs * Nm) / (1.0 * n_non_zero);
+  cout << "The number of elements in the sensitivity matrix: "
+       << (n_fields * N_obs * Nm)
+       << ", the number of non-zero elements: " << n_non_zero << endl;
+  cout << "Compression ratio: " << compression_ratio << endl;
 }
 
 void Fwd::set_mesh(const Mesh &mesh0)
