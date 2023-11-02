@@ -115,3 +115,25 @@ target_link_libraries(Test_ordering
     Forward_obj
     Inversion_obj
     )
+
+add_executable(Synthetic_data1
+    src/Synthetic_data1.cpp)
+target_link_libraries(Synthetic_data1
+    PRIVATE
+    Forward_obj
+    Inversion_obj
+    )
+add_executable(test_wavelet_forward1
+    src/test_wavelet_forward1.cpp)
+target_link_libraries(test_wavelet_forward1
+    PRIVATE
+    Forward_obj
+    Inversion_obj
+    )
+add_executable(test_wavelet_forward2
+    src/test_wavelet_forward2.cpp)
+target_link_libraries(test_wavelet_forward2
+    PRIVATE
+    Forward_obj
+    Inversion_obj
+    )

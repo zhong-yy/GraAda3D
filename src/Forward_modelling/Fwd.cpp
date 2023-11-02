@@ -192,7 +192,6 @@ void Fwd::compute_G_wavelet()
       for (int k = 0; k < n_fields; k++)
       {
         sensitivity_data[k][j] = field[basic_field_index[k]];
-        // G(i + k * N_obs, j) = field[basic_field_index[k]];
       }
     }
 
@@ -201,17 +200,8 @@ void Fwd::compute_G_wavelet()
       this->n_dy_for_wavelet = compress_vec(
           sensitivity_data[k], comp_col_ids[i + k * N_obs],
           comp_G_coeffs[i + k * N_obs], this->compression_threshold);
+      // sensitivity_data[k] has been resized in the compress_vec function
       assert(n_dy_for_wavelet == sensitivity_data[k].size());
-      // comp_col_ids[i + k * N_obs].clear();
-      // comp_G_coeffs[i + k * N_obs].clear();
-      // for (int j = 0; j < n_dy_for_wavelet; ++j) {
-      //    if (std::fabs(sensitivity_data[k][j]) > 1e-15) {
-      //        n_non_zero++;
-      //        comp_col_ids[i + k * N_obs].push_back(j);
-      //        comp_G_coeffs[i + k * N_obs].push_back(
-      //            sensitivity_data[k][j]);
-      //    }
-      //}
     }
   }
   int n_non_zero = 0;
