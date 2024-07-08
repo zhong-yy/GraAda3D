@@ -1,4 +1,4 @@
-CXX:= g++
+CXX:= icpx
 CXX:=$(strip $(CXX))
 ifeq ($(CXX),g++)
 CXXFLAGS:=-std=c++11 -O3 -fopenmp -Wfatal-errors #-g
@@ -7,7 +7,7 @@ ifeq ($(CXX),icpc)
 CXXFLAGS:=-std=c++11 -O3 -qopenmp -Wfatal-errors -mkl=parallel
 endif
 ifeq ($(CXX),icpx)
-CXXFLAGS:=-std=c++11 -O3 -qopenmp -Wfatal-errors -I"${MKLROOT}/include" -mkl=parallel -D USE_MKL    
+CXXFLAGS:=-std=c++11 -O3 -qopenmp -Wfatal-errors -I"${MKLROOT}/include" -qmkl=parallel -D USE_MKL    
 endif
 ifeq ($(CXX),dpcpp)
 CXXFLAGS:=-std=c++11 -O3 -qopenmp -Wfatal-errors -I"${MKLROOT}/include" -mkl=parallel -D USE_MKL    
@@ -29,6 +29,8 @@ endif
 ifeq ($(CXX),dpcpp)
 LINKFLAGS+=  -L${MKLROOT}/lib/intel64 -lmkl_intel_lp64 -lmkl_intel_thread -lmkl_core -liomp5 -lpthread -lm -ldl
 endif
+
+LINKFLAGS+= -lgsl -lgslcblas -lm
 
 #libraries
 #DIR_EIGEN               :=./3rd_party_lib/Eigen3.3.7

@@ -264,6 +264,7 @@ void AdaptiveInversion::refine_mesh(double a,
 
     int counter = 0;
     map<unsigned int, Cell *> split_cells;
+    int num_cells_to_be_refined = cells_marked.size();
     for (int i = 0; i < cells_marked.size(); i++)
     {
         if (cells_marked[i]->isleaf)
@@ -274,58 +275,113 @@ void AdaptiveInversion::refine_mesh(double a,
         }
     }
 
-    if (split_cells.size() > 0)
+    if (num_cells_to_be_refined > 0)
     {
-        expand_G(split_cells);
-
-        map<unsigned int, Cell *>::const_iterator map_it = split_cells.begin();
-        Cell *parent_cell;
-        for (int i = 0; i < split_cells.size(); i++)
+        std::cout << split_cells.size() << " elements are refined" << endl;
+        mesh.rearrange_id();
+        this->Nm = mesh.n_elems();
+        this->init_matrices();
+        if (use_wavelet)
         {
-            int index = map_it->first;
-            parent_cell = map_it->second;
-            for (int j = 0; j < 8; j++)
+            compute_G_wavelet();
+            map<unsigned int, Cell *>::const_iterator map_it = split_cells.begin();
+            Cell *parent_cell;
+            for (int i = 0; i < split_cells.size(); i++)
             {
-                assert(parent_cell->child_cells[j]->isleaf);
-                double xc, yc, zc;
-                parent_cell->child_cells[j]->get_center(xc, yc, zc);
-                array<double, 3> args = {xc, yc, zc};
+                int index = map_it->first;
+                parent_cell = map_it->second;
+                for (int j = 0; j < 8; j++)
+                {
+                    assert(parent_cell->child_cells[j]->isleaf);
+                    double xc, yc, zc;
+                    parent_cell->child_cells[j]->get_center(xc, yc, zc);
+                    array<double, 3> args = {xc, yc, zc};
 
-                if (flag == "crg")
-                {
-                    parent_cell->child_cells[j]->set_parameter(
-                        interp.interp(args.begin()), 2);
+                    if (flag == "crg")
+                    {
+                        parent_cell->child_cells[j]->set_parameter(
+                            interp.interp(args.begin()), 2);
+                    }
+                    else if (flag == "pet")
+                    {
+                        parent_cell->child_cells[j]->set_parameter(
+                            interp.interp(args.begin()), 1);
+                    }
+                    else if (flag == "both")
+                    {
+                        parent_cell->child_cells[j]->set_parameter(
+                            interp.interp(args.begin()), 2);
+                        parent_cell->child_cells[j]->set_parameter(
+                            interp.interp(args.begin()), 1);
+                    }
+                    else
+                    {
+                        cout << "flag must be \"crg\" or \"pet\" or\"both\""
+                             << endl;
+                        abort();
+                    }
                 }
-                else if (flag == "pet")
-                {
-                    parent_cell->child_cells[j]->set_parameter(
-                        interp.interp(args.begin()), 1);
-                }
-                else if (flag == "both")
-                {
-                    parent_cell->child_cells[j]->set_parameter(
-                        interp.interp(args.begin()), 2);
-                    parent_cell->child_cells[j]->set_parameter(
-                        interp.interp(args.begin()), 1);
-                }
-                else
-                {
-                    cout << "flag must be \"crg\" or \"pet\" or\"both\""
-                         << endl;
-                    abort();
-                }
+                map_it++;
             }
-            map_it++;
+            mesh.get_model_parameter_from_mesh(m, 0);
+            mesh.get_model_parameter_from_mesh(m0, 1);
+            mesh.get_model_parameter_from_mesh(m0_s, 2);
+            mesh.get_model_parameter_from_mesh(m_min, 3);
+            mesh.get_model_parameter_from_mesh(m_max, 4);
+        }
+        else
+        {
+            expand_G(split_cells);
+            map<unsigned int, Cell *>::const_iterator map_it = split_cells.begin();
+            Cell *parent_cell;
+            for (int i = 0; i < split_cells.size(); i++)
+            {
+                int index = map_it->first;
+                parent_cell = map_it->second;
+                for (int j = 0; j < 8; j++)
+                {
+                    assert(parent_cell->child_cells[j]->isleaf);
+                    double xc, yc, zc;
+                    parent_cell->child_cells[j]->get_center(xc, yc, zc);
+                    array<double, 3> args = {xc, yc, zc};
+
+                    if (flag == "crg")
+                    {
+                        parent_cell->child_cells[j]->set_parameter(
+                            interp.interp(args.begin()), 2);
+                    }
+                    else if (flag == "pet")
+                    {
+                        parent_cell->child_cells[j]->set_parameter(
+                            interp.interp(args.begin()), 1);
+                    }
+                    else if (flag == "both")
+                    {
+                        parent_cell->child_cells[j]->set_parameter(
+                            interp.interp(args.begin()), 2);
+                        parent_cell->child_cells[j]->set_parameter(
+                            interp.interp(args.begin()), 1);
+                    }
+                    else
+                    {
+                        cout << "flag must be \"crg\" or \"pet\" or\"both\""
+                             << endl;
+                        abort();
+                    }
+                }
+                map_it++;
+            }
+            mesh.get_model_parameter_from_mesh(m, 0);
+            mesh.get_model_parameter_from_mesh(m0, 1);
+            mesh.get_model_parameter_from_mesh(m0_s, 2);
+            mesh.get_model_parameter_from_mesh(m_min, 3);
+            mesh.get_model_parameter_from_mesh(m_max, 4);
         }
     }
     // cout << G.rows() << ", " << G.cols() << endl;
-    mesh.get_model_parameter_from_mesh(m, 0);
-    mesh.get_model_parameter_from_mesh(m0, 1);
-    mesh.get_model_parameter_from_mesh(m0_s, 2);
-    mesh.get_model_parameter_from_mesh(m_min, 3);
-    mesh.get_model_parameter_from_mesh(m_max, 4);
-    mesh.rearrange_id();
-    this->init_matrices();
+
+    // mesh.rearrange_id();
+    // this->init_matrices();
     // cout << G.rows() << ", " << G.cols() << endl;
     // this->compute_G();
 }
@@ -390,6 +446,7 @@ void AdaptiveInversion::refine_mesh(
 
     int counter = 0;
     map<unsigned int, Cell *> split_cells;
+    int num_cells_to_be_refined = cells_marked.size();
     for (int i = 0; i < cells_marked.size(); i++)
     {
         if (cells_marked[i]->isleaf)
@@ -400,40 +457,77 @@ void AdaptiveInversion::refine_mesh(
         }
     }
 
-    if (split_cells.size() > 0)
+    if (num_cells_to_be_refined > 0)
     {
-        expand_G(split_cells);
-
-        map<unsigned int, Cell *>::const_iterator map_it = split_cells.begin();
-        Cell *parent_cell;
-        for (int i = 0; i < split_cells.size(); i++)
+        std::cout << split_cells.size() << " elements are refined" << endl;
+        mesh.rearrange_id();
+        this->Nm = mesh.n_elems();
+        this->init_matrices();
+        if (use_wavelet)
         {
-            int index = map_it->first;
-            parent_cell = map_it->second;
-            for (int j = 0; j < 8; j++)
+            compute_G_wavelet();
+            map<unsigned int, Cell *>::const_iterator map_it = split_cells.begin();
+            Cell *parent_cell;
+            for (int i = 0; i < split_cells.size(); i++)
             {
-                assert(parent_cell->child_cells[j]->isleaf);
-                double xc, yc, zc;
-                parent_cell->child_cells[j]->get_center(xc, yc, zc);
+                int index = map_it->first;
+                parent_cell = map_it->second;
+                for (int j = 0; j < 8; j++)
+                {
+                    assert(parent_cell->child_cells[j]->isleaf);
+                    double xc, yc, zc;
+                    parent_cell->child_cells[j]->get_center(xc, yc, zc);
 
-                array<double, 3> args = {xc, yc, zc};
+                    array<double, 3> args = {xc, yc, zc};
 
-                parent_cell->child_cells[j]->set_parameter(
-                    interp_ML_m0.interp(args.begin()), 1);
-                parent_cell->child_cells[j]->set_parameter(
-                    interp_ML_crg.interp(args.begin()), 2);
+                    parent_cell->child_cells[j]->set_parameter(
+                        interp_ML_m0.interp(args.begin()), 1);
+                    parent_cell->child_cells[j]->set_parameter(
+                        interp_ML_crg.interp(args.begin()), 2);
+                }
+                map_it++;
             }
-            map_it++;
+            mesh.get_model_parameter_from_mesh(m, 0);
+            mesh.get_model_parameter_from_mesh(m0, 1);
+            mesh.get_model_parameter_from_mesh(m0_s, 2);
+            mesh.get_model_parameter_from_mesh(m_min, 3);
+            mesh.get_model_parameter_from_mesh(m_max, 4);
+        }
+        else
+        {
+            expand_G(split_cells);
+            map<unsigned int, Cell *>::const_iterator map_it = split_cells.begin();
+            Cell *parent_cell;
+            for (int i = 0; i < split_cells.size(); i++)
+            {
+                int index = map_it->first;
+                parent_cell = map_it->second;
+                for (int j = 0; j < 8; j++)
+                {
+                    assert(parent_cell->child_cells[j]->isleaf);
+                    double xc, yc, zc;
+                    parent_cell->child_cells[j]->get_center(xc, yc, zc);
+
+                    array<double, 3> args = {xc, yc, zc};
+
+                    parent_cell->child_cells[j]->set_parameter(
+                        interp_ML_m0.interp(args.begin()), 1);
+                    parent_cell->child_cells[j]->set_parameter(
+                        interp_ML_crg.interp(args.begin()), 2);
+                }
+                map_it++;
+            }
+            mesh.get_model_parameter_from_mesh(m, 0);
+            mesh.get_model_parameter_from_mesh(m0, 1);
+            mesh.get_model_parameter_from_mesh(m0_s, 2);
+            mesh.get_model_parameter_from_mesh(m_min, 3);
+            mesh.get_model_parameter_from_mesh(m_max, 4);
         }
     }
     // cout << G.rows() << ", " << G.cols() << endl;
-    mesh.get_model_parameter_from_mesh(m, 0);
-    mesh.get_model_parameter_from_mesh(m0, 1);
-    mesh.get_model_parameter_from_mesh(m0_s, 2);
-    mesh.get_model_parameter_from_mesh(m_min, 3);
-    mesh.get_model_parameter_from_mesh(m_max, 4);
-    mesh.rearrange_id();
-    this->init_matrices();
+
+    // mesh.rearrange_id();
+    // this->init_matrices();
 
     // cout << G.rows() << ", " << G.cols() << endl;
     // this->compute_G();
@@ -597,6 +691,7 @@ void AdaptiveInversion::refine_mesh(double a)
 
     int counter = 0;
     map<unsigned int, Cell *> split_cells;
+    int num_cells_to_be_refined = cells_marked.size();
     for (int i = 0; i < cells_marked.size(); i++)
     {
         if (cells_marked[i]->isleaf)
@@ -606,16 +701,36 @@ void AdaptiveInversion::refine_mesh(double a)
             split_cells.insert(split_cells0.begin(), split_cells0.end());
         }
     }
-    if (split_cells.size() > 0)
+    if (num_cells_to_be_refined > 0)
     {
-        expand_G(split_cells);
+        std::cout << split_cells.size() << " elements are refined" << endl;
+        mesh.rearrange_id();
+        this->Nm = mesh.n_elems();
+        this->init_matrices(); // this function should be called after the
+                               // rearrange_id() function
+        if (use_wavelet)
+        {
+            this->compute_G_wavelet(); // this function should be called after
+                                       // the rearrange_id() function
+            mesh.get_model_parameter_from_mesh(m, 0);
+            mesh.get_model_parameter_from_mesh(m0, 1);
+            mesh.get_model_parameter_from_mesh(m0_s, 2);
+            mesh.get_model_parameter_from_mesh(m_min, 3);
+            mesh.get_model_parameter_from_mesh(m_max, 4);
+        }
+        else
+        {
+            // this function does not use indexes of cells, so it doesn't matter
+            // whether rearrange_id function is invoked after it
+            expand_G(split_cells);
+            mesh.get_model_parameter_from_mesh(m, 0);
+            mesh.get_model_parameter_from_mesh(m0, 1);
+            mesh.get_model_parameter_from_mesh(m0_s, 2);
+            mesh.get_model_parameter_from_mesh(m_min, 3);
+            mesh.get_model_parameter_from_mesh(m_max, 4);
+        }
     }
 
-    mesh.get_model_parameter_from_mesh(m, 0);
-    mesh.get_model_parameter_from_mesh(m0, 1);
-    mesh.get_model_parameter_from_mesh(m0_s, 2);
-    mesh.get_model_parameter_from_mesh(m_min, 3);
-    mesh.get_model_parameter_from_mesh(m_max, 4);
-    mesh.rearrange_id();
-    this->init_matrices();
+    // mesh.rearrange_id();
+    // this->init_matrices();
 }

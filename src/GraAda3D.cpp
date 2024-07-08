@@ -44,7 +44,7 @@ protected:
     string data_file;
     string config_file;
 
-    double Lp_inversion_p;
+    double Lp_inversion_p_s, Lp_inversion_p_x, Lp_inversion_p_y, Lp_inversion_p_z, Lp_inversion_p_t;
     double Lp_inversion_eps;
     double min_size_dx, min_size_dy, min_size_dz;
     double x_model[2];
@@ -76,6 +76,9 @@ protected:
     int interval_between_two_refinements;
     int max_refinement;
     int show_process_or_not;
+
+    double relative_threshold;
+    int method_id;
 
     string crg_model_file;
     string ref_model_file;
@@ -111,11 +114,11 @@ int main(int argc, char **argv)
         return 1;
     }
 
-    cout << R"(  ____                     _          _           _____ ____  )" << endl
-         << R"( / ___|  _ __    __ _     / \      __| |   __ _  |___ /|  _ \ )" << endl
-         << R"(| |  _  | '__|  / _` |   / _ \    / _` |  / _` |   |_ \| | | |)" << endl
-         << R"(| |_| | | |    | (_| |  / ___ \  | (_| | | (_| |  ___) | |_| |)" << endl
-         << R"( \____| |_|     \__,_| /_/   \_\  \__,_|  \__,_| |____/|____/ )" << endl;
+    // cout << R"(  ____                     _          _           _____ ____  )" << endl
+    //      << R"( / ___|  _ __    __ _     / \      __| |   __ _  |___ /|  _ \ )" << endl
+    //      << R"(| |  _  | '__|  / _` |   / _ \    / _` |  / _` |   |_ \| | | |)" << endl
+    //      << R"(| |_| | | |    | (_| |  / ___ \  | (_| | | (_| |  ___) | |_| |)" << endl
+    //      << R"( \____| |_|     \__,_| /_/   \_\  \__,_|  \__,_| |____/|____/ )" << endl;
 
     cout << "Using inversion parameters from configuration file: " << argv[1]
          << endl;
@@ -476,13 +479,25 @@ void GraAdaInv::read_inversion_parameters(string inversion_para)
     string line;
     next_valid_line(input_stream, line);
     istringstream iss(line);
+    iss >> method_id;
+
+    next_valid_line(input_stream, line);
+    iss.clear();
+    iss.str("");
+    iss.str(line);
+    iss >> relative_threshold;
+
+    next_valid_line(input_stream, line);
+    iss.clear();
+    iss.str("");
+    iss.str(line);
     iss >> as >> az >> ax >> ay >> acrg;
 
     next_valid_line(input_stream, line);
     iss.clear();
     iss.str("");
     iss.str(line);
-    iss >> Lp_inversion_p >> Lp_inversion_eps;
+    iss >> Lp_inversion_p_s >> Lp_inversion_p_x >> Lp_inversion_p_y >> Lp_inversion_p_z >> Lp_inversion_p_t >> Lp_inversion_eps;
 
     next_valid_line(input_stream, line);
     iss.clear();
@@ -684,7 +699,7 @@ void GraAdaInv::start_inversion()
     inv->set_stagnation_tolerance(stagnate_tol);
     inv->set_target_misfit(target_misfit);
 
-    inv->set_Lp_inversion_parameter(Lp_inversion_p, Lp_inversion_eps);
+    inv->set_Lp_inversion_parameter(Lp_inversion_p_s, Lp_inversion_p_x, Lp_inversion_p_y, Lp_inversion_p_z, Lp_inversion_p_t, Lp_inversion_eps);
 
     if (use_crg)
     {
@@ -701,7 +716,9 @@ void GraAdaInv::start_inversion()
 
     // if()
 
-    inv->compute_G();
+    // inv->compute_G();
+    inv->set_method_id(this->method_id);
+    inv->set_compression_threshold(relative_threshold);
 
     int Nm = inv_mesh.n_elems();
     VectorXd m_min = VectorXd::Constant(Nm, min_value);

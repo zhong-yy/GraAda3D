@@ -695,7 +695,15 @@ void InversionBase::set_petrophysics_constraint(
 
 VectorXd InversionBase::get_predicted_field()
 {
-  VectorXd d_pre = (this->G) * (this->m);
+  VectorXd d_pre;
+  if (use_wavelet)
+  {
+    this->G_vec_mul(this->m, d_pre);
+  }
+  else
+  {
+    d_pre = (this->G) * (this->m);
+  }
   return d_pre;
 }
 
@@ -728,6 +736,7 @@ void InversionBase::output_predicted_data(string out_name)
 void InversionBase::output_obs_data(string out_name)
 {
   // cout<<this->dobs.rows()<<endl;
+  // cout << this->dobs.size() << endl;
   this->out_data(this->dobs, out_name);
 }
 
@@ -743,6 +752,7 @@ void InversionBase::out_data(const VectorXd &d, string out_name)
       field_label.push_back(i);
     }
   }
+  // cout << "1" << endl;
 
   int n_com = field_flag.count(); // number of used components
   int n_ob = ob.get_n_obs();
@@ -753,11 +763,13 @@ void InversionBase::out_data(const VectorXd &d, string out_name)
 
   assert(nd % n_ob == 0);
   assert(nd / n_ob == n_com);
+  // cout << "2" << endl;
 
   for (int j = 0; j < n_com; j++)
   {
     string file_name = out_name + "_" + strs[field_label[j]];
     ofstream out_s(file_name);
+    // cout << "3" << endl;
     for (int i = 0; i < n_ob; i++)
     {
       const Point &p = ob(i);

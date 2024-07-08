@@ -3,8 +3,11 @@
 # $ cmake --versionh
 cmake_minimum_required(VERSION 3.10)
 
+include("Config.cmake")
+
 # set the project name
 project(GraAda3D)
+set (CMAKE_INSTALL_PREFIX ${CMAKE_SOURCE_DIR})
 
 set(CMAKE_EXPORT_COMPILE_COMMANDS 1)
 
@@ -13,8 +16,16 @@ find_package(OpenMP REQUIRED)
 message("${CMAKE_CXX_COMPILER_ID}")
 message("Compiler command: $ENV{CXX}")
 message("Openmp flag ${OpenMP_CXX_FLAGS}")
-if (DEFINED ENV{USE_NETCDF})
-    message("USE_NETCDF=$ENV{USE_NETCDF}; The netcdf library will be included.")
+message("Installation location: ${CMAKE_INSTALL_PREFIX}/bin")
+# if (DEFINED ENV{USE_NETCDF})
+#     message("USE_NETCDF=$ENV{USE_NETCDF}; The netcdf library will be included.")
+# endif()
+if (${USE_NETCDF})
+    message("USE_NETCDF=${USE_NETCDF}; The netcdf library will be included.")
+endif()
+
+if (${USE_MKL})
+    message("USE_MKL=${USE_MKL}; $ENV{MKLROOT}; MKL will be used.")
 endif()
 
 # specify the C++ standard
@@ -49,7 +60,7 @@ target_include_directories(Forward_obj
         3rd_party_lib/Linterp
         3rd_party_lib/Timer
         #if netcdf library is used
-        $<$<BOOL:$ENV{USE_NETCDF}>:
+        $<$<BOOL:${USE_NETCDF}>:
             3rd_party_lib/netcdf/netcdf-cxx4-4.3.1
             3rd_party_lib/netcdf/netcdf-c-4.7.4
         >
@@ -58,7 +69,7 @@ target_include_directories(Forward_obj
 target_link_libraries(Forward_obj
         PUBLIC
         OpenMP::OpenMP_CXX
-        $<$<BOOL:$ENV{USE_NETCDF}>:netcdf_c++4>
+        $<$<BOOL:${USE_NETCDF}>:netcdf_c++4>
         gsl
         gslcblas        
         )
@@ -71,7 +82,7 @@ target_compile_options(Forward_obj
 target_compile_definitions(Forward_obj
     PUBLIC
     $<$<CXX_COMPILER_ID:Intel>:USE_MKL>
-    $<$<BOOL:$ENV{USE_NETCDF}>:USE_NETCDF>
+    $<$<BOOL:${USE_NETCDF}>:USE_NETCDF>
     )
 # inversion code
 add_library(Inversion_obj OBJECT
@@ -101,7 +112,7 @@ target_include_directories(GraAda3D
 
 target_link_options(GraAda3D
     PRIVATE
-    $<$<BOOL:$ENV{USE_MKL}>:-L$ENV{MKLROOT}/lib/intel64 -lmkl_intel_lp64 -lmkl_intel_thread -lmkl_core -liomp5 -lpthread -lm -ldl>
+    $<$<BOOL:${USE_MKL}>:-L$ENV{MKLROOT}/lib/intel64 -lmkl_intel_lp64 -lmkl_intel_thread -lmkl_core -liomp5 -lpthread -lm -ldl>
     )
 target_link_libraries(GraAda3D
     PRIVATE
@@ -136,4 +147,7 @@ target_link_libraries(test_wavelet_forward2
     PRIVATE
     Forward_obj
     Inversion_obj
+    )
+
+install(TARGETS GraAda3D Synthetic_data1
     )

@@ -53,8 +53,8 @@ gs00 = gridspec.GridSpecFromSubplotSpec(2, 1, subplot_spec=gs0[0],hspace=0.4)
 #fig,(ax1,ax2)=plt.subplots(1,2,figsize=(12,6))
 print(np.max(density))
 print(np.min(density))
-min_value_shown=-500
-max_value_shown=500
+min_value_shown=-300
+max_value_shown=300
 fts=12
 clrmap='jet'
 ax1=fig.add_subplot(gs00[0])
