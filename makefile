@@ -1,4 +1,4 @@
-CXX:= icpx
+CXX:= g++
 CXX:=$(strip $(CXX))
 ifeq ($(CXX),g++)
 CXXFLAGS:=-std=c++11 -O3 -fopenmp -Wfatal-errors #-g
@@ -61,11 +61,14 @@ INCLUDE_SRC             :=-I$(DIR_INVERSION) -I$(DIR_FWD)
 SRCS             := $(wildcard $(DIR_INVERSION)/*.cpp)
 SRCS             += $(wildcard $(DIR_FWD)/*.cpp)
 OBJS             := $(patsubst %.cpp, %.o, $(SRCS))
+SRC_PROGRSM_OPTIONS     :=$(wildcard ./3rd_party_lib/boost_1_72_0/libs/program_options/src/*.cpp)
+OBJS_PROGRAM_OPTIONS    :=$(patsubst %.c, %.o, $(SRC_PROGRSM_OPTIONS))
+OBJS             += $(OBJS_PROGRAM_OPTIONS)
 
 %.o: %.cpp
 	$(CXX) $(CXXFLAGS) $(INCLUDE_LIBRARIES) $(INCLUDE_SRC) $ -c $< -o $@
 
-EXE:=Synthetic_data1 GraAda3D Padding_test
+EXE:=Synthetic_data1 GraAda3D Padding_test makeModel
 ALL:$(EXE)
 .PHONY: all
 Padding_test:$(OBJS) ./src/Padding_test.o
@@ -74,7 +77,9 @@ Synthetic_data1:$(OBJS) ./src/Synthetic_data1.o
 	$(CXX) $(CXXFLAGS) -o Synthetic_data1 ./src/Synthetic_data1.o $(OBJS) $(LINKFLAGS)
 GraAda3D:$(OBJS) ./src/GraAda3D.o
 	$(CXX) $(CXXFLAGS) -o GraAda3D ./src/GraAda3D.o $(OBJS) $(LINKFLAGS)
+makeModel:$(OBJS) ./src/makeModel.o
+	$(CXX) $(CXXFLAGS) -o makeModel ./src/makeModel.o $(OBJS) $(LINKFLAGS)
 
 .PHONY: clean
 clean:
-	@rm -rf *.o *~  $(OBJS) $(OBJS_TESSEROID) $(EXE) ./src/GraAda3D.o ./src/Synthetic_data1.o ./src/Padding_test.o
+	@rm -rf *.o *~  $(OBJS) $(EXE) ./src/GraAda3D.o ./src/Synthetic_data1.o ./src/Padding_test.o ./src/makeModel.o

@@ -1,0 +1,20 @@
+#data file name
+/home/zhongyiyuan/MyCode/Gravity_Inversion_codes/GraAda3D/Examples/dobs_Txz_Tyz_Tzz
+
+#observation height z. If z axis is pointing downwards, this value should be less than 0 for observation points above the ground
+100
+
+#How many components will be use?
+3
+
+#gravity component markers
+#0:V   1:gz   2:gx   3:gy   4:T_zz   5:T_zx   6:T_zy   7:T_xx   8:T_xy   9:T_yy
+Please make sure the order of the components here is consistent with the order of data columns in the data file
+5 6 4
+
+# Assumed relative error, assumed absolute error 
+# The total error is assumed as (relative error*data+absolute error), which is used to construct the data weighting matrix Wd. The weight is 1/error. 
+#If abs err is 1, rel err is 0, then there is no weight.
+0.02 2
+0.03 3
+0.01 1
