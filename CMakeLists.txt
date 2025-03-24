@@ -10,6 +10,8 @@ project(GraAda3D)
 set (CMAKE_INSTALL_PREFIX ${CMAKE_SOURCE_DIR})
 
 set(CMAKE_EXPORT_COMPILE_COMMANDS 1)
+set(CMAKE_WARN_DEPRECATED FALSE)
+
 
 find_package(OpenMP REQUIRED)
 
@@ -76,7 +78,8 @@ target_link_libraries(Forward_obj
     
 target_compile_options(Forward_obj
     PUBLIC
-    -Wfatal-errors 
+    -Wfatal-errors
+    -Wno-nonnull
     ${OpenMP_CXX_FLAGS}
     )
 target_compile_definitions(Forward_obj
@@ -98,6 +101,32 @@ target_link_libraries(Inversion_obj
         PUBLIC 
         Forward_obj
         )
+
+# program options library from the boost library
+add_library(Program_options_obj OBJECT
+    3rd_party_lib/boost_1_72_0/libs/program_options/src/cmdline.cpp
+    3rd_party_lib/boost_1_72_0/libs/program_options/src/config_file.cpp
+    3rd_party_lib/boost_1_72_0/libs/program_options/src/convert.cpp
+    3rd_party_lib/boost_1_72_0/libs/program_options/src/options_description.cpp
+    3rd_party_lib/boost_1_72_0/libs/program_options/src/parsers.cpp
+    3rd_party_lib/boost_1_72_0/libs/program_options/src/positional_options.cpp
+    3rd_party_lib/boost_1_72_0/libs/program_options/src/split.cpp
+    3rd_party_lib/boost_1_72_0/libs/program_options/src/utf8_codecvt_facet.cpp
+    3rd_party_lib/boost_1_72_0/libs/program_options/src/value_semantic.cpp
+    3rd_party_lib/boost_1_72_0/libs/program_options/src/variables_map.cpp
+    3rd_party_lib/boost_1_72_0/libs/program_options/src/winmain.cpp
+    )
+target_compile_options(Program_options_obj
+    PUBLIC
+    -Wfatal-errors
+    -Wno-nonnull
+    ${OpenMP_CXX_FLAGS}
+    )
+target_include_directories(Program_options_obj
+    PUBLIC
+    3rd_party_lib/boost_1_72_0
+)
+
 ############################################################
 # Create an executable
 ############################################################
@@ -134,6 +163,7 @@ target_link_libraries(Synthetic_data1
     Forward_obj
     Inversion_obj
     )
+
 add_executable(test_wavelet_forward1
     src/test_wavelet_forward1.cpp)
 target_link_libraries(test_wavelet_forward1
@@ -141,6 +171,7 @@ target_link_libraries(test_wavelet_forward1
     Forward_obj
     Inversion_obj
     )
+
 add_executable(test_wavelet_forward2
     src/test_wavelet_forward2.cpp)
 target_link_libraries(test_wavelet_forward2
@@ -149,5 +180,20 @@ target_link_libraries(test_wavelet_forward2
     Inversion_obj
     )
 
-install(TARGETS GraAda3D Synthetic_data1
+add_executable(makeModel
+    src/makeModel.cpp)
+target_link_libraries(makeModel
+    PRIVATE
+    Forward_obj
+    Program_options_obj
+)
+
+add_executable(generatePoints
+    src/generatePoints.cpp)
+target_link_libraries(generatePoints
+    PRIVATE
+    Program_options_obj
+)
+
+install(TARGETS GraAda3D Synthetic_data1 makeModel generatePoints
     )

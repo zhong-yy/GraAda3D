@@ -13,19 +13,22 @@ int main() {
   Mesh mesh;
   mesh.generate_regular_mesh(x_lim, 40, y_lim, 40, z_lim, 20);
 
-  double block_z[2] = {200, 500};
+  
   double block_x[2] = {600, 900};
   double block_y[2] = {550, 850};
+  double block_z[2] = {200, 500};
   mesh.set_parameter_in_a_region(block_x, block_y, block_z, 500);
 
-  double block_z2[2] = {200, 500};
+  
   double block_x2[2] = {1200, 1500};
   double block_y2[2] = {550, 850};
+  double block_z2[2] = {200, 500};
   mesh.set_parameter_in_a_region(block_x2, block_y2, block_z2, -500);
 
-  double block_z3[2] = {200, 500};
+  
   double block_x3[2] = {900, 1500};
   double block_y3[2] = {1300, 1500};
+  double block_z3[2] = {200, 500};
   mesh.set_parameter_in_a_region(block_x3, block_y3, block_z3, 500);
 
   // mesh.set_block_density(12, 27, 12, 27, 6, 15, 500);//

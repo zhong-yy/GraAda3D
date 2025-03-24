@@ -62,7 +62,7 @@ SRCS             := $(wildcard $(DIR_INVERSION)/*.cpp)
 SRCS             += $(wildcard $(DIR_FWD)/*.cpp)
 OBJS             := $(patsubst %.cpp, %.o, $(SRCS))
 SRC_PROGRSM_OPTIONS     :=$(wildcard ./3rd_party_lib/boost_1_72_0/libs/program_options/src/*.cpp)
-OBJS_PROGRAM_OPTIONS    :=$(patsubst %.c, %.o, $(SRC_PROGRSM_OPTIONS))
+OBJS_PROGRAM_OPTIONS    :=$(patsubst %.cpp, %.o, $(SRC_PROGRSM_OPTIONS))
 OBJS             += $(OBJS_PROGRAM_OPTIONS)
 
 %.o: %.cpp
