@@ -68,7 +68,7 @@ OBJS             += $(OBJS_PROGRAM_OPTIONS)
 %.o: %.cpp
 	$(CXX) $(CXXFLAGS) $(INCLUDE_LIBRARIES) $(INCLUDE_SRC) $ -c $< -o $@
 
-EXE:=Synthetic_data1 GraAda3D Padding_test makeModel
+EXE:=Synthetic_data1 GraAda3D Padding_test makeModel test_wavelet_forward1 test_wavelet_forward2
 ALL:$(EXE)
 .PHONY: all
 Padding_test:$(OBJS) ./src/Padding_test.o
@@ -79,7 +79,11 @@ GraAda3D:$(OBJS) ./src/GraAda3D.o
 	$(CXX) $(CXXFLAGS) -o GraAda3D ./src/GraAda3D.o $(OBJS) $(LINKFLAGS)
 makeModel:$(OBJS) ./src/makeModel.o
 	$(CXX) $(CXXFLAGS) -o makeModel ./src/makeModel.o $(OBJS) $(LINKFLAGS)
+test_wavelet_forward1:$(OBJS) ./src/test_wavelet_forward1.o
+	$(CXX) $(CXXFLAGS) -o test_wavelet_forward1 ./src/test_wavelet_forward1.o $(OBJS) $(LINKFLAGS)
+test_wavelet_forward2:$(OBJS) ./src/test_wavelet_forward2.o
+	$(CXX) $(CXXFLAGS) -o test_wavelet_forward2 ./src/test_wavelet_forward2.o $(OBJS) $(LINKFLAGS)
 
 .PHONY: clean
 clean:
-	@rm -rf *.o *~  $(OBJS) $(EXE) ./src/GraAda3D.o ./src/Synthetic_data1.o ./src/Padding_test.o ./src/makeModel.o
+	@rm -rf *.o *~  $(OBJS) $(EXE) ./src/GraAda3D.o ./src/Synthetic_data1.o ./src/Padding_test.o ./src/makeModel.o ./src/test_wavelet_forward1.o ./src/test_wavelet_forward2.o
