@@ -1115,28 +1115,28 @@ void GaussNewtonInversion::invert_with_own_CG()
 
       std::cout << "Finished refinement" << endl;
 
-      std::cout << "Initialize Ws" << endl;
+      // std::cout << "Initialize Ws" << endl;
       Ws.resize(Nm, Nm);
       Ws.reserve(2 * Nm);
       Ws = a_s * S_s * V * D_s * Z;
       Ws.makeCompressed();
       Ws.data().squeeze();
 
-      std::cout << "Initialize Wx" << endl;
+      // std::cout << "Initialize Wx" << endl;
       Wx.resize(Nm, Nm);
       Wx.reserve(2 * Nm);
       Wx = a_x * S_x * V * D_x1 * Z;
       Wx.makeCompressed();
       Wx.data().squeeze();
 
-      std::cout << "Initialize Wy" << endl;
+      // std::cout << "Initialize Wy" << endl;
       Wy.resize(Nm, Nm);
       Wy.reserve(2 * Nm);
       Wy = a_y * S_y * V * D_y1 * Z;
       Wy.makeCompressed();
       Wy.data().squeeze();
 
-      std::cout << "Initialize Wz" << endl;
+      // std::cout << "Initialize Wz" << endl;
       Wz.resize(Nm, Nm);
       Wz.reserve(2 * Nm);
       Wz = a_z * S_z * V * D_z1 * Z;
@@ -1177,7 +1177,7 @@ void GaussNewtonInversion::invert_with_own_CG()
       // Wzm = Wz * m;
       if (Lp_s != 2)
       {
-        Wsm_m0 = Ws * (m_opt - m0);
+        Wsm_m0 = Ws * (m - m0);
         for (int ir = 0; ir < Nm; ir++)
         {
           WL_s.coeffRef(ir, ir) =
@@ -1186,7 +1186,7 @@ void GaussNewtonInversion::invert_with_own_CG()
       }
       if (Lp_x != 2)
       {
-        Wxm = Wx * m_opt;
+        Wxm = Wx * m;
         for (int ir = 0; ir < Nm; ir++)
         {
           WL_x.coeffRef(ir, ir) =
@@ -1195,7 +1195,7 @@ void GaussNewtonInversion::invert_with_own_CG()
       }
       if (Lp_y != 2)
       {
-        Wym = Wy * m_opt;
+        Wym = Wy * m;
         for (int ir = 0; ir < Nm; ir++)
         {
           WL_y.coeffRef(ir, ir) =
@@ -1204,7 +1204,7 @@ void GaussNewtonInversion::invert_with_own_CG()
       }
       if (Lp_z != 2)
       {
-        Wzm = Wz * m_opt;
+        Wzm = Wz * m;
         for (int ir = 0; ir < Nm; ir++)
         {
           WL_z.coeffRef(ir, ir) =

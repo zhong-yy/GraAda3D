@@ -212,7 +212,7 @@ void AdaptiveInversion::refine_mesh(double a,
     this->set_min_max_to_mesh();
 
     VectorXd indicator(Nm);
-    assert(Nm == G.cols());
+    assert((this->use_wavelet) || (Nm == G.cols()));
     assert(Nm == m.rows());
 
     // indicator = ((D_theta1 * m).cwiseAbs2() + (D_phi1 * m).cwiseAbs2() +
@@ -394,7 +394,7 @@ void AdaptiveInversion::refine_mesh(
     this->set_min_max_to_mesh();
 
     VectorXd indicator(Nm);
-    assert(Nm == G.cols());
+    assert((this->use_wavelet) || (Nm == G.cols()));
     assert(Nm == m.rows());
 
     // indicator = ((D_theta1 * m).cwiseAbs2() + (D_phi1 * m).cwiseAbs2() +
@@ -643,7 +643,7 @@ void AdaptiveInversion::refine_mesh(double a)
     this->set_min_max_to_mesh();
 
     VectorXd indicator(Nm);
-    assert(Nm == G.cols());
+    assert((this->use_wavelet) || (Nm == G.cols()));
     assert(Nm == m.rows());
 
     this->indicator_calculator(indicator);
