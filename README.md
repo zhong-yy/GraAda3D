@@ -69,47 +69,30 @@ sudo yum install netcdf-cxx-devel
 
 > For CentOS user, recommend to build netcdf-c and netcdf-cxx from the source code. See https://www.unidata.ucar.edu/software/netcdf/docs/getting_and_building_netcdf.html for netcdf-c and https://github.com/Unidata/netcdf-cxx4 for the netcdf c++ library.
 
-#### Build with CMake
+#### Build with CMake (recommended)
 
-(1) Create a build folder
+Before compiling the code, open file `Config.cmake`, follow the instruction in the comments to edit it.
 
 ```
+# go to the GraAda3D folder
+cd GraAda3D
+
+# remove the "build" directory if it exists
+rm -rf ./build
+
+# Create an empty directory named build
 mkdir build
+
 cd build
-```
 
-(2) Generate a building system (makefile)
-
-Using gnu compiler, type
-
-```
+# Generate a makefile
 cmake ..
-```
 
-Using Intel OneAPI compiler, type
-
-```
-CXX=icpx USE_MKL=1 cmake ..
-```
-
-To link the netcdf libraray,
-
-```
-USE_NETCDF=1 cmake ..
-```
-
-(3) Compile
-
-Type
-
-```
+# Compile
 make
-```
 
-To show compiling process, type
-
-```
-make VERBOSE=1
+# copy the executable files to GraAdaInv/bin
+make install
 ```
 
 ## 3 Examples
