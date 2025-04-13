@@ -188,6 +188,14 @@ target_link_libraries(makeModel
     Program_options_obj
 )
 
+add_executable(compute
+    src/compute.cpp)
+target_link_libraries(compute
+    PRIVATE
+    Forward_obj
+    Program_options_obj
+)
+
 add_executable(generatePoints
     src/generatePoints.cpp)
 target_link_libraries(generatePoints
