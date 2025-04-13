@@ -1,0 +1,5 @@
+1. bash "./build_density_model.sh"
+
+2. bash "./generate_observation_points.sh"
+
+3. bash "./compute.sh"
