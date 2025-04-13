@@ -50,11 +50,7 @@ int main(int ac, char *av[])
         int opt;
         int portnum;
         po::options_description desc("Allowed options");
-        desc.add_options()
-        ("help,h", "produce help message")
-        ("model,m", po::value<string>(), "Specify the model file")
-        ("observation,p", po::value<string>(), "specify a file containing locations of observation points. Each line of this file should be three floating-point numbers corresponding to x y z coordinates of an observation point.")
-        ("component,c", po::value<string>(&field_str)->default_value("V/gz/gx/gy/Txx/Txy/Txz/Tyy/Tyz/Tzz"), "specify the components of gravitational potential/vector/gradient tensor to be components. The possible values are: \n\tV: gravitational potential\n\tgx/gy/gz: x/y/z component of gravity filed\n\tTxx/Txy/Txz/Tyy/Tyz/Tzz.\nFor example, the option '-c gx/gz/Txx/Tyz/Tzz' makes the program to calculate gx, gz, Txx, Tyz and Tzz.")("output,o", po::value<string>(), "output file");
+        desc.add_options()("help,h", "produce help message")("model,m", po::value<string>(), "Specify the model file")("observation,p", po::value<string>(), "specify a file containing locations of observation points. Each line of this file should be three floating-point numbers corresponding to x y z coordinates of an observation point.")("component,c", po::value<string>(&field_str)->default_value("V/gz/gx/gy/Txx/Txy/Txz/Tyy/Tyz/Tzz"), "specify the components of gravitational potential/vector/gradient tensor to be components. The possible values are: \n\tV: gravitational potential\n\tgx/gy/gz: x/y/z component of gravity filed\n\tTxx/Txy/Txz/Tyy/Tyz/Tzz.\nFor example, the option '-c gx/gz/Txx/Tyz/Tzz' makes the program to calculate gx, gz, Txx, Tyz and Tzz.")("output,o", po::value<string>(), "output file");
 
         po::positional_options_description p;
         // p.add("input-file", -1);
@@ -70,6 +66,7 @@ int main(int ac, char *av[])
             return 0;
         }
         vector<RectPrism> rects;
+        vector<double> density;
         if (vm.count("model"))
         {
             string model_file = vm["model"].as<string>();
@@ -88,18 +85,19 @@ int main(int ac, char *av[])
                     double x0, y0, z0, x1, y1, z1, xc, yc, zc, rho;
                     std::istringstream iss(line);
                     iss >> x0 >> x1 >> y0 >> y1 >> z0 >> z1 >> xc >> yc >> zc >> rho;
-                    rects.push_back(RectPrism(x0, y0, z0, x1, y1, z1));
 
+                    rects.push_back(RectPrism(x0, y0, z0, x1, y1, z1));
+                    density.push_back(rho);
                 }
             }
         }
         else
         {
-            
         }
 
         Observation ob;
-        if (vm.count("observation")){
+        if (vm.count("observation"))
+        {
             string observation_file = vm["observation"].as<string>();
             ifstream input_stream(observation_file.c_str());
             assert(input_stream.good());
@@ -118,13 +116,14 @@ int main(int ac, char *av[])
                     n_obs++;
                     double x0, y0, z0;
                     std::istringstream iss(line);
-                    iss >> x0 >> y0>>z0;
+                    iss >> x0 >> y0 >> z0;
                     ob.add_point(x0, y0, z0);
                 }
-            }            
+            }
         }
 
-        unsigned long field_flag;
+        // unsigned long long field_flag;
+        bitset<10> field_flag;
         if (vm.count("component"))
         {
             // string field_str = vm["component"].as<string>();
@@ -150,7 +149,7 @@ int main(int ac, char *av[])
                     break;
                 case "gy":
                     field_flag = field_flag | Compute_g_y;
-                    break;                    
+                    break;
                 case "Txx":
                     field_flag = field_flag | Compute_T_xx;
                     break;
@@ -174,20 +173,79 @@ int main(int ac, char *av[])
                     break;
                 case "Tzy":
                     field_flag = field_flag | Compute_T_zy;
-                    break;                    
+                    break;
                 case "Tzz":
                     field_flag = field_flag | Compute_T_zz;
                     break;
                 default:
-                    cout<<"Invalid component name"<<endl;
+                    cout << "Invalid component name" << endl;
                     return 1;
                     break;
                 }
             }
         }
+        string outfile = vm["output"].as<string>();
+        ofstream out_s(outfile);
 
-        GravFormula gra;
-        vector<double> field;
+        vector<unsigned int> field_index;
+        for (unsigned int i = 0; i < 10; i++)
+        {
+            if (field_flag[i])
+            {
+                field_index.push_back(i);
+            }
+        }
+        vector<vector<double>> results;
+        results.resize(ob.get_n_obs());
+        unsigned int n_components = field_index.size();
+        for (unsigned int ob_i = 0; ob_i < ob.get_n_obs(); ob_i++)
+        {
+
+            results[ob_i].resize(n_components);
+            for (unsigned int comp_i = 0; j < n_components; j++)
+            {
+                results[ob_i][comp_i] == 0.0;
+            }
+        }
+
+#pragma omp parallel for
+        for (unsigned int i = 0; i < ob.get_n_obs(); i++)
+        {
+            for (unsigned int j = 0; j < rects.size(); j++)
+            {
+                GravFormula gra;
+                vector<double> field;
+                gra.field_caused_by_single_prism(ob(i), rects[j], density[j], field,
+                                                 field_flag);
+                for (unsigned int k = 0; k < n_components; k++)
+                {
+                    results[i][k] += field[field_index[k]];
+                }
+            }
+        }
+
+        vector<string> field_names_in_header = {"V (m2/s2)", "g_z (mGal)", "g_x (mGal)", "g_y (mGal)", "T_zz (E)",
+                                                "T_xz (E)", "T_yz (E)", "T_xx (E)", "T_xy (E)", "T_yy (E)"};
+        out_s << setw(23) << left << "# x" << setw(23) << left << "y" << setw(23) << left << "z";
+        for (int i = 0; i < n_components; i++)
+        {
+            out_s << setw(23) << left << field_names_in_header[field_index[i]];
+        }
+        out_s << endl;
+
+        for (int i = 0; i < ob.get_n_obs(); i++)
+        {
+            const Point &p = ob(i);
+            out_s << scientific;
+            out_s << setw(23) << setprecision(15) << left << p.x() << setw(23) << left
+                  << p.y() << setw(23) << setprecision(15) << left << p.z();
+            out_s << scientific;
+            for (unsigned int k = 0; k < n_components; k++)
+            {
+                out_s << setw(23) << setprecision(15) << left << results[i][k];
+            }
+            out_s << endl;
+        }
     }
     catch (exception &e)
     {
