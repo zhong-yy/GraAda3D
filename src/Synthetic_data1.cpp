@@ -106,7 +106,10 @@ int main() {
   timer.stop();
   cout << "Time: " << timer.getElapsedTimeInSec() << " s" << endl;
 
-  
+  GaussNewtonInversion write_data0(mesh, ob, Compute_g_z | Compute_T_zz|Compute_T_zx|Compute_T_zy);
+  write_data0.set_dobs(d_obs);
+  write_data0.output_obs_data("dobs_no_noise");
+
   VectorXd noise;
   noise.resize(d_obs.rows());
   double equipment_noise = 0.0;

@@ -203,5 +203,5 @@ target_link_libraries(generatePoints
     Program_options_obj
 )
 
-install(TARGETS GraAda3D Synthetic_data1 makeModel generatePoints
+install(TARGETS GraAda3D Synthetic_data1 makeModel generatePoints compute
     )

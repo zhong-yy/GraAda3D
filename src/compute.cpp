@@ -4,7 +4,7 @@
 // #include<function>
 
 // #include "GaussNewtonInversion.h"
-// #include "timer.h"
+#include "timer.h"
 
 #include <boost/program_options.hpp>
 #include <iostream>
@@ -75,12 +75,14 @@ void line_process(std::string &line, const std::string comment_str = "#")
 
 int main(int ac, char *av[])
 {
+    Timer tm;
+    tm.start();
     try
     {
-        int opt;
-        int portnum;
+        // int opt;
+        // int portnum;
         po::options_description desc("Allowed options");
-        desc.add_options()("help,h", "produce help message")("model,m", po::value<string>(), "Specify the model file")("observation,p", po::value<string>(), "specify a file containing locations of observation points. Each line of this file should be three floating-point numbers corresponding to x y z coordinates of an observation point.")("component,c", po::value<string>()->default_value("V/gz/gx/gy/Txx/Txy/Txz/Tyy/Tyz/Tzz"), "specify the components of gravitational potential/vector/gradient tensor to be components. The possible values are: \n\tV: gravitational potential\n\tgx/gy/gz: x/y/z component of gravity filed\n\tTxx/Txy/Txz/Tyy/Tyz/Tzz.\nFor example, the option '-c gx/gz/Txx/Tyz/Tzz' makes the program to calculate gx, gz, Txx, Tyz and Tzz.")("output,o", po::value<string>(), "output file");
+        desc.add_options()("help,h", "produce help message")("model,m", po::value<string>(), "specify a model file")("observation,p", po::value<string>(), "specify a file containing locations of observation points. Each line of this file should be three floating-point numbers corresponding to x y z coordinates of an observation point.")("component,c", po::value<string>(), "components of gravitational potential/vector/gradient tensor to be computed. Possible values are: \n\tV: gravitational potential\n\tgx/gy/gz: x y z component of gravity filed\n\tTxx/Txy/Txz/Tyy/Tyz/Tzz: gravity gradient tensor.\nFor example, '-c gz/Txx/Tzz' tells the program to compute gz, Txx, and Tzz.")("noise,n", po::value<double>(), "add random noise. The standard deviation is a fraction of the data amplitude. For example, with '-n 0.02', the standard deviation of the random noise added to the i-th observation di is abs(di)*0.02")("output,o", po::value<string>(), "specify a file to save computation results");
 
         po::positional_options_description p;
         // p.add("input-file", -1);
@@ -91,7 +93,7 @@ int main(int ac, char *av[])
 
         if (vm.count("help"))
         {
-            cout << "Usage: options_description [options]\n";
+            cout << "Usage: compute [options]\n";
             cout << desc;
             return 0;
         }
@@ -101,6 +103,10 @@ int main(int ac, char *av[])
         {
             string model_file = vm["model"].as<string>();
             ifstream input_stream(model_file.c_str());
+            if (!input_stream.good()){
+                cout<<"Please check whether file "<<model_file<<" exists."<<endl;
+                return 1;
+            }
             assert(input_stream.good());
             string line;
             while (std::getline(input_stream, line))
@@ -152,13 +158,13 @@ int main(int ac, char *av[])
             }
         }
 
-        unsigned long long field_flag_ULL;
+        unsigned long long field_flag_ULL=0;
 
         if (vm.count("component"))
         {
             string field_str = vm["component"].as<string>();
             vector<string> component_strings = split_to_string(field_str, '/');
-            cout << "The following field components will be computed: " << endl;
+            cout << "The following field components will be computed at "<<ob.get_n_obs()<<" observation points: " << endl;
             for (int i = 0; i < component_strings.size(); i++)
             {
                 cout << component_strings[i] << " ";
@@ -214,6 +220,7 @@ int main(int ac, char *av[])
             }
         }
         bitset<10> field_flag(field_flag_ULL);
+        cout<<field_flag<<endl;
 
         vector<unsigned int> field_index;
         for (unsigned int i = 0; i < 10; i++)
@@ -251,12 +258,53 @@ int main(int ac, char *av[])
                 }
             }
         }
+        if (vm.count("noise"))
+        {
+            // output the data without noise
+            string outfile_nonoise = vm["output"].as<string>()+"_no_noise";
+            ofstream out_s_nonoise(outfile_nonoise);
+            vector<string> field_names_in_header = {"V (m2/s2)", "g_z (mGal)", "g_x (mGal)", "g_y (mGal)", "T_zz (E)",
+                                                    "T_xz (E)", "T_yz (E)", "T_xx (E)", "T_xy (E)", "T_yy (E)"};
+            out_s_nonoise << setw(18) << left << "# x (m)" << setw(18) << left << "y (m)" << setw(19) << left << "z (m)";
+            for (int i = 0; i < n_components; i++)
+            {
+                out_s_nonoise << setw(23) << left << field_names_in_header[field_index[i]];
+            }
+            out_s_nonoise << endl;
+    
+            for (int i = 0; i < ob.get_n_obs(); i++)
+            {
+                const Point &p = ob(i);
+                out_s_nonoise << scientific;
+                out_s_nonoise << setw(18) << setprecision(9) << left << p.x() << setw(18)<<setprecision(9) << left
+                      << p.y() << setw(19) << setprecision(9) << left << p.z();
+                out_s_nonoise << scientific;
+                for (unsigned int k = 0; k < n_components; k++)
+                {
+                    out_s_nonoise << setw(23) << setprecision(15) << left << results[i][k];
+                }
+                out_s_nonoise << endl;
+            }
+            
+            // add noise
+            double noise_std = vm["noise"].as<double>();
+            for (unsigned int i = 0; i < ob.get_n_obs(); i++)
+            {
+                for (unsigned int k = 0; k < n_components; k++)
+                {
+                    static normal_distribution<double> normal_dist(0, 1);
+                    static default_random_engine e(time(0));
+                    double noise = noise_std * fabs(results[i][k]) * normal_dist(e);
+                    results[i][k] = results[i][k] + noise;
+                }
+            }
+        }
 
         string outfile = vm["output"].as<string>();
         ofstream out_s(outfile);
         vector<string> field_names_in_header = {"V (m2/s2)", "g_z (mGal)", "g_x (mGal)", "g_y (mGal)", "T_zz (E)",
                                                 "T_xz (E)", "T_yz (E)", "T_xx (E)", "T_xy (E)", "T_yy (E)"};
-        out_s << setw(23) << left << "# x" << setw(23) << left << "y" << setw(23) << left << "z";
+        out_s << setw(18) << left << "# x (m)" << setw(18) << left << "y (m)" << setw(19) << left << "z (m)";
         for (int i = 0; i < n_components; i++)
         {
             out_s << setw(23) << left << field_names_in_header[field_index[i]];
@@ -267,8 +315,8 @@ int main(int ac, char *av[])
         {
             const Point &p = ob(i);
             out_s << scientific;
-            out_s << setw(23) << setprecision(15) << left << p.x() << setw(23) << left
-                  << p.y() << setw(23) << setprecision(15) << left << p.z();
+            out_s << setw(18) << setprecision(9) << left << p.x() << setw(18)<<setprecision(9) << left
+                  << p.y() << setw(19) << setprecision(9) << left << p.z();
             out_s << scientific;
             for (unsigned int k = 0; k < n_components; k++)
             {
@@ -286,5 +334,7 @@ int main(int ac, char *av[])
     {
         cerr << "Exception of unknown type!\n";
     }
+    cout << "Time: " << tm.getElapsedTimeInSec() << " second(s)" << endl;
+
     return 0;
 }

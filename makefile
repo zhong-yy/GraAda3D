@@ -79,6 +79,10 @@ GraAda3D:$(OBJS) ./src/GraAda3D.o
 	$(CXX) $(CXXFLAGS) -o GraAda3D ./src/GraAda3D.o $(OBJS) $(LINKFLAGS)
 makeModel:$(OBJS) ./src/makeModel.o
 	$(CXX) $(CXXFLAGS) -o makeModel ./src/makeModel.o $(OBJS) $(LINKFLAGS)
+compute:$(OBJS) ./src/compute.o
+	$(CXX) $(CXXFLAGS) -o compute ./src/compute.o $(OBJS) $(LINKFLAGS)
+generatePoints:$(OBJS) ./src/generatePoints.o
+	$(CXX) $(CXXFLAGS) -o generatePoints ./src/generatePoints.o $(OBJS) $(LINKFLAGS)
 test_wavelet_forward1:$(OBJS) ./src/test_wavelet_forward1.o
 	$(CXX) $(CXXFLAGS) -o test_wavelet_forward1 ./src/test_wavelet_forward1.o $(OBJS) $(LINKFLAGS)
 test_wavelet_forward2:$(OBJS) ./src/test_wavelet_forward2.o

@@ -127,7 +127,7 @@ int main(int ac, char *av[])
 			start_z = std::stod(zstring);
 			end_z = std::stod(zstring);
 			zspace = 1;
-			cout << setw(30) << left << "z coordinate:" << start_y << endl;
+			cout << setw(30) << left << "z coordinate:" << start_z << endl;
 		}
 		else
 		{
