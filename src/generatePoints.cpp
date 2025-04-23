@@ -22,7 +22,7 @@ int main(int ac, char *av[])
 	try
 	{
 		po::options_description desc("Allowed options");
-		desc.add_options()("help,h", "produce help message")
+		desc.add_options()("help,h", "show help message")
 		("xcoordinates,x", po::value<string>(), "x coordinates. For example, '-x 0:2.5:10' will generate a list of x coordinates starting at 0 and ending at 10, with an interval of 2.5. If only one number is given, e.g '-x 5', there will be only one value for x. ")
 		("ycoordinates,y", po::value<string>(), "y coordinates. The usage is similar to x.")
 		("zcoordinates,z", po::value<string>(), "z coordinates. The usage is similar to z.")
