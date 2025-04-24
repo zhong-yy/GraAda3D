@@ -16,46 +16,13 @@ Any combination of gravity field components or gravity gradient components (gz, 
 
 ### 2.1 Dependencies
 
-- [Eigen](http://eigen.tuxfamily.org/index.php?title=Main_Page): A C++ template library for linear algebra (It has been contained in the ./contrib/ folder )
-- [Linterp](https://rncarpio.github.io/linterp/): A multidimensional interpolation class which is dependent on the Boost library (It is contained in ./contrib folder)
-- [netcdf](https://www.unidata.ucar.edu/software/netcdf/) [*optional*]: A library to write and read data in .nc format. NetCDF is a popular format to store and share data. Data of this format can be read in GMT (generic mapping tool) or python. 
+(1) [Eigen](http://eigen.tuxfamily.org/index.php?title=Main_Page): A C++ template library for linear algebra. A copy of Eigen is contained in the `./3rd_party_lib/` folder and you don't need to install it manually.
 
-### 2.2 Buiding
+(2) [Linterp](https://rncarpio.github.io/linterp/): A multidimensional interpolation class which is dependent on the Boost library. A copy of Linterp is contained in `./3rd_party_lib` folder so that you don't need to install it manually.
 
-#### Build with Make
+(3) [netcdf](https://www.unidata.ucar.edu/software/netcdf/) [*optional*]: A library to write and read data in .nc format. NetCDF is a popular format to store and share data. Data of this format can be read in GMT (generic mapping tool) or python. The installation of netcdf is optional. If you don't need netcdf, you can edit `GraAda3D/Config.cmake` and change  `set(USE_NETCDF TRUE)` to `set(USE_NETCDF FALSE)`.
 
-##### (1) Build
-
-Build the program using Make,
-
-```bash
-cd GraAda3D
-make
-```
-
-By default, the program is built without netcdf support. In this way, you don't have to install the netcdf library in advance, but there are not *.nc files generated after inversion. The results are written in  *.vtk file, which can be visulaized by [Paraview](https://www.paraview.org/).
-
-##### (2) Use Intel compilers
-
-The default compiler is g++. To build with an [Intel C++ compiler](https://software.intel.com/content/www/us/en/develop/tools/oneapi/base-toolkit/download.html) (`icpc`, `icpx`, `dpcpp`), use the CXX option,
-
-```bash
-make CXX=icpx
-```
-
-> The latest Intel compiler is the Intel oneAPI DPC++/C++ Compiler (now free to use), whose command is `icpx` or `dpcpp`. The classic one is `icpc`. It seems that the icpx or icpc shows a slightly better performance than g++.
-
-##### (3) Build with NetCDF library
-
-If you have installed netcdf library (including netcdf C++ interfaces) and wish to store your inversion model in .nc file, you can build the program with netcdf support by using the USE_NETCDF option,
-
-```bash
-make USE_NETCDF=1
-```
-
-In this way, you have to install netcdf-c and netcdf-cxx libraries in advance. 
-
-The fastest way to install netcdf:
+The fastest way to install netcdf is using the built-in package manager:
 
 ```shell
 #For ubuntu users
@@ -67,7 +34,11 @@ sudo yum install netcdf-devel
 sudo yum install netcdf-cxx-devel
 ```
 
-> For CentOS user, recommend to build netcdf-c and netcdf-cxx from the source code. See https://www.unidata.ucar.edu/software/netcdf/docs/getting_and_building_netcdf.html for netcdf-c and https://github.com/Unidata/netcdf-cxx4 for the netcdf c++ library.
+> For CentOS user, it is recommended to build netcdf-c and netcdf-cxx from the source code. See https://www.unidata.ucar.edu/software/netcdf/docs/getting_and_building_netcdf.html for netcdf-c and https://github.com/Unidata/netcdf-cxx4 for the netcdf c++ library.
+
+(4) GNU Scientific Library (gsl): **[gsl](https://www.gnu.org/software/gsl/)** is used to calculate wavelet transforms. `cd` the directory containing the source code of gsl, follow the instructions in file INSTALL (`./configure`, `make`, `make check`, `make install`, `make installcheck`).
+
+### 2.2 Buiding
 
 #### Build with CMake (recommended)
 
@@ -97,7 +68,7 @@ make install
 
 Then you can add GraAda3D/bin to the environmental variable PATH. First, go to the GraAda3D/bin directory and type `pwd`, which will show you the absolute path of the our bin directory:
 
-```
+```shell
 cd ../bin
 
 pwd -P
@@ -109,6 +80,25 @@ export PATH=/home/zhongyiyuan/GraAda3D/bin${PATH:+:${PATH}}
 
 Now start a new terminal, type `GraAda3D` to check whether it has been installed successfully.
 
+#### Build with Make
+
+Build the program using Make,
+
+```shell
+cd GraAda3D
+make
+```
+
+By default, the program is built without netcdf support. In this way, you don't have to install the netcdf library in advance, but there are not *.nc files generated after inversion. The results are written in  *.vtk file, which can be visulaized by [Paraview](https://www.paraview.org/).
+
+
+The default compiler is g++. To build with an [Intel C++ compiler](https://software.intel.com/content/www/us/en/develop/tools/oneapi/base-toolkit/download.html) (`icpc`, `icpx`, `dpcpp`), use the CXX option,
+
+```shell
+make CXX=icpx
+```
+
+> The latest Intel compiler is Intel oneAPI for which the command is `icpx` or `dpcpp`. The command of a classic intel compiler is `icpc`. It seems that the program compiled with the intel compiler has a slightly better performance than g++.
 
 
 ## 3 Examples
@@ -137,7 +127,7 @@ Change from the current directory to `GraAda3D/Examples` and type the following 
 
 to generate synthetic data with noise. Then we get a text file named *dobs_g_z* which contains vertical gravity data $g_z$, and 3 files named *dobs_T_zz*, *dobs_T_xz*, *dobs_T_yz* which contains gravity gradient components Tzz, Txz, Tyz. 
 
-### 3.1 A example of inversion using gz data
+### 3.2.1 A example of inversion using gz data
 
 1. cd `GraAda3D/Examples/Inv_gz` In this folder, we have prepared the following configuration files:  **config**, **config_data**, **config_inversion** and **config_model**. 
    
@@ -161,7 +151,7 @@ If `GraAda3D` is compiled with NetCDF (`make USE_NETCDF=1`), the resulting model
 
 3. Similarly, `cd GraAda3D/Examples/Inv_Tzz` and run the inversion of Tzz data with`../../GraAda3D config`.
 
-### 3.2 Inversion using  multiple components of gravity gradient tensor
+### 3.2.2 Inversion using  multiple components of gravity gradient tensor
 
 The file **config_data** tells the program which data to be used. 
 
@@ -179,32 +169,7 @@ python crossSections2.py
 python Txz_Tyz_Tzz.py
 ```
 
-### 3.3 Inversion using L1-norm regularization
-
-1. Enter `L1_inv_gz` folder,  open **config_inversion**, and compare it with the one in `Inv_gz` folder. See Line 14 in **config_inversion**, it contains 2 parameters about Lp-norm inversion. The first parameter is the "p" of Lp-norm, the second parameter is a small value which is used to avoid singularity. In the file `L1_inv_gz/config_inversion`, line 14, p=1, which means L1-norm regularization is used here.
-2. Run the inversion
-
-```
-../../GraAda3D config
-```
-
-3. Show the inversion result in Paraview, or using python:
-
-```
-python crossSections2.py
-```
-
-### 3.4 Inversion using minimum support regularization
-
-1. Enter `L0_inv_gz(Minimum_support)`, open **config_inversion**, see line 14. Here, p=0.
-
-2. Run the inversion,
-
-```
-../../GraAda3D config
-```
-
-### 3.5 Examples of inversion with a priori information
+### 3.2.3 Examples of inversion with a priori information
 
 A priori information (e.g. existing velocity models) can be included in the inversion to improve the reliability of the inversion result.  The a priori model should be gridded data given in a XYZ table.
 
@@ -231,3 +196,30 @@ We have prepared a file **ref_model** in the GraAda3D/Examples folder, which con
 ```
 ../../GraRect config
 ```
+
+### 3.2.4 Inversion using L1-norm regularization
+
+1. Enter `L1_inv_gz` folder,  open **config_inversion**, and compare it with the one in `Inv_gz` folder. See Line 14 in **config_inversion**, it contains 2 parameters about Lp-norm inversion. The first parameter is the "p" of Lp-norm, the second parameter is a small value which is used to avoid singularity. In the file `L1_inv_gz/config_inversion`, line 14, p=1, which means L1-norm regularization is used here.
+2. Run the inversion
+
+```
+../../GraAda3D config
+```
+
+3. Show the inversion result in Paraview, or using python:
+
+```
+python crossSections2.py
+```
+
+### 3.2.5 Inversion using minimum support regularization
+
+1. Enter `L0_inv_gz(Minimum_support)`, open **config_inversion**, see line 14. Here, p=0.
+
+2. Run the inversion,
+
+```
+../../GraAda3D config
+```
+
+

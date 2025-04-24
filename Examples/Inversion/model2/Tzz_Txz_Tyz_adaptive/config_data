@@ -1,0 +1,20 @@
+#data file name
+../../../Forward_modelling/model2/result/dobs_Tzz_Txz_Tyz
+
+#observation height z. Since z axis is pointing downward, this value should be less than 0 when data points are above the ground
+-0.1
+
+#How many components will be use?
+3 
+
+#gravity component markers
+#0:V   1:gz   2:gx   3:gy   4:T_zz   5:T_zx   6:T_zy   7:T_xx   8:T_xy   9:T_yy
+4 5 6
+
+#Assumed relative error is 0.02 (2%), a small number 1e-9 is used to avoid singularity
+0.02 1e-2
+0.02 1e-2
+0.02 1e-2
+
+#In my code, the total error is assumed as (relative error*data+absolute error),
+#and then it is used to construct the data weighting matrix Wd

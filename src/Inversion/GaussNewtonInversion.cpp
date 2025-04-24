@@ -170,7 +170,7 @@ void GaussNewtonInversion::invert_with_Eigen_CG()
                        << "misfit" << endl;
 
   int i, j;
-  double lambda_opt;
+  double lambda_opt=lambda;
   double misfit_opt;
   VectorXd m_opt;
   misfit_opt = misfit;
@@ -215,7 +215,14 @@ void GaussNewtonInversion::invert_with_Eigen_CG()
     misfit_last1 = 10 * misfit;  // misfit for last lambda
     misfit_last2 = 100 * misfit; // misfit for the lambda before last lambda
     misfit_last_iteration = misfit;
-    lambda = this->max_lambda;
+    if (i == 0)
+    {
+      lambda = this->max_lambda;
+    }
+    else
+    {
+      lambda = lambda_opt * pow(1 / lambda_decreasing_rate, min(max(int(n_lambda * 0.2), 1), 3));
+    }
 
     A.middleRows(Nd, Nm) = sqrt(lambda) * WL_s * Ws;
     A.middleRows(Nd + Nm, Nm) = sqrt(lambda) * WL_z * Wz;
@@ -312,6 +319,10 @@ void GaussNewtonInversion::invert_with_Eigen_CG()
       {
         misfit_opt = misfit;
         m_opt = m_trial;
+        if (i > 0 && j > 0)
+        {
+          m = m_opt;
+        }        
         lambda_opt = lambda;
       }
       if ((std::abs(misfit - misfit_last1) / min(misfit, misfit_last1) <
@@ -787,7 +798,7 @@ void GaussNewtonInversion::invert_with_own_CG()
   // cout << "B" << endl;
 
   int i, j;
-  double lambda_opt;
+  double lambda_opt = lambda;
   double misfit_opt;
   VectorXd m_opt;
   misfit_opt = misfit;
@@ -814,7 +825,14 @@ void GaussNewtonInversion::invert_with_own_CG()
     misfit_last1 = 10 * misfit;  // misfit for last lambda
     misfit_last2 = 100 * misfit; // misfit for the lambda before last lambda
     misfit_last_iteration = misfit;
-    lambda = this->max_lambda;
+    if (i == 0)
+    {
+      lambda = this->max_lambda;
+    }
+    else
+    {
+      lambda = lambda_opt * pow(1 / lambda_decreasing_rate, min(max(int(n_lambda * 0.2), 1), 3));
+    }
 
     int cg_maxit = 0;
     if (cg_iteration_factor < 1)
@@ -898,6 +916,14 @@ void GaussNewtonInversion::invert_with_own_CG()
       {
         misfit_opt = misfit;
         m_opt = m_trial;
+        if (i > 0 && j > 0)
+        {
+          m = m_opt;
+        }
+        // if (i != 0 && j != 0)
+        // {
+        //   m = m_opt;
+        // }
         lambda_opt = lambda;
       }
       if ((std::abs(misfit - misfit_last1) / min(misfit, misfit_last1) <
