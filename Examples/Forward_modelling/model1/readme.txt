@@ -4,7 +4,11 @@ There are two ways to to specify anomalous bodies in `makeModel`. One is specify
 
 The other way to specify anomalies is reading information of anomalous bodies from a file with option -A. -A can be used only once. -A and -a cannot be used at the same time. This is the recommended way when there are many anomalous bodies. An example is given in "build_density_model2.sh". 
 
-To run the example, type bash "./build_density_model.sh" or bash "./build_density_model2.sh".
+Now type 
+    bash "./build_density_model.sh" 
+or
+    bash "./build_density_model2.sh"
+to generate the model.
 
 2. Generate observation points (type `generatePoints -h` to see the help message)
 

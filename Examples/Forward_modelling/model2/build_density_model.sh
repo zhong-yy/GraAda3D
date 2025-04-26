@@ -3,7 +3,8 @@
 # There are 40*40*20 cells in total.
 # The anomalies are given in file anomalies.txt (-A anomalies.txt)
 # The discretized model will be written to test_model1.xyz (-o test_model1)
-makeModel -R 0/6000/0/6000/0/3500 --nx 48 --ny 48 --nz 28 -A anomalies.txt -o model2
+mkdir -p model
+makeModel -R 0/6000/0/6000/0/3500 --nx 60 --ny 60 --nz 35 -A anomalies.txt -o model/test_model2
 
 # Construct a constraint model
 # Input file: constraint_geometry.txt (-A constraint_geometry.txt)

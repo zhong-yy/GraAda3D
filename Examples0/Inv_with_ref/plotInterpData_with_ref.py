@@ -17,8 +17,8 @@ gs0 = gridspec.GridSpec(1, 2, figure=fig, width_ratios=[1, 1])
 
 gs00 = gridspec.GridSpecFromSubplotSpec(2, 1, subplot_spec=gs0[0],hspace=0.4)
 
-min_value_shown=-300
-max_value_shown=300
+min_value_shown=-500
+max_value_shown=500
 fts=12
 clrmap='jet'
 

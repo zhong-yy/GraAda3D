@@ -3,9 +3,9 @@ import matplotlib.pyplot as plt
 # x = np.linspace(0, 6000, 50)
 # y = np.linspace(0, 6000, 50)
 # z = np.linspace(0, 4000, 50)
-dx=125
-dy=125
-dz=125
+dx=100
+dy=100
+dz=100
 x = np.linspace(dx/2, 6000-dx/2, int(6000/dx))
 y = np.linspace(dy/2, 6000-dy/2, int(6000/dy))
 z = np.linspace(dz/2, 3500-dz/2, int(3500/dz))
@@ -15,9 +15,9 @@ xf = X.flatten()
 yf = Y.flatten()
 zf = Z.flatten()
 
-xc = np.array([[3000], [3000], [1125]])
+xc = np.array([[3000], [3000], [1250]])
 
-angle_x = np.deg2rad(40)
+angle_x = np.deg2rad(35)
 Rx = np.array(
     [
         [1, 0, 0],
@@ -46,7 +46,7 @@ Rz = np.array(
 R = Rz @ Ry @ Rx
 a = 800
 b = 1500
-c = 300
+c = 400
 A = np.array([[1 / (a**2), 0, 0], [0, 1 / (b**2), 0], [0, 0, 1 / (c**2)]])
 f = []
 for xi, yi, zi in zip(xf, yf, zf):
@@ -55,7 +55,7 @@ for xi, yi, zi in zip(xf, yf, zf):
     # print(fv.shape)
     f.append(fv[0,0])
 f = np.array(f)
-print(f.shape)
+#print(f.shape)
 xf = xf[f < 1]
 yf = yf[f < 1]
 zf = zf[f < 1]

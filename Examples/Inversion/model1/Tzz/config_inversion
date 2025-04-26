@@ -1,0 +1,82 @@
+#configuration of inversion parameters. 
+
+#Comments start with a character "#", which will not be read by the program
+
+# How the sensitivity matrix is store, and how the conjugate gradient method is implemented
+# 0: store a full sensitivity matrix, and use the lscg implementation of Eigen 3 library (lscg: least square conjugate gradient method) 
+# 1: store a full sensitivity matrix, and use my own implementation of the lscg method
+# 2: use the wavelet transform to compress the sensitivity matrix, and use my own implementation of the lscg method
+1
+# If the above option is 2 (using wavelet transform), the following relative threshold should be defined
+# A larger threshold results in larger compression ratio, and larger approximation error as well
+0.0005
+
+#Weights of different regularization terms. The last term is the weight of the cross-gradient term, which makes sense only when the cross-gradient constraint is used
+#a_s a_z a_x a_y a_crg
+1e-4 2e-1 1e0 1e0 0
+
+#Lp norm for the regularization terms: p_s, p_x, p_y, p_z, p_t, epsilon2
+#--"p": means Lp norm will be used
+#--"epsilon2" :a small value is used to avoid singularity
+#For L1-norm inversion (p=1), the inversion result is more focusing with smaller epsilon2, while larger value of epsilon2 produce smoother inversion results.
+#For example, 2 1 1 1 2 1e-9 means L2 norm is used for ||m2||, L1 norm is used for ||Wx*m||, ||Wy*m||, ||Wz*m|| and 1e-9 is used to avoid sigularity
+2 2 2 2 2 0
+
+#Depth weighting exponent.
+3
+
+#Maximal regularization parameter (lambda) used, number of lambda used for trial
+1e8 30 0.6
+
+#Target misfit
+1
+
+#Stagation factor. Gauss-Newton method stagnates when the relative difference in the
+#misfits of 2 consecutive iterations is smaller than this factor
+0.02
+
+#Tolerance value and maximum number of iterations for LSCG solver (least-square conjugate gradient) 
+1e-5 600
+
+#Maximal number of iterations for gauss-newton
+8
+
+#upper limit and lower limit of the inverted parameter
+-1000 1000
+
+#Maximal times of refinement. If it's 0, the mesh will not be refined.
+8
+
+#Limits on the minimum size of a grid cell in the adaptive inversion. This parameter is valid only when the last parameter is greater than 0
+#x(m) y(m) z(m)
+25 25 25
+
+#The inversion mesh is refined every n times (n=1 here).
+1
+
+#Proportion of elements that are marked for refinement
+0.2
+
+# Do you want to save the model at each iteration of the Gauss-Newton loop? 0: No. 1: Yes
+0
+
+#whether to use cross-gradient constraint. 0 no, 1 yes
+0
+
+#cross-gradient constraint model file
+none xyz 0 0 0 0
+
+#whether to use petrophysical constraint. 0 no, 1 yes
+0
+
+#reference density model converted from other parameter (e.g. seismic). 
+none xyz 0 0 0 0
+
+#output file of inversion model
+Tzz_result
+
+
+
+
+
+

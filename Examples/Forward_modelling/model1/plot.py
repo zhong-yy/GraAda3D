@@ -9,7 +9,7 @@ import matplotlib.colors as mcolors
 
 clrmap=mcolors.LinearSegmentedColormap.from_list("mycmap", ["magenta","blueviolet","royalblue","aqua","springgreen","lawngreen","yellow","orangered","red","white"])
 clrmap="rainbow"
-for fname,outfile_remark in zip(['result_no_noise','result'],["","_with_noise"]):
+for fname,outfile_remark in zip(['result/data_no_noise','result/data'],["","_with_noise"]):
     x,y,z,gz,Tzz,Txz,Tyz=np.loadtxt(fname,unpack=True)
     # _,_,gz2=np.loadtxt('../../../Examples0/dobs_no_noise_g_z',unpack=True)
     # _,_,Tzz2=np.loadtxt('../../../Examples0/dobs_no_noise_T_zz',unpack=True)

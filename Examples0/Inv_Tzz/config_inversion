@@ -26,7 +26,7 @@
 2
 
 #Maximal regularization parameter (lambda) used, number of lambda used for trial
-1e3 20 0.5
+1e4 30 0.5
 
 #Target misfit
 1
@@ -36,7 +36,7 @@
 0.02
 
 #Tolerance value and maximum number of iterations for LSCG solver (least-square conjugate gradient) 
-1e-6 500
+1e-6 300
 
 #Maximal number of iterations for gauss-newton
 8

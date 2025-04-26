@@ -13,19 +13,19 @@
 #Weights of different regularization terms, last term a_crg is the weight of cross-gradient constraint, which makes sense only
 #if the cross-gradient constraint is used
 #a_s a_z a_x a_y a_crg
-1e-2 1e0 1e0 1e0 0
+1e0 2e-1 1e0 1e0 0
 
 #Lp norm parameters: p, epsilon2
 #--"p": means Lp norm will be used
 #--"epsilon2" :a small value is used to avoid singularity
 #For L1-norm inversion (p=1), the inversion result is more focusing with smaller epsilon2, while larger value of epsilon2 produce smoother inversion results. 
-2 2 2 2 2 1e-6
+2 2 2 2 2 1e-9
 
 #Depth weighting exponent. Generally, it's 2 for g, 3 for ggt
 2
 
 #Maximal regularization parameter (lambda) used, number of lambda used for trial
-1e4 30 0.6
+1e3 30 0.6
 
 #Target misfit
 1
@@ -35,7 +35,7 @@
 0.02
 
 #Tolerance value and Maximal number of iterations for LSCG solver (least-square conjugate gradient) 
-1e-6 100
+1e-6 300
 
 #Maximal number of iterations for gauss-newton
 8
@@ -72,10 +72,10 @@ none xyz 0 0 0 0
 #---(1) The first string is the file with gridded data of a reference model.
 #---(2) The second parameter should be combination of characters 'x', 'y' and  'z', specifying how the coordinates are ordered in the file.
 #       For example "yxz" means: y(column 1) x(column 2) z(column 3) value(column 4)
-#---(3) The next 3 numbers: n1 n2 n3, specifying the number of grid nodes along each dimension, in a order described by the preceding parameter (such as "yxz").
-#---(4) The final number should be 0 or 1. It indicates which dimension (x or y) changes fastest. 0 represents x, 1 represents y. Whatever fast_dimension is,
-#       the z dimension is assumed to be changing slowest.
-../ref_model xyz 40 40 20 0
+#---(3) The next 3 parameters: n1 n2 n3 are the number of grid nodes along each dimension, in a order corresponding to the previous parameter (such as "yxz").
+#---(4) The last parameter is the index order which determines which axis index changes faster and which one changes slower. 
+#       It is also a combination of "xyz". For example, "zxy" means the z index changes fastest, while x index changes slower and z index changes the slowest
+../ref_model xyz 40 40 20 xyz
 
 #output file of inversion model
 gz_result_with_ref

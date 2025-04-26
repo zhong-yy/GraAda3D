@@ -12,7 +12,7 @@
 1
 
 #Assumed relative error is 0.01 (1%), instrumental precision is 1e-3 mGal
-0.02 1e-6
+0.02 1e-9
 
 #In my code, the total error is assumed as (relative error*data+absolute error),
 #and then it is used to construct the data weighting matrix Wd

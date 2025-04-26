@@ -56,8 +56,7 @@
 
 #File "crg_model" contains a model used for cross gradien constraint.
 #This model grid has 40 points along x axis, 40 points along y and 20 points.
-#The last number is 0 or 1. And 0 means x increases fastest, 1 means y increases fastest
-../crg_model xyz 40 40 20 0
+../crg_model xyz 40 40 20 xyz
 
 #whether to use petrophysical constraint. 0 no, 1 yes
 0
