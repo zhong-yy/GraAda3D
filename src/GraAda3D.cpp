@@ -91,8 +91,8 @@ protected:
 
     string format_of_coordinates_crg;
     string format_of_coordinates_petr;
-    int fast_dimension_crg;
-    int fast_dimension_petr;
+    string fast_dimension_crg;
+    string fast_dimension_petr;
 
     string output_model_name;
 };
@@ -161,8 +161,8 @@ GraAdaInv::GraAdaInv()
     use_petr = false;
     format_of_coordinates_crg = "yxz";
     format_of_coordinates_petr = "yxz";
-    fast_dimension_crg = 0;
-    fast_dimension_petr = 0;
+    fast_dimension_crg = "yxz";
+    fast_dimension_petr = "yxz";
     as = 1;
     az = 1;
     ax = 1;

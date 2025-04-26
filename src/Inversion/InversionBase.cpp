@@ -907,7 +907,7 @@ void InversionBase::create_crg_model_from_data(string filename,
                                                int y_size,
                                                int z_size,
                                                string data_order,
-                                               int fast_dimension)
+                                               string fast_dimension)
 {
   this->use_cross_gradient_constraint = true;
   // cout<<use_cross_gradient_constraint<<endl;
@@ -920,6 +920,11 @@ void InversionBase::create_crg_model_from_data(string filename,
   ifstream input_file;
   input_file.open(filename);
   assert(input_file.good());
+  if (!input_file.good())
+  {
+    cout << "Please check file" << filename << ". It doesn't exist or is corrupted." << endl;
+    std::abort();
+  }
   cout << "Read cross-gradient constraint model from " << filename << endl;
 
   vector<double> grid_x; // x
@@ -941,7 +946,7 @@ void InversionBase::create_crg_model_from_data(string filename,
 
   double x, y, z, val; // each column
 
-  if (fast_dimension == 0)
+  if (fast_dimension == "xyz")
   {
     for (int k = 0; k < grid_z.size(); k++)
     {
@@ -996,7 +1001,7 @@ void InversionBase::create_crg_model_from_data(string filename,
       grid_z[k] = z; // z
     }
   }
-  else if (fast_dimension == 1)
+  else if (fast_dimension == "yxz")
   {
     for (int k = 0; k < grid_z.size(); k++)
     {
@@ -1049,6 +1054,226 @@ void InversionBase::create_crg_model_from_data(string filename,
         }
       }
       grid_z[k] = z; // z
+    }
+  }
+  else if (fast_dimension == "zxy")
+  {
+    for (int j = 0; j < grid_y.size(); j++)
+    {
+      for (int i = 0; i < grid_x.size(); i++)
+      {
+        for (int k = 0; k < grid_z.size(); k++)
+        {
+          if (data_order == "yxz")
+          {
+            input_file >> y >> x >> z >> val;
+          }
+          else if (data_order == "xyz")
+          {
+            input_file >> x >> y >> z >> val;
+          }
+          else if (data_order == "zxy")
+          {
+            input_file >> z >> x >> y >> val;
+          }
+          else if (data_order == "zyx")
+          {
+            input_file >> z >> y >> x >> val;
+          }
+          else if (data_order == "yzx")
+          {
+            input_file >> y >> z >> x >> val;
+          }
+          else if (data_order == "xzy")
+          {
+            input_file >> x >> z >> y >> val;
+          }
+          else
+          {
+            cout << "data_order should be one of the following:" << endl;
+            cout << "xyz yxz zxy zyx xzy yzx" << endl;
+            std::abort();
+          }
+
+          if (j == 0 && i == 0)
+          {
+            grid_z[k] = z; // z
+          }
+
+          f_values[i * grid_sizes[1] * grid_sizes[2] + j * grid_sizes[2] + k] =
+              val;
+        }
+        if (j == 0)
+        {
+          grid_x[i] = x; // x
+        }
+      }
+      grid_y[j] = y; // y
+    }
+  }
+  else if (fast_dimension == "zyx")
+  {
+    for (int i = 0; i < grid_x.size(); i++)
+    {
+      for (int j = 0; j < grid_y.size(); j++)
+      {
+        for (int k = 0; k < grid_z.size(); k++)
+        {
+          if (data_order == "yxz")
+          {
+            input_file >> y >> x >> z >> val;
+          }
+          else if (data_order == "xyz")
+          {
+            input_file >> x >> y >> z >> val;
+          }
+          else if (data_order == "zxy")
+          {
+            input_file >> z >> x >> y >> val;
+          }
+          else if (data_order == "zyx")
+          {
+            input_file >> z >> y >> x >> val;
+          }
+          else if (data_order == "yzx")
+          {
+            input_file >> y >> z >> x >> val;
+          }
+          else if (data_order == "xzy")
+          {
+            input_file >> x >> z >> y >> val;
+          }
+          else
+          {
+            cout << "data_order should be one of the following:" << endl;
+            cout << "xyz yxz zxy zyx xzy yzx" << endl;
+            std::abort();
+          }
+
+          if (i == 0 && j == 0)
+          {
+            grid_z[k] = z; // z
+          }
+
+          f_values[i * grid_sizes[1] * grid_sizes[2] + j * grid_sizes[2] + k] =
+              val;
+        }
+        if (i == 0)
+        {
+          grid_y[j] = y; // y
+        }
+      }
+      grid_x[i] = x; // z
+    }
+  }
+  else if (fast_dimension == "yzx")
+  {
+    for (int i = 0; i < grid_x.size(); i++)
+    {
+      for (int k = 0; k < grid_z.size(); k++)
+      {
+        for (int j = 0; j < grid_y.size(); j++)
+        {
+          if (data_order == "yxz")
+          {
+            input_file >> y >> x >> z >> val;
+          }
+          else if (data_order == "xyz")
+          {
+            input_file >> x >> y >> z >> val;
+          }
+          else if (data_order == "zxy")
+          {
+            input_file >> z >> x >> y >> val;
+          }
+          else if (data_order == "zyx")
+          {
+            input_file >> z >> y >> x >> val;
+          }
+          else if (data_order == "yzx")
+          {
+            input_file >> y >> z >> x >> val;
+          }
+          else if (data_order == "xzy")
+          {
+            input_file >> x >> z >> y >> val;
+          }
+          else
+          {
+            cout << "data_order should be one of the following:" << endl;
+            cout << "xyz yxz zxy zyx xzy yzx" << endl;
+            std::abort();
+          }
+
+          if (k == 0 && i == 0)
+          {
+            grid_y[j] = y; // y
+          }
+
+          f_values[i * grid_sizes[1] * grid_sizes[2] + j * grid_sizes[2] + k] =
+              val;
+        }
+        if (i == 0)
+        {
+          grid_z[k] = z; // z
+        }
+      }
+      grid_x[i] = x; // x
+    }
+  }
+  else if (fast_dimension == "xzy")
+  {
+    for (int j = 0; j < grid_y.size(); j++)
+    {
+      for (int k = 0; k < grid_z.size(); k++)
+      {
+        for (int i = 0; i < grid_x.size(); i++)
+        {
+          if (data_order == "yxz")
+          {
+            input_file >> y >> x >> z >> val;
+          }
+          else if (data_order == "xyz")
+          {
+            input_file >> x >> y >> z >> val;
+          }
+          else if (data_order == "zxy")
+          {
+            input_file >> z >> x >> y >> val;
+          }
+          else if (data_order == "zyx")
+          {
+            input_file >> z >> y >> x >> val;
+          }
+          else if (data_order == "yzx")
+          {
+            input_file >> y >> z >> x >> val;
+          }
+          else if (data_order == "xzy")
+          {
+            input_file >> x >> z >> y >> val;
+          }
+          else
+          {
+            cout << "data_order should be one of the following:" << endl;
+            cout << "xyz yxz zxy zyx xzy yzx" << endl;
+            std::abort();
+          }
+
+          if (k == 0 && j == 0)
+          {
+            grid_x[i] = x; // x
+          }
+
+          f_values[i * grid_sizes[1] * grid_sizes[2] + j * grid_sizes[2] + k] =
+              val;
+        }
+        if (j == 0)
+        {
+          grid_z[k] = z; // z
+        }
+      }
+      grid_y[j] = y; // y
     }
   }
   else
@@ -1111,7 +1336,7 @@ void InversionBase::create_ref_model_from_data(string filename,
                                                int y_size,
                                                int z_size,
                                                string data_order,
-                                               int fast_dimension)
+                                               string fast_dimension)
 {
   this->use_petrophysical_constraint = true;
   if (this->interpolator_m0 != NULL)
@@ -1123,6 +1348,11 @@ void InversionBase::create_ref_model_from_data(string filename,
   ifstream input_file;
   input_file.open(filename);
   assert(input_file.good());
+  if (!input_file.good())
+  {
+    cout << "Please check file" << filename << ". It doesn't exist or is corrupted." << endl;
+    std::abort();
+  }
   cout << "Read converted density model from " << filename << endl;
 
   vector<double> grid_x; // x
@@ -1144,7 +1374,7 @@ void InversionBase::create_ref_model_from_data(string filename,
 
   double x, y, z, val; // each column
 
-  if (fast_dimension == 0)
+  if (fast_dimension == "xyz")
   {
     for (int k = 0; k < grid_z.size(); k++)
     {
@@ -1199,7 +1429,7 @@ void InversionBase::create_ref_model_from_data(string filename,
       grid_z[k] = z; // z
     }
   }
-  else if (fast_dimension == 1)
+  else if (fast_dimension == "yxz")
   {
     for (int k = 0; k < grid_z.size(); k++)
     {
@@ -1252,6 +1482,226 @@ void InversionBase::create_ref_model_from_data(string filename,
         }
       }
       grid_z[k] = z; // z
+    }
+  }
+  else if (fast_dimension == "zxy")
+  {
+    for (int j = 0; j < grid_y.size(); j++)
+    {
+      for (int i = 0; i < grid_x.size(); i++)
+      {
+        for (int k = 0; k < grid_z.size(); k++)
+        {
+          if (data_order == "yxz")
+          {
+            input_file >> y >> x >> z >> val;
+          }
+          else if (data_order == "xyz")
+          {
+            input_file >> x >> y >> z >> val;
+          }
+          else if (data_order == "zxy")
+          {
+            input_file >> z >> x >> y >> val;
+          }
+          else if (data_order == "zyx")
+          {
+            input_file >> z >> y >> x >> val;
+          }
+          else if (data_order == "yzx")
+          {
+            input_file >> y >> z >> x >> val;
+          }
+          else if (data_order == "xzy")
+          {
+            input_file >> x >> z >> y >> val;
+          }
+          else
+          {
+            cout << "data_order should be one of the following:" << endl;
+            cout << "xyz yxz zxy zyx xzy yzx" << endl;
+            std::abort();
+          }
+
+          if (j == 0 && i == 0)
+          {
+            grid_z[k] = z; // z
+          }
+
+          f_values[i * grid_sizes[1] * grid_sizes[2] + j * grid_sizes[2] + k] =
+              val;
+        }
+        if (j == 0)
+        {
+          grid_x[i] = x; // x
+        }
+      }
+      grid_y[j] = y; // y
+    }
+  }
+  else if (fast_dimension == "zyx")
+  {
+    for (int i = 0; i < grid_x.size(); i++)
+    {
+      for (int j = 0; j < grid_y.size(); j++)
+      {
+        for (int k = 0; k < grid_z.size(); k++)
+        {
+          if (data_order == "yxz")
+          {
+            input_file >> y >> x >> z >> val;
+          }
+          else if (data_order == "xyz")
+          {
+            input_file >> x >> y >> z >> val;
+          }
+          else if (data_order == "zxy")
+          {
+            input_file >> z >> x >> y >> val;
+          }
+          else if (data_order == "zyx")
+          {
+            input_file >> z >> y >> x >> val;
+          }
+          else if (data_order == "yzx")
+          {
+            input_file >> y >> z >> x >> val;
+          }
+          else if (data_order == "xzy")
+          {
+            input_file >> x >> z >> y >> val;
+          }
+          else
+          {
+            cout << "data_order should be one of the following:" << endl;
+            cout << "xyz yxz zxy zyx xzy yzx" << endl;
+            std::abort();
+          }
+
+          if (i == 0 && j == 0)
+          {
+            grid_z[k] = z; // z
+          }
+
+          f_values[i * grid_sizes[1] * grid_sizes[2] + j * grid_sizes[2] + k] =
+              val;
+        }
+        if (i == 0)
+        {
+          grid_y[j] = y; // y
+        }
+      }
+      grid_x[i] = x; // z
+    }
+  }
+  else if (fast_dimension == "xzy")
+  {
+    for (int j = 0; j < grid_y.size(); j++)
+    {
+      for (int k = 0; k < grid_z.size(); k++)
+      {
+        for (int i = 0; i < grid_x.size(); i++)
+        {
+          if (data_order == "yxz")
+          {
+            input_file >> y >> x >> z >> val;
+          }
+          else if (data_order == "xyz")
+          {
+            input_file >> x >> y >> z >> val;
+          }
+          else if (data_order == "zxy")
+          {
+            input_file >> z >> x >> y >> val;
+          }
+          else if (data_order == "zyx")
+          {
+            input_file >> z >> y >> x >> val;
+          }
+          else if (data_order == "yzx")
+          {
+            input_file >> y >> z >> x >> val;
+          }
+          else if (data_order == "xzy")
+          {
+            input_file >> x >> z >> y >> val;
+          }
+          else
+          {
+            cout << "data_order should be one of the following:" << endl;
+            cout << "xyz yxz zxy zyx xzy yzx" << endl;
+            std::abort();
+          }
+
+          if (j == 0 && k == 0)
+          {
+            grid_x[i] = x; // x
+          }
+
+          f_values[i * grid_sizes[1] * grid_sizes[2] + j * grid_sizes[2] + k] =
+              val;
+        }
+        if (j == 0)
+        {
+          grid_z[k] = z; // z
+        }
+      }
+      grid_y[j] = y; // y
+    }
+  }
+  else if (fast_dimension == "yzx")
+  {
+    for (int i = 0; i < grid_x.size(); i++)
+    {
+      for (int k = 0; k < grid_z.size(); k++)
+      {
+        for (int j = 0; j < grid_y.size(); j++)
+        {
+          if (data_order == "yxz")
+          {
+            input_file >> y >> x >> z >> val;
+          }
+          else if (data_order == "xyz")
+          {
+            input_file >> x >> y >> z >> val;
+          }
+          else if (data_order == "zxy")
+          {
+            input_file >> z >> x >> y >> val;
+          }
+          else if (data_order == "zyx")
+          {
+            input_file >> z >> y >> x >> val;
+          }
+          else if (data_order == "yzx")
+          {
+            input_file >> y >> z >> x >> val;
+          }
+          else if (data_order == "xzy")
+          {
+            input_file >> x >> z >> y >> val;
+          }
+          else
+          {
+            cout << "data_order should be one of the following:" << endl;
+            cout << "xyz yxz zxy zyx xzy yzx" << endl;
+            std::abort();
+          }
+
+          if (i == 0 && k == 0)
+          {
+            grid_y[j] = y; // y
+          }
+
+          f_values[i * grid_sizes[1] * grid_sizes[2] + j * grid_sizes[2] + k] =
+              val;
+        }
+        if (i == 0)
+        {
+          grid_z[k] = z; // z
+        }
+      }
+      grid_x[i] = x; // z
     }
   }
   else

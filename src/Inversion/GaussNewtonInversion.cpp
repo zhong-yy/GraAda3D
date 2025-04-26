@@ -170,7 +170,7 @@ void GaussNewtonInversion::invert_with_Eigen_CG()
                        << "misfit" << endl;
 
   int i, j;
-  double lambda_opt=lambda;
+  double lambda_opt = lambda;
   double misfit_opt;
   VectorXd m_opt;
   misfit_opt = misfit;
@@ -215,13 +215,18 @@ void GaussNewtonInversion::invert_with_Eigen_CG()
     misfit_last1 = 10 * misfit;  // misfit for last lambda
     misfit_last2 = 100 * misfit; // misfit for the lambda before last lambda
     misfit_last_iteration = misfit;
-    if (i == 0)
+    if (i == 0 || n_lambda == 1 || abs(lambda_decreasing_rate - 1) < 1e-6)
     {
       lambda = this->max_lambda;
     }
     else
     {
-      lambda = lambda_opt * pow(1 / lambda_decreasing_rate, min(max(int(n_lambda * 0.2), 1), 3));
+      lambda = lambda_opt * pow(1 / lambda_decreasing_rate, min(3, n_lambda - 2));
+      double min_lambda = min(this->max_lambda * pow(lambda_decreasing_rate, 20), 1.0);
+      if (lambda < min_lambda)
+      {
+        lambda = 1.0;
+      }
     }
 
     A.middleRows(Nd, Nm) = sqrt(lambda) * WL_s * Ws;
@@ -319,10 +324,10 @@ void GaussNewtonInversion::invert_with_Eigen_CG()
       {
         misfit_opt = misfit;
         m_opt = m_trial;
-        if (i > 0 && j > 0)
+        if (i > 0)
         {
           m = m_opt;
-        }        
+        }
         lambda_opt = lambda;
       }
       if ((std::abs(misfit - misfit_last1) / min(misfit, misfit_last1) <
@@ -825,13 +830,18 @@ void GaussNewtonInversion::invert_with_own_CG()
     misfit_last1 = 10 * misfit;  // misfit for last lambda
     misfit_last2 = 100 * misfit; // misfit for the lambda before last lambda
     misfit_last_iteration = misfit;
-    if (i == 0)
+    if (i == 0 || n_lambda == 1 || abs(lambda_decreasing_rate - 1) < 1e-6)
     {
       lambda = this->max_lambda;
     }
     else
     {
-      lambda = lambda_opt * pow(1 / lambda_decreasing_rate, min(max(int(n_lambda * 0.2), 1), 3));
+      lambda = lambda_opt * pow(1 / lambda_decreasing_rate, min(3, n_lambda - 2));
+      double min_lambda = min(this->max_lambda * pow(lambda_decreasing_rate, 20), 1.0);
+      if (lambda < min_lambda)
+      {
+        lambda = 1.0;
+      }
     }
 
     int cg_maxit = 0;
@@ -916,7 +926,7 @@ void GaussNewtonInversion::invert_with_own_CG()
       {
         misfit_opt = misfit;
         m_opt = m_trial;
-        if (i > 0 && j > 0)
+        if (i > 0)
         {
           m = m_opt;
         }

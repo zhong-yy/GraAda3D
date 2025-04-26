@@ -113,14 +113,14 @@ public:
                                   int lon_size,
                                   int dep_size,
                                   string format_of_coordinates = "yxz",
-                                  int fast_dimension = 0);
+                                  string fast_dimension = "yxz");
 
   void create_ref_model_from_data(string filename,
                                   int lat_size,
                                   int lon_size,
                                   int dep_size,
                                   string format_of_coordinates = "yxz",
-                                  int fast_dimension = 0);
+                                  string fast_dimension = "yxz");
 
   void set_interpolator_m0s(InterpMultilinear<3, double> *interp)
   {
