@@ -36,7 +36,7 @@
 0.02
 
 #Tolerance value and maximum number of iterations for LSCG solver (least-square conjugate gradient) 
-1e-5 300
+1e-6 300
 
 #Maximal number of iterations for gauss-newton
 8

@@ -837,7 +837,7 @@ void GaussNewtonInversion::invert_with_own_CG()
     else
     {
       lambda = lambda_opt * pow(1 / lambda_decreasing_rate, min(3, n_lambda - 2));
-      double min_lambda = min(this->max_lambda * pow(lambda_decreasing_rate, 20), 1.0);
+      double min_lambda = min(this->max_lambda * pow(lambda_decreasing_rate, 20), 1.0e-5);
       if (lambda < min_lambda)
       {
         lambda = 1.0;
@@ -1335,8 +1335,7 @@ void GaussNewtonInversion::display_inversion_parameters() const
 
   cout << endl;
   cout << "Maximum regularizaton parameter is " << max_lambda << endl;
-  cout << "Maximum number of regularization parameters (lambda) used for "
-          "trials: "
+  cout << "Maximum number of tried regularization parameters (lambda)"
        << n_lambda << endl
        << endl;
 

@@ -13,19 +13,21 @@
 #Weights of different regularization terms, last term a_crg is the weight of cross-gradient constraint, which makes sense only
 #if the cross-gradient constraint is used
 #a_s a_z a_x a_y a_crg
-1e0 2e-1 1e0 1e0 0
+1e-1 1e-1 1e0 1e0 0
 
-#Lp norm parameters: p, epsilon2
+#Lp norm for the regularization terms: p_s, p_x, p_y, p_z, p_t, epsilon2
 #--"p": means Lp norm will be used
 #--"epsilon2" :a small value is used to avoid singularity
-#For L1-norm inversion (p=1), the inversion result is more focusing with smaller epsilon2, while larger value of epsilon2 produce smoother inversion results. 
+#For L1-norm inversion (p=1), the inversion result is more focusing with smaller epsilon2, while larger value of epsilon2 produce smoother inversion results.
+#The first 5 parameters specify the norms of different regularization terms: |m|, |Wz*m|, |Wx*m|, |Wy*m| and cross-gradient term
+#For example, 2 1 1 1 2 1e-9 means L2 norm is used for ||m2||, L1 norm is used for ||Wx*m||, ||Wy*m||, ||Wz*m|| and 1e-9 is used to avoid sigularity 
 2 2 2 2 2 1e-9
 
-#Depth weighting exponent. Generally, it's 2 for g, 3 for ggt
+#Depth weighting exponent. A commonly used value is 2 for gravity data, and 3 for gravity gradient
 2
 
 #Maximal regularization parameter (lambda) used, number of lambda used for trial
-1e3 30 0.6
+1e1 30 0.7
 
 #Target misfit
 1
@@ -35,7 +37,7 @@
 0.02
 
 #Tolerance value and Maximal number of iterations for LSCG solver (least-square conjugate gradient) 
-1e-6 300
+1e-6 200
 
 #Maximal number of iterations for gauss-newton
 8
@@ -54,7 +56,7 @@
 1
 
 #Proportion of elements that are marked for refinement
-0.1
+0.2
 
 #control whether the model is recorded at each iteration of Gauss-Newton method
 0
@@ -74,7 +76,7 @@ none xyz 0 0 0 0
 #       For example "yxz" means: y(column 1) x(column 2) z(column 3) value(column 4)
 #---(3) The next 3 parameters: n1 n2 n3 are the number of grid nodes along each dimension, in a order corresponding to the previous parameter (such as "yxz").
 #---(4) The final parameter is the index order which determins which axis index changes faster and which one changes slower. 
-#       It is also a combination of "xyz". For example, "zxy" means the z index changes fastest, while x index changes slower and z index changes the slowest
+#       It is also a combination of "xyz". For example, "zxy" means the z index changes fastest, while y index changes slower and x index changes the slowest
 ../../../Forward_modelling/model1/model/constraint_as_input_format.xyz xyz 40 40 20 zyx
 
 #output file of inversion model

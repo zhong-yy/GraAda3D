@@ -16,12 +16,19 @@ y=var['y']
 z=var['z']
 density=var['density']
 
+# Convert coordinate of cell centers to coordinates of grid lines
+#
+#          |  cell 0  |  cell 1  |  ...  | cell N-1 |      ---   N cells
+# Input:   |   xc0    |    xc1   |  ...  |  xc N-1  |      --- coordinates of N cell centers
+# Output:  x0--------x1---------x2  ...  xN-------x_N+1    --- coordinates of N+1 grid lines
+#
 def node_to_pixel(x):
     dx=(0.5*(x[1]-x[0]))
     grid_line=x-dx
     grid_line=np.concatenate((grid_line,x[-1]+dx),axis=None)
     return grid_line
 
+#
 def get_slice_index(xs_pixel,x0):
     index_slice=-1
     for i in range(0,xs_pixel.size-1):
@@ -53,21 +60,18 @@ gs00 = gridspec.GridSpecFromSubplotSpec(2, 1, subplot_spec=gs0[0],hspace=0.4)
 #fig,(ax1,ax2)=plt.subplots(1,2,figsize=(12,6))
 print(np.max(density))
 print(np.min(density))
-min_value_shown=-250
-max_value_shown=250
+min_value_shown=-300
+max_value_shown=300
 fts=12
 clrmap='jet'
 ax1=fig.add_subplot(gs00[0])
 X,Z=np.meshgrid(xs,zs)
 pc=ax1.pcolormesh(X,Z,y_slice1,cmap=clrmap,vmin=min_value_shown,vmax=max_value_shown)
 ax1.set_aspect('equal', 'box')#相当于matlab中的axis equal
-#ax1.set_title(r'Y=700m')
 ax1.yaxis.set_minor_locator(AutoMinorLocator())
 ax1.xaxis.set_minor_locator(AutoMinorLocator())
 ax1.invert_yaxis()
-#clb=fig.colorbar(pc,ax=ax1,shrink=0.8,orientation='horizontal')
-#clb_title=clb.ax.set_title(r'kg/m$^3$')
-ax1.set_xlabel("y (m)",fontsize=fts)
+ax1.set_xlabel("x (m)",fontsize=fts)
 ax1.set_ylabel("z (m)",fontsize=fts)
 ax1.text(0.01,0.9,"(a) Y=700 m",fontsize=fts, transform=ax1.transAxes)
 
@@ -75,13 +79,10 @@ ax1.text(0.01,0.9,"(a) Y=700 m",fontsize=fts, transform=ax1.transAxes)
 ax2=fig.add_subplot(gs00[1])
 pc=ax2.pcolormesh(X,Z,y_slice2,cmap=clrmap,vmin=min_value_shown,vmax=max_value_shown)
 ax2.set_aspect('equal', 'box')#相当于matlab中的axis equal
-#ax2.set_title(r'Y=1450m')
 ax2.yaxis.set_minor_locator(AutoMinorLocator())
 ax2.xaxis.set_minor_locator(AutoMinorLocator())
 ax2.invert_yaxis()
-#clb=fig.colorbar(pc,ax=ax2,shrink=0.8,orientation='horizontal')
-#clb_title=clb.ax.set_title(r'kg/m$^3$')
-ax2.set_xlabel("y (m)",fontsize=fts)
+ax2.set_xlabel("x (m)",fontsize=fts)
 ax2.set_ylabel("z (m)",fontsize=fts)
 ax2.text(0.01,0.9,"(b) Y=1450 m",fontsize=fts, transform=ax2.transAxes)
 #plt.savefig('inversion_model_Y_slices.jpg',dpi=300,bbox_inches='tight')

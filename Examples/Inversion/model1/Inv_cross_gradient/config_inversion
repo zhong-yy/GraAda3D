@@ -1,41 +1,43 @@
 #configuration of inversion parameters. 
-#Comments that start with a character # will not be read by the program
+
+#Comments start with a character "#", which will not be read by the program
 
 # How the sensitivity matrix is store, and how the conjugate gradient method is implemented
-# 0: store a full sensitivity matrix, and use the lscg implementation of Eigen 3 library (not recommended) (lscg: least square conjugate gradient method) 
+# 0: store a full sensitivity matrix, and use the lscg implementation of Eigen 3 library (lscg: least square conjugate gradient method) 
 # 1: store a full sensitivity matrix, and use my own implementation of the lscg method
 # 2: use the wavelet transform to compress the sensitivity matrix, and use my own implementation of the lscg method
 1
 # If the above option is 2 (using wavelet transform), the following relative threshold should be defined
 # A larger threshold results in larger compression ratio, and larger approximation error as well
-0.005
+0.0005
 
-#Weights of different regularization terms, last term a_crg is the weight of cross-gradient constraint, which makes sense only
-#if the cross-gradient constraint is used
+#Weights of different regularization terms. The last term is the weight of the cross-gradient term, which makes sense only when the cross-gradient constraint is used
 #a_s a_z a_x a_y a_crg
-1e-4 2e-1 1e0 1e0 1e0
+1e-5 1e-1 1e0 1e0 2e-1
 
-#Lp norm parameters: p, epsilon2
+#Lp norm for the regularization terms: p_s, p_x, p_y, p_z, p_t, epsilon2
 #--"p": means Lp norm will be used
 #--"epsilon2" :a small value is used to avoid singularity
-#For L1-norm inversion (p=1), the inversion result is more focusing with smaller epsilon2, while larger value of epsilon2 produce smoother inversion results. 
-2 2 2 2 2 1e-9
+#For L1-norm inversion (p=1), the inversion result is more focusing with smaller epsilon2, while larger value of epsilon2 produce smoother inversion results.
+#The first 5 parameters specify the norms of different regularization terms: |m|, |Wz*m|, |Wx*m|, |Wy*m| and cross-gradient term
+#For example, 2 1 1 1 2 1e-9 means L2 norm is used for ||m2||, L1 norm is used for ||Wx*m||, ||Wy*m||, ||Wz*m|| and 1e-9 is used to avoid sigularity
+2 2 2 2 2 0
 
-#Depth weighting exponent. Generally, it's 2 for g, 3 for ggt
+#Depth weighting exponent.
 2
 
 #Maximal regularization parameter (lambda) used, number of lambda used for trial
-1e2 30 0.6
+1e4 30 0.7
 
 #Target misfit
 1
 
-#Stagation factor, Gauss-Newton method stagnate when the relative difference of
-#misfits at 2 consecutive iterations is smaller than this factor
+#Stagation factor. Gauss-Newton method stagnates when the relative difference in the
+#misfits of 2 consecutive iterations is smaller than this factor
 0.02
 
-#Tolerance value and Maximal number of iterations for LSCG solver (least-square conjugate gradient) 
-1e-6 300
+#Tolerance value and maximum number of iterations for LSCG solver (least-square conjugate gradient) 
+1e-6 200
 
 #Maximal number of iterations for gauss-newton
 8
@@ -46,15 +48,15 @@
 #Maximal times of refinement. If it's 0, the mesh will not be refined.
 8
 
-#Limits on the minimum size of grid cells in the adaptive inversion. This parameter is valid only when the last line is greater than 0
+#Limits on the minimum size of a grid cell in the adaptive inversion. This parameter is valid only when the last parameter is greater than 0
 #x(m) y(m) z(m)
-50 50 50
+25 25 25
 
 #invertion mesh is refine every X times. 
 1
 
 #Proportion of elements that are marked for refinement
-0.1
+0.2
 
 # Do you want to save the model at each iteration of the Gauss-Newton loop? 0: No. 1: Yes
 0

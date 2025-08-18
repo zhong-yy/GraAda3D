@@ -22,7 +22,7 @@
 #For example, 2 1 1 1 2 1e-9 means L2 norm is used for ||m2||, L1 norm is used for ||Wx*m||, ||Wy*m||, ||Wz*m|| and 1e-9 is used to avoid sigularity
 2 2 2 2 2 0
 
-#Depth weighting exponent. Generally, it's 2
+#Depth weighting exponent.
 2
 
 #Maximal regularization parameter (lambda) used, number of lambda used for trial

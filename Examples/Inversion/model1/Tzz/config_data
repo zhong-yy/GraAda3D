@@ -11,8 +11,7 @@
 #0:V   1:gz   2:gx   3:gy   4:T_zz   5:T_zx   6:T_zy   7:T_xx   8:T_xy   9:T_yy
 4
 
-#Assumed relative error is 0.01 (1%)
-0.02 1e-5
 
-#In my code, the total error is assumed as (relative error*data+absolute error),
-#and then it is used to construct the data weighting matrix Wd
+#In the code, the total error is assumed as (relative error*data+absolute error) which is used to construct the data weighting matrix Wd
+#For example, 0.02 1e-4 mean that the relative error is assumed as 2%, and the absolute error(e.g. instrumental/methodological precision) is 1e-4
+0.02 1e-3
