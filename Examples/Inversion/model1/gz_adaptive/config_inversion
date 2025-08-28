@@ -27,7 +27,7 @@
 2
 
 #Maximal regularization parameter (lambda) used, number of lambda used for trial
-1e4 30 0.7
+1e5 30 0.6
 
 #Target misfit
 1
@@ -37,13 +37,13 @@
 0.02
 
 #Tolerance value and maximum number of iterations for LSCG solver (least-square conjugate gradient) 
-1e-6 200
+1e-6 100
 
 #Maximal number of iterations for gauss-newton
 8
 
-#upper limit and lower limit of the inverted parameter
--1000 1000
+#Lower limit,  upper limit and initial value of the inverted parameter (The initial value here will have no effect if a reference model is used)
+-1000 1000 0
 
 #Maximal times of refinement. If it's 0, the mesh will not be refined.
 8
@@ -67,7 +67,8 @@
 #cross-gradient constraint model file
 none xyz 0 0 0 0
 
-#whether to use petrophysical constraint. 0 no, 1 yes
+# Whether to use petrophysical constraint (as a reference model). 0 no, 1 yes
+#(If a reference model is used, the previously specified initial will be superseded by the reference model) 
 0
 
 #reference density model converted from other parameter (e.g. seismic). 

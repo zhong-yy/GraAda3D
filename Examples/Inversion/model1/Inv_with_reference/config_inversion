@@ -42,8 +42,8 @@
 #Maximal number of iterations for gauss-newton
 8
 
-#upper limit and lower limit of the inverted parameter
--1000 1000
+#Lower limit, upper limit and initial value of the inverted parameter (The initial value here will have no effect if a reference model is used)
+-1000 1000 0
 
 #Maximal times of refinement. If it's 0, the mesh will not be refined.
 8
@@ -67,7 +67,7 @@
 #cross-gradient constraint model file
 none xyz 0 0 0 0
 
-#whether to use petrophysical constraint. 0 no, 1 yes
+#whether to use petrophysical constraint. 0 no, 1 yes (If a reference model is used, the previously specified initial will be superseded by the reference model) 
 1
 
 #Reference density model. Users must obtain a reference density model in advance.
