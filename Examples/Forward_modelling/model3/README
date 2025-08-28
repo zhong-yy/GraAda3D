@@ -1,0 +1,13 @@
+1. Construct a synthetic discretized model using `makeModel` (type `makeModel -h` to see the help message)
+
+bash "./build_density_model.sh"
+
+2. Generate observation points (type `generatePoints -h` to see the help message)
+
+bash "./generate_observation_points.sh"
+
+3. Compute gravity and gravity gradient, and plot the results ((type `compute -h` to see the help message))
+
+bash "./compute.sh"
+
+Note: please open and read the .sh files before running them 
