@@ -66,7 +66,7 @@ make
 make install
 ```
 
-Then you can add GraAda3D/bin to the environmental variable PATH. First, go to the GraAda3D/bin directory and type `pwd`, which will show you the absolute path of the our bin directory:
+Then add GraAda3D/bin to the environmental variable PATH. Go to the GraAda3D/bin directory and type `pwd`, which will show you the absolute path of the our bin directory:
 
 ```shell
 cd ../bin
@@ -79,26 +79,6 @@ export PATH=/home/zhongyiyuan/GraAda3D/bin${PATH:+:${PATH}}
 ```
 
 Now start a new terminal, type `GraAda3D` to check whether it has been installed successfully.
-
-#### Build with Make
-
-Build the program using Make,
-
-```shell
-cd GraAda3D
-make
-```
-
-By default, the program is built without netcdf support. In this way, you don't have to install the netcdf library in advance, but there are not *.nc files generated after inversion. The results are written in  *.vtk file, which can be visulaized by [Paraview](https://www.paraview.org/).
-
-
-The default compiler is g++. To build with an [Intel C++ compiler](https://software.intel.com/content/www/us/en/develop/tools/oneapi/base-toolkit/download.html) (`icpc`, `icpx`, `dpcpp`), use the CXX option,
-
-```shell
-make CXX=icpx
-```
-
-> The latest Intel compiler is Intel oneAPI for which the command is `icpx` or `dpcpp`. The command of a classic intel compiler is `icpc`. It seems that the program compiled with the intel compiler has a slightly better performance than g++.
 
 
 ## 3 Examples
