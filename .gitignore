@@ -2,20 +2,17 @@
 *.o
 *.obj
 ./compile_commands.json
-Examples/*.nc
-Examples/*.txt
-Examples/*.vtk
-Examples/*.jpg
-Examples/*.eps
-#Examples/Karstic_cave/data_preprocessing/Bouguer_field.grd
-#Examples/Karstic_cave/data_preprocessing/Detrended_anomaly.dat
-#Examples/Karstic_cave/data_preprocessing/Filtered_anomaly.dat
-#Examples/Karstic_cave/data_preprocessing/gravity_Pivetta2015.txt
+# Examples/Inversion**/*.nc
+# Examples/**/*.txt
+# Examples/**/*.vtk
+# Examples/**/*.jpg
+# Examples/**/*.eps
+
 bin/
 
 #makefile
 #CMakeLists.txt
-MISC/
+Archive/
 
 # Examples/
 
