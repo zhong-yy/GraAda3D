@@ -1,8 +1,8 @@
 import matplotlib.pyplot as plt
 import numpy as np
 
-x,y,dobs=np.loadtxt("./dobs_g_z",unpack=True)
-x,y,dpre=np.loadtxt("./dpredicted_g_z",unpack=True)
+x,y,z,dobs=np.loadtxt("./dobs_g_z",unpack=True)
+x,y,z,dpre=np.loadtxt("./dpredicted_g_z",unpack=True)
 residual=dobs-dpre
 
 
@@ -21,7 +21,7 @@ plt.subplots_adjust(wspace=0.35,hspace=0.35)
 fts=8
 
 def plot_field(ax,X,Y,FIELD,subplot_title,fts=12,cbar_title='mGal',cmap='rainbow',invert_y=False):
-    c=ax.contourf(X,Y,FIELD,cmap=cmap)
+    c=ax.contourf(X,Y,FIELD,cmap=cmap,levels=20)
     clb=fig.colorbar(c,ax=ax,shrink=0.9,orientation="vertical")
     clb_title=clb.ax.set_title(cbar_title,fontsize=fts)
     clb.ax.tick_params(labelsize=fts)

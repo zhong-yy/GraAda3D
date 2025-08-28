@@ -156,13 +156,13 @@ target_link_libraries(Test_ordering
     Inversion_obj
     )
 
-add_executable(Synthetic_data1
-    src/Synthetic_data1.cpp)
-target_link_libraries(Synthetic_data1
-    PRIVATE
-    Forward_obj
-    Inversion_obj
-    )
+# add_executable(Synthetic_data1
+#     src/Synthetic_data1.cpp)
+# target_link_libraries(Synthetic_data1
+#     PRIVATE
+#     Forward_obj
+#     Inversion_obj
+#     )
 
 add_executable(test_wavelet_forward1
     src/test_wavelet_forward1.cpp)
@@ -203,5 +203,5 @@ target_link_libraries(generatePoints
     Program_options_obj
 )
 
-install(TARGETS GraAda3D Synthetic_data1 makeModel generatePoints compute
+install(TARGETS GraAda3D makeModel generatePoints compute
     )

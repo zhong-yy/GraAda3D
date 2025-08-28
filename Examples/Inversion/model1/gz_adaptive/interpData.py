@@ -17,7 +17,7 @@ def interp_xslice(filename,x0,start_y,stop_y,num_y,start_z,stop_z,num_z,neighbor
     ZI_flat=ZI.flatten()
     
     #Perform radial basis function interpolation
-    rbf=RBFInterpolator(xyz,v,neighbors=neighbors,kernel=kernel)
+    rbf=RBFInterpolator(xyz,v   ,neighbors=neighbors,kernel=kernel)
     XYZI_flat=XYZI_flat=np.hstack((XI_flat[:,np.newaxis],YI_flat[:,np.newaxis],ZI_flat[:,np.newaxis]))
     VI_flat=rbf(XYZI_flat)
     VI=np.reshape(VI_flat,XI.shape)

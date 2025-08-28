@@ -1,0 +1,16 @@
+#data file name
+../data_preprocessing/Filtered_anomaly.dat
+
+#How many components will be use?
+1 
+
+#gravity component markers
+#0:V   1:gz   2:gx   3:gy   4:T_zz   5:T_zx   6:T_zy   7:T_xx   8:T_xy   9:T_yy
+1
+
+#In the code, the total error is assumed as (relative error*data+absolute error) which is used to construct the data weighting diagonal matrix Wd.
+#The weight of each data is 1/(relative error*abs(data)+absolute error).
+#Note that when the gravity/ggt anomalies are near 0 at some observation points and absolute error is set to 0, 1/(relative error*abs(data)) may become very large. 
+#In this case, a reasonable absolute error is required to guarantee robustness.
+#For example, 0.02 1e-4 mean that the relative error is assumed as 2%, and the absolute error(e.g. instrumental/methodological precision) is 1e-4 
+0.05 1e-3

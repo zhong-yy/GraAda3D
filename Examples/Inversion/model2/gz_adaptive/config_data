@@ -1,9 +1,6 @@
 #data file name
 ../../../Forward_modelling/model2/result/dobs_g_z
 
-#observation height z. Since z axis is pointing downward, this value should be less than 0 when data points are above the ground
--0.1
-
 #How many components will be use?
 1 
 

@@ -11,10 +11,10 @@ clrmap=mcolors.LinearSegmentedColormap.from_list("mycmap", ["magenta","blueviole
 clrmap="rainbow"
 for fname,outfile_remark in zip(['result/data_no_noise','result/data'],["","_with_noise"]):
     x,y,z,gz,Tzz,Txz,Tyz=np.loadtxt(fname,unpack=True)
-    # _,_,gz2=np.loadtxt('../../../Examples0/dobs_no_noise_g_z',unpack=True)
-    # _,_,Tzz2=np.loadtxt('../../../Examples0/dobs_no_noise_T_zz',unpack=True)
-    # _,_,Txz2=np.loadtxt('../../../Examples0/dobs_no_noise_T_xz',unpack=True)
-    # _,_,Tyz2=np.loadtxt('../../../Examples0/dobs_no_noise_T_yz',unpack=True)
+    # _,_,_,gz2=np.loadtxt('../../../Examples0/dobs_no_noise_g_z',unpack=True)
+    # _,_,_,Tzz2=np.loadtxt('../../../Examples0/dobs_no_noise_T_zz',unpack=True)
+    # _,_,_,Txz2=np.loadtxt('../../../Examples0/dobs_no_noise_T_xz',unpack=True)
+    # _,_,_,Tyz2=np.loadtxt('../../../Examples0/dobs_no_noise_T_yz',unpack=True)
     # gz=gz-gz2
     # Tzz=Tzz-Tzz2
     # Txz=Txz-Txz2
