@@ -130,7 +130,7 @@ The file **config** is the only parameter required by the inversion program, whi
 
 ### 3.3 A complete example
 
-1. Prepare sythetic data
+1. Prepare synthetic data
    
 Go to directory `Examples/Forward_modelling/model1`, and follow the instructions in `Examples/Forward_modelling/model1/readme.txt` to compute the synthetic data. 
 
