@@ -897,8 +897,15 @@ void InversionBase::result2vtk(string filename)
 #ifdef USE_NETCDF
 void InversionBase::result2netcdf(string filename)
 {
-  this->set_density_to_mesh();
-  this->mesh.out_model_netcdf(filename + string(".nc"));
+  if (!this->mesh.use_padding)
+  {
+    this->set_density_to_mesh();
+    this->mesh.out_model_netcdf(filename + string(".nc"));
+  }
+  else
+  {
+    cout<<"Cannot save the result to netcdf format because the initial mesh may be irregular (padding cells are used)"<<endl;
+  }
 }
 #endif
 

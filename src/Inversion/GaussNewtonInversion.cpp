@@ -1053,6 +1053,8 @@ void GaussNewtonInversion::invert_with_own_CG()
       this->set_reference_model_to_mesh();
 
 #ifdef USE_NETCDF
+    if (!this->mesh.use_padding)
+    {
       if (use_cross_gradient_constraint == true)
       {
         this->mesh.out_model_netcdf(
@@ -1068,6 +1070,7 @@ void GaussNewtonInversion::invert_with_own_CG()
 
       this->mesh.out_model_netcdf(string("result_at_") + to_string(i) +
                                   string(".nc"));
+    }
 #endif
       this->mesh.out_model_vtk(string("result_at_") + to_string(i) +
                                string(".vtk"));

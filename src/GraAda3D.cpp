@@ -37,6 +37,7 @@ protected:
     VectorXd dobs;
     Mesh inv_mesh;
     GaussNewtonInversion *inv;
+    bool use_padding;
 
     int n_fields;
     unsigned long long field_flag;
@@ -70,7 +71,7 @@ protected:
     int n_lambda;
     double decreasing_rate;
 
-    double min_value, max_value;
+    double min_value, max_value, ini_value;
 
     double refinement_tol;
     int interval_between_two_refinements;
@@ -168,11 +169,15 @@ GraAdaInv::GraAdaInv()
     ax = 1;
     ay = 1;
     acrg = 1;
+    use_padding = false;
+    ini_value = 0;
 }
 GraAdaInv::~GraAdaInv()
 {
     if (inv != NULL)
+    {
         delete inv;
+    }
 }
 
 void GraAdaInv::line_process(std::string &line, const std::string comment_str)
@@ -451,9 +456,11 @@ void GraAdaInv::read_model_parameters(string model_para)
     if (n_pad_x == 0 && n_pad_y == 0 && n_pad_z == 0)
     {
         cout << "No padding cells" << endl;
+        inv_mesh.generate_regular_mesh(x_model, n_x, y_model, n_y, z_model, n_z);
     }
     else
     {
+        use_padding = true;
         cout << "Padding is introduced around the region of interest." << endl;
         cout << "Number of padding cells in x direction: " << n_pad_x << endl;
         cout << "Number of padding cells in y direction: " << n_pad_y << endl;
@@ -462,12 +469,10 @@ void GraAdaInv::read_model_parameters(string model_para)
         cout << "Increasing factor of padding cells (x): " << factor_x << endl;
         cout << "Increasing factor of padding cells (y): " << factor_y << endl;
         cout << "Increasing factor of padding cells (z): " << factor_z << endl;
+        inv_mesh.generate_regular_mesh_with_padding(
+            x_model, n_x, y_model, n_y, z_model, n_z, n_pad_x, factor_x, n_pad_y,
+            factor_y, n_pad_z, factor_z);
     }
-
-    inv_mesh.generate_regular_mesh(x_model, n_x, y_model, n_y, z_model, n_z);
-    inv_mesh.generate_regular_mesh_with_padding(
-        x_model, n_x, y_model, n_y, z_model, n_z, n_pad_x, factor_x, n_pad_y,
-        factor_y, n_pad_z, factor_z);
 
     inv_mesh.out_model_vtk("initial_mesh.vtk");
 }
@@ -540,7 +545,7 @@ void GraAdaInv::read_inversion_parameters(string inversion_para)
     iss.clear();
     iss.str("");
     iss.str(line);
-    iss >> min_value >> max_value;
+    iss >> min_value >> max_value >> ini_value;
 
     next_valid_line(input_stream, line);
     iss.clear();
@@ -723,7 +728,7 @@ void GraAdaInv::start_inversion()
     int Nm = inv_mesh.n_elems();
     VectorXd m_min = VectorXd::Constant(Nm, min_value);
     VectorXd m_max = VectorXd::Constant(Nm, max_value);
-    VectorXd m_ini = VectorXd::Constant(Nm, 0);
+    VectorXd m_ini = VectorXd::Constant(Nm, ini_value);
 
     inv->set_min_max(m_min, m_max);
     inv->set_m_ini(m_ini);
@@ -788,7 +793,10 @@ void GraAdaInv::write_result()
     inv->result2text(output_model_name);
 
 #ifdef USE_NETCDF
-    inv->result2netcdf(output_model_name);
+    if (!use_padding)
+    {
+        inv->result2netcdf(output_model_name);
+    }
 #endif
 
     cout << "Writing predicted data ..." << endl;

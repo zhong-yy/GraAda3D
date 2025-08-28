@@ -197,6 +197,7 @@ public:
 
   int num_leaf_cells;
   int num_leaf_faces;
+  bool use_padding;
 
   vector<vector<Cell *>> cells; // cells of different levels
   vector<vector<Face *>> faces; // faces of different levels

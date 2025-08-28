@@ -22,6 +22,7 @@ Mesh::Mesh()
   y_lim[1] = 0;
   z_lim[0] = 0;
   z_lim[1] = 0;
+  use_padding=false;
 }
 Mesh::~Mesh() { this->clear_all(); }
 Mesh::Mesh(const Mesh &source_mesh)
@@ -32,6 +33,8 @@ Mesh::Mesh(const Mesh &source_mesh)
   this->nz = source_mesh.nz;
   this->nx = source_mesh.nx;
   this->ny = source_mesh.ny;
+  this->use_padding=source_mesh.use_padding;
+
   for (int i = 0; i < 2; i++)
   {
     this->x_lim[i] = source_mesh.x_lim[i];
@@ -229,6 +232,8 @@ Mesh &Mesh::operator=(const Mesh &source_mesh)
   this->nz = source_mesh.nz;
   this->nx = source_mesh.nx;
   this->ny = source_mesh.ny;
+  this->use_padding=source_mesh.use_padding;
+
   for (int i = 0; i < 2; i++)
   {
     this->x_lim[i] = source_mesh.x_lim[i];
@@ -520,6 +525,7 @@ void Mesh::generate_regular_mesh_with_padding(
     int num_para)
 {
   this->clear_all();
+  this->use_padding=true;
 
   // for (int i = 0; i < 2; i++) {
   //   this->x_lim[i] = x_model[i];
@@ -2349,7 +2355,7 @@ int Mesh::out_model_netcdf(string filename, int ith_para, string VAL_NAME,
       xs_bnd[index][1] = x_points(k) + (k2 + 1) * x_space;
     }
   }
-  for (unsigned int k = 0; k < nx; k++)
+  for (unsigned int k = 0; k < ny; k++)
   {
     double y_space = (y_points(k + 1) - y_points(k)) / (1.0 * N);
     for (unsigned int k2 = 0; k2 < N; k2++)
