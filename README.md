@@ -11,8 +11,8 @@ Any combination of gravity field components or gravity gradient components (gz, 
 - Adaptively refined mesh for inversion parameters
 - Any combination of gz, gx, gy, Tzz, Txz, Tyz, Txx, Txy, Tyy
 - Incorporation of  a-priori information using a cross-gradient constraint or a reference model
-- Lp-norm regularization (p=0,1,2,...). Different norms can be used for different terms of constraint: ||Ws*m||, ||Wz*m||, ||Wx*m||, ||Wy*m||
-- Programming in C++, faster than usual python/matlab script
+- Lp-norm regularization (p=0,1,2,...). Different norms can be used for different terms of constraint: ||Ws m||, ||Wz m||, ||Wx m||, ||Wy m||
+- Programming in C++, faster than pure python/matlab script
 
 ## 2 Installation
 
