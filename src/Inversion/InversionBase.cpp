@@ -775,7 +775,8 @@ void InversionBase::out_data(const VectorXd &d, string out_name)
       const Point &p = ob(i);
       out_s << scientific;
       out_s << setw(30) << setprecision(15) << left << p.x() << setw(30) << left
-            << p.y();
+            << p.y() << setw(30) << left
+            << p.z();
       out_s << scientific;
       out_s << setw(30) << setprecision(15) << left << d(i + j * n_ob) << endl;
     }
@@ -904,7 +905,7 @@ void InversionBase::result2netcdf(string filename)
   }
   else
   {
-    cout<<"Cannot save the result to netcdf format because the initial mesh may be irregular (padding cells are used)"<<endl;
+    cout << "Cannot save the result to netcdf format because the initial mesh may be irregular (padding cells are used)" << endl;
   }
 }
 #endif
