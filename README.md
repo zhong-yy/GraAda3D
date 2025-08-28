@@ -9,8 +9,10 @@ Any combination of gravity field components or gravity gradient components (gz, 
 **Hightlights**
 
 - Adaptively refined mesh for inversion parameters
-- Incorporation of  a-priori constraints through cross-gradient coupling or direct parameter relation
-- Lp-norm regularization (p=0,1,2,...)
+- Any combination of gz, gx, gy, Tzz, Txz, Tyz, Txx, Txy, Tyy
+- Incorporation of  a-priori information using a cross-gradient constraint or a reference model
+- Lp-norm regularization (p=0,1,2,...). Different norms can be used for different terms of constraint: ||Ws*m||, ||Wz*m||, ||Wx*m||, ||Wy*m||
+- Programming in C++, faster than usual python/matlab script
 
 ## 2 Installation
 
@@ -38,11 +40,9 @@ sudo yum install netcdf-cxx-devel
 
 (4) GNU Scientific Library (gsl): **[gsl](https://www.gnu.org/software/gsl/)** is used to calculate wavelet transforms. `cd` the directory containing the source code of gsl, follow the instructions in file INSTALL (`./configure`, `make`, `make check`, `make install`, `make installcheck`).
 
-### 2.2 Buiding
+### 2.2 Installation
 
-#### Build with CMake (recommended)
-
-Before compiling the code, open file `Config.cmake`, follow the instruction in the comments to edit it.
+Before compiling the code, open and edit file `Config.cmake` by following the instruction in the comments. Then
 
 ```
 # go to the GraAda3D folder
