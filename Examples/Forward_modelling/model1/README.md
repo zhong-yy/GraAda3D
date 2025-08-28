@@ -18,4 +18,12 @@ bash "./generate_observation_points.sh"
 
 bash "./compute.sh"
 
-Note: please open and read the .sh files before running them 
+4. Plot the model and the fields
+ 
+python plot.py
+
+python plot_test_model_slice.py
+
+
+
+> Note: please open and read the .sh files before running them 
