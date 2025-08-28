@@ -31,7 +31,7 @@ public:
     void line_process(std::string &line, const std::string comment_str = "#");
 
 protected:
-    double height;
+    // double height;
     int n_obs;
     Observation ob;
     VectorXd dobs;
@@ -237,12 +237,12 @@ void GraAdaInv::read_data_parameters(string data_para)
     istringstream iss(line);
     iss >> data_file;
 
-    next_valid_line(input_stream, line);
-    iss.clear();
-    iss.str("");
-    iss.str(line);
-    iss >> height;
-    cout << "Height of data" << height << endl;
+    // next_valid_line(input_stream, line);
+    // iss.clear();
+    // iss.str("");
+    // iss.str(line);
+    // iss >> height;
+    // cout << "Height of data" << height << endl;
 
     next_valid_line(input_stream, line);
     iss.clear();
@@ -363,8 +363,8 @@ int GraAdaInv::read_data_from_file(string data_file,
             n_obs++;
             double x0, y0, z0;
             std::istringstream iss(line);
-            iss >> x0 >> y0;
-            ob.add_point(x0, y0, height);
+            iss >> x0 >> y0 >> z0;
+            ob.add_point(x0, y0, z0);
             // double gx, gy, gz;
             for (int j = 0; j < n_fields; j++)
             {
@@ -502,7 +502,7 @@ void GraAdaInv::read_inversion_parameters(string inversion_para)
     iss.clear();
     iss.str("");
     iss.str(line);
-    iss >> Lp_inversion_p_s >> Lp_inversion_p_x >> Lp_inversion_p_y >> Lp_inversion_p_z >> Lp_inversion_p_t >> Lp_inversion_eps;
+    iss >> Lp_inversion_p_s >> Lp_inversion_p_z >> Lp_inversion_p_x >> Lp_inversion_p_y >> Lp_inversion_p_t >> Lp_inversion_eps;
 
     next_valid_line(input_stream, line);
     iss.clear();
