@@ -1,7 +1,18 @@
 ############################
 # Specify the c++ compiler. icpx and g++ have been tested.
-# Uncomment the following line if you use an g++ compiler
+
+## For linux system:
+## Uncomment the following line if you use an g++ compiler
+set(ENV{CC} gcc)
 set(ENV{CXX} g++)
+
+
+## For MacOS, do not use gcc or g++, because they are alias of Apple clang and clang++ instead of the real
+## GNU-gcc. In addition, apple clang may cause some problems in compiling, e.g. missing openmp. I'd suggest using
+## homebrew clang.
+## To use the GNU gcc and g++, first intall them with homebrew, and use the command gcc-[version] or g++-[version]
+# set(ENV{CC} clang)
+# set(ENV{CXX} clang++)
 
 # Uncomment the following two lines if you use an intel compiler
 #set(ENV{CXX} icpx)

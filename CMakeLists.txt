@@ -14,6 +14,7 @@ set(CMAKE_WARN_DEPRECATED FALSE)
 
 
 find_package(OpenMP REQUIRED)
+find_package(GSL REQUIRED)
 
 message("${CMAKE_CXX_COMPILER_ID}")
 message("Compiler command: $ENV{CXX}")
@@ -24,6 +25,14 @@ message("Installation location: ${CMAKE_INSTALL_PREFIX}/bin")
 # endif()
 if (${USE_NETCDF})
     message("USE_NETCDF=${USE_NETCDF}; The netcdf library will be included.")
+    if(APPLE)
+        # macOS: Homebrew netcdf-cxx 4.3.1
+        message("macOS")
+        set(NETCDF_CXX4_LIBRARY /opt/homebrew/opt/netcdf-cxx/lib/libnetcdf-cxx4.dylib)
+    else()
+        # linux
+        set(NETCDF_CXX4_LIBRARY netcdf_c++4)
+    endif()
 endif()
 
 if (${USE_MKL})
@@ -54,6 +63,7 @@ add_library(Forward_obj OBJECT
     src/Forward_modelling/Observation.cpp
     src/Forward_modelling/Point.cpp
     src/Forward_modelling/RectPrism.cpp)
+
 target_include_directories(Forward_obj
     PUBLIC
         src/Forward_modelling
@@ -71,9 +81,10 @@ target_include_directories(Forward_obj
 target_link_libraries(Forward_obj
         PUBLIC
         OpenMP::OpenMP_CXX
-        $<$<BOOL:${USE_NETCDF}>:netcdf_c++4>
-        gsl
-        gslcblas        
+        # $<$<BOOL:${USE_NETCDF}>:netcdf_c++4>
+        $<$<BOOL:${USE_NETCDF}>:${NETCDF_CXX4_LIBRARY}>
+        GSL::gsl
+        GSL::gslcblas        
         )
     
 target_compile_options(Forward_obj
