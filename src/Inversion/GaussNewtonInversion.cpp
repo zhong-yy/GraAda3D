@@ -388,9 +388,9 @@ void GaussNewtonInversion::invert_with_Eigen_CG()
         A.middleRows(Nd + 3 * Nm, Nm) = sqrt(lambda) * WL_y * Wy;
         if (use_cross_gradient_constraint == true)
         {
-          A.middleRows(Nd + 4 * Nm, Nm) = this->a_crg * S_crg * WL_tz * T_z;
-          A.middleRows(Nd + 5 * Nm, Nm) = this->a_crg * S_crg * WL_tx * T_x;
-          A.middleRows(Nd + 6 * Nm, Nm) = this->a_crg * S_crg * WL_ty * T_y;
+          A.middleRows(Nd + 4 * Nm, Nm) = this->a_crg * WL_tz * S_crg * T_z;
+          A.middleRows(Nd + 5 * Nm, Nm) = this->a_crg * WL_tx * S_crg * T_x;
+          A.middleRows(Nd + 6 * Nm, Nm) = this->a_crg * WL_ty * S_crg * T_y;
         }
 
         b.segment(Nd, Nm) = sqrt(lambda) * WL_s * Ws_m0;
@@ -1505,7 +1505,7 @@ VectorXd GaussNewtonInversion::solve_cg(const double tol,
       {
         vec6 = P * Tz.transpose() * WL_tz.transpose() * s.segment(Nd + 4 * Nm, Nm);
         vec7 = P * Tx.transpose() * WL_tx.transpose() * s.segment(Nd + 5 * Nm, Nm);
-        vec8 = P * Ty.transpose() * WL_y.transpose() * s.segment(Nd + 6 * Nm, Nm);
+        vec8 = P * Ty.transpose() * WL_ty.transpose() * s.segment(Nd + 6 * Nm, Nm);
       }
     }
   }
@@ -1570,7 +1570,7 @@ VectorXd GaussNewtonInversion::solve_cg(const double tol,
       }
 #pragma omp section
       {
-        t.segment(Nd, Nm) = sqrt(lambda) * Ws * Pp;
+        t.segment(Nd, Nm) = sqrt(lambda) * WL_s * Ws * Pp;
         t.segment(Nd + Nm, Nm) = sqrt(lambda) * WL_z * Wz * Pp;
       }
 #pragma omp section
@@ -1579,9 +1579,9 @@ VectorXd GaussNewtonInversion::solve_cg(const double tol,
         t.segment(Nd + 3 * Nm, Nm) = sqrt(lambda) * WL_y * Wy * Pp;
         if (use_cross_gradient_constraint == true)
         {
-          t.segment(Nd + 4 * Nm, Nm) = WL_z * Tz * Pp;
-          t.segment(Nd + 5 * Nm, Nm) = WL_x * Tx * Pp;
-          t.segment(Nd + 6 * Nm, Nm) = WL_y * Ty * Pp;
+          t.segment(Nd + 4 * Nm, Nm) = WL_tz * Tz * Pp;
+          t.segment(Nd + 5 * Nm, Nm) = WL_tx * Tx * Pp;
+          t.segment(Nd + 6 * Nm, Nm) = WL_ty * Ty * Pp;
         }
       }
     }

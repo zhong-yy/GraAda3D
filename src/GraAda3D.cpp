@@ -157,6 +157,7 @@ int main(int argc, char **argv)
 
 GraAdaInv::GraAdaInv()
 {
+    // set default values for parameters
     inv = NULL;
     use_crg = false;
     use_petr = false;
@@ -171,6 +172,14 @@ GraAdaInv::GraAdaInv()
     acrg = 1;
     use_padding = false;
     ini_value = 0;
+
+    Lp_inversion_p_s=2;
+    Lp_inversion_p_x=2;
+    Lp_inversion_p_y=2;
+    Lp_inversion_p_z=2;
+    Lp_inversion_p_t=2;
+
+    Lp_inversion_eps=0;
 }
 GraAdaInv::~GraAdaInv()
 {

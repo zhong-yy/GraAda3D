@@ -65,7 +65,7 @@ public:
     this->Lp_z = Lp_z_;
     this->Lp_t = Lp_t_;
     this->epsilon2 = epsilon2_;
-    cout << "Lp_s: " << Lp_s << ", Lp_x: " << Lp_x << ", Lp_y: " << Lp_y << ", Lp_z: " << Lp_z << ", Lp_t" << Lp_t << ", epsilon**2: " << epsilon2 << endl;
+    cout << "Lp_s: " << Lp_s << ", Lp_x: " << Lp_x << ", Lp_y: " << Lp_y << ", Lp_z: " << Lp_z << ", Lp_t: " << Lp_t << ", epsilon**2: " << epsilon2 << endl;
   }
   VectorXd solve_cg(const double tol,
                     const int &maxit,
