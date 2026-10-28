@@ -16,7 +16,11 @@
 1e-4 1e-1 1e0 1e0 1e-1
 
 #Lp norm for the regularization terms: p_s, p_x, p_y, p_z, p_t, epsilon2
-#--"p": means Lp norm will be used
+#--"p_s": Lp norm for ||m2||
+#--"p_z": for ||Wz m||, Wz is the differential operator in the z direction
+#--"p_x": for ||Wx m||
+#--"p_y": for ||Wy m||
+#--"p_t": for the cross-gradient term
 #--"epsilon2" :a small value is used to avoid singularity
 #For L1-norm inversion (p=1), the inversion result is more focusing with smaller epsilon2, while larger value of epsilon2 produce smoother inversion results.
 #The first 5 parameters specify the norms of different regularization terms: |m|, |Wz*m|, |Wx*m|, |Wy*m| and cross-gradient term

@@ -1,18 +1,17 @@
 # GraAda3D
 
-## 1 Introduction
+## 1 Summary
 
-It is a 3D gravity inversion program implemented with C++. The inversion domain is discretized as a rectangular prismatic mesh in the Cartesian coordinate system. The inversion mesh can be adaptively refined to improve computational efficiency and avoid over-parameterization. In addition, users can choose to use L0-norm (minimum support) or L1-norm regularization to obtain a focused image, or use L2-norm regularization to get a smooth result. Furthermore, a-priori information can be incorporated in inversion through cross-gradient coupling or direct parameter relationship (by using a reference model). 
+It is a 3D gravity inversion program implemented with C++. The inversion region is discretized into rectangular prismatic cells in the Cartesian coordinate system. The inversion mesh can be adaptively refined to improve computational efficiency and avoid over-parameterization. In addition, it is possible to choose different norms for regularization terms, including L0-norm (minimum support) and L1-norm regularization to obtain a focused image, and use L2-norm regularization to get a smooth result. Furthermore, a-priori information can be incorporated in inversion through cross-gradient coupling or direct parameter relationship (by using a reference model). 
 
 Any combination of gravity field components or gravity gradient components (gz, gx, gy, Tzz, Txz, Tyz, Txx, Txy, Tyy) can be used as input.  Analytical solutions of gravity field and gravity gradient tensor are used to ensure accuracy of forward modeling. 
 
 **Hightlights**
 
-- Adaptively refined mesh for inversion parameters
+- Adaptively refined mesh 
 - Any combination of gz, gx, gy, Tzz, Txz, Tyz, Txx, Txy, Tyy
 - Incorporation of  a-priori information using a cross-gradient constraint or a reference model
 - Lp-norm regularization (p=0,1,2,...). Different norms can be used for different terms of constraint: ||Ws m||, ||Wz m||, ||Wx m||, ||Wy m||
-- Programming in C++, faster than pure python/matlab script
 
 ## 2 Installation
 
@@ -34,15 +33,21 @@ sudo apt-get install libnetcdf-c++4-dev
 #For Fedora users
 sudo yum install netcdf-devel
 sudo yum install netcdf-cxx-devel
+
+#For MacOS users
+brew install netcdf
+brew install netcdf-cxx
 ```
 
 > For CentOS users, it is recommended to build netcdf-c and netcdf-cxx from the source code. See https://www.unidata.ucar.edu/software/netcdf/docs/getting_and_building_netcdf.html for netcdf-c and https://github.com/Unidata/netcdf-cxx4 for the netcdf c++ library.
 
-(4) GNU Scientific Library (GSL): **[gsl](https://www.gnu.org/software/gsl/)** is used to calculate wavelet transforms. To install GSL, go to (`cd`) the directory containing the GSL source code, follow the instructions in file INSTALL (`./configure`, `make`, `make check`, `make install`, `make installcheck`).
+(4) GNU Scientific Library (GSL): **[gsl](https://www.gnu.org/software/gsl/)** is used to calculate wavelet transforms. To install GSL, go to (`cd`) the directory containing the GSL source code, follow the instructions in file INSTALL (i.e. `./configure`, `make`, `make check`, `make install`, `make installcheck`).
 
 ### 2.2 Compilation
 
-Before compiling the code, open and edit file `Config.cmake` by following the instruction in the comments. Then
+Before compiling the code, open and edit file `Config.cmake` by following the instruction in the file. You can change compiler and compilation options in `Config.cmake`.
+
+Then
 
 ```
 # go to the GraAda3D folder
@@ -75,9 +80,9 @@ cd ../bin
 # pwd will show you the absolute path of the bin directory:
 pwd -P
 ```
-For example, the `pwd` command on my computer shows `/home/zhongyiyuan/GraAda3D/bin`. Add this path to environment variable PATH by adding the following line to file `~/.bashrc` (or ~/.zshrc if you use zsh)
+For example, the `pwd` command on my computer shows `/home/username/GraAda3D/bin`. Add this path to environment variable PATH by adding the following line to file `~/.bashrc` (or ~/.zshrc if you use zsh)
 ```
-export PATH=/home/zhongyiyuan/GraAda3D/bin${PATH:+:${PATH}}
+export PATH=/home/username/GraAda3D/bin${PATH:+:${PATH}}
 ```
 
 Now start a new terminal, type `GraAda3D` in your terminal to check whether it has been installed successfully.
@@ -103,22 +108,40 @@ The command to start an inversion is
 GraAda3D config
 ```
 The file **config** is the only parameter required by the inversion program, which specifies another 3 configuration files: **config_data**, **config_inversion** and **config_model**. 
-   
+
    - The file **config_data** contains information about data. 
    - The file **config_inversion** specifies controlling parameters for the inversion. 
    - The file **config_model** specifies  the inversion region (size and initial mesh discretization). 
-   
->The configuration files allow comments that start with '#'.  See the comments in the configuration files for detailed explanation.
+
+The configuration files allow comments that start with '#'.  See the comments in the configuration files for detailed explanation.
 
 ### 3.3 A complete example
 
 1. Prepare synthetic data
    
+
 Go to directory `Examples/Forward_modelling/model1`, and follow the instructions in `Examples/Forward_modelling/model1/readme.txt` to compute the synthetic gravity/gravity gradient anomalies of model 1.
 
 3. Run the inversion
    
+
 Go to directory `Examples/Inversion/model1`. There are different subdirectories that showcase different features of the inversion program. Now let's go to the subdirectory `Inv_with_reference`. There are four configuration files: `config`, `config_data`, `config_inversion`, `config_model`. Please read the comments in these files for details.
 
-To start the inversion, run `GraAda3D config` in the terminal. The inversion results will be saved in 3 different formats: txt, vtk and nc. vtk files can be opened and viewed in [paraview](https://www.paraview.org/). You can also visualize the txt output file using python (see plotInterpData.py)
+To start the inversion, run `GraAda3D config` in the terminal. The inversion results will be saved in 3 different formats: *txt*, *vtk* and *nc* formats. *.vtk files can be opened and viewed in [paraview](https://www.paraview.org/). You can also visualize the .txt file using the associated python scripts in the directory (e.g. `python plotCrossSections.py`).
+
+### 3.4 Other Examples
+
+(1) Examples used in the paper
+
+The examples presented in the paper are located in `Examples_in_the_paper/Inversion`. There is a readme file inside that folder that explains the file structure.
+
+(2) Other examples in the `Examples` folder 
+
+Other examples in the `Examples` folder  include inversion using components of gravity gradient tensor (GGT), inversion using a-priori constraints, inversion using a conventional uniform mesh and so on. Follow the same steps described in 3.3 to run these examples.
+
+
+
+
+
+
 
