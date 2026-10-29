@@ -131,12 +131,6 @@ To start the inversion, run `GraAda3D config` in the terminal. The inversion res
 
 ### 3.4 Other Examples
 
-(1) Examples used in the paper
-
-The examples presented in the paper are located in `Examples_in_the_paper/Inversion`. There is a readme file inside that folder that explains the file structure.
-
-(2) Other examples in the `Examples` folder 
-
 Other examples in the `Examples` folder  include inversion using components of gravity gradient tensor (GGT), inversion using a-priori constraints, inversion using a conventional uniform mesh and so on. Follow the same steps described in 3.3 to run these examples.
 
 
